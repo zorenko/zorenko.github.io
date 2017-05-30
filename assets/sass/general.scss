@@ -1,0 +1,19 @@
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+a {
+  padding: 20px;
+  text-decoration: none;
+  color: #000;
+
+  &:hover {
+    color: #afafaf;
+  }
+}

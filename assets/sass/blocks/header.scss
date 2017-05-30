@@ -1,0 +1,26 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+
+  a {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 200;
+  }
+
+  &__logo {
+    flex-grow: 1;
+  }
+
+  &__title {
+    font-weight: 200;
+    font-size: 16px;
+    text-transform: lowercase;
+    color: #afafaf;
+  }
+
+  &__name {
+    color: #191919;
+  }
+}
