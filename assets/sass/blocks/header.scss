@@ -1,12 +1,14 @@
 .header {
+  padding: 70px 0;
   display: flex;
   align-items: center;
   justify-content: space-around;
 
   a {
-    display: inline-block;
-    font-size: 14px;
-    font-weight: 300;
+    display: block;
+    float: left;
+    padding: 10px 20px;
+    text-transform: lowercase;
   }
 
   &__logo {
@@ -14,13 +16,18 @@
   }
 
   &__title {
-    font-weight: 300;
-    font-size: 14px;
-    text-transform: lowercase;
-    color: #afafaf;
+    // font-family: $bold;
+    // font-size: 21px;
+    margin-left: -20px;
   }
 
-  &__name {
-    color: #191919;
+  &__nav {
+    // font-family: $bold;
+
+    .link {
+      &--icon {
+        padding: 10px;
+      }
+    }
   }
 }
