@@ -1,6 +1,10 @@
 .alert {
-  background: #607d8b;
+  position: relative;
+  background: $primary;
   padding: 10px 0;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
 
   p {
     margin: 0 auto;
@@ -8,5 +12,18 @@
     width: 615px;
     text-align: center;
     font-size: 14px;
+  }
+
+  .close {
+    position: absolute;
+    display: block;
+    top: 50%;
+    right: 20px;
+    width: 15px;
+    height: 15px;
+    transform: translateY(-50%);
+    background-image: url("../img/icon-close.svg");
+    background-position: center;
+    background-size: 15px;
   }
 }

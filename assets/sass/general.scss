@@ -30,6 +30,10 @@ li {
 .link {
   color: #000;
 
+  &--active {
+    color: $grey;
+  }
+
   &:hover {
     color: $primary;
   }

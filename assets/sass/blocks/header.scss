@@ -16,9 +16,29 @@
   }
 
   &__title {
+    position: relative;
     // font-family: $bold;
     // font-size: 21px;
     margin-left: -20px;
+
+    .icon-back {
+      position: absolute;
+      display: block;
+      top: 50%;
+      left: 5px;
+      width: 7px;
+      height: 10px;
+      margin-top: -4px;
+      background-image: url("../img/icon-back.svg");
+      background-position: center;
+      background-size: auto 10px;
+    }
+
+    &:hover {
+      .icon-back {
+        background-image: url("../img/icon-back-hover.svg");
+      }
+    }
   }
 
   &__nav {

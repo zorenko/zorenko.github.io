@@ -11,23 +11,27 @@
   <body>
     <div class="alert">
       <p>Привет! Скоро я добавлю информацию о проектах с которыми работала, а пока посмотрите мои работы на github и behance или напишите мне, если у вас есть какие-то вопросы :)</p>
+
+      <span class="close" onclick="closeFunct()"></span>
     </div>
+
     <header class="header container clearfix">
       <div class="header__logo">
-        <a class="header__title" href="https://zorenko.github.io/">Анастасия Зоренко</a>
+        <a class="header__title">Анастасия Зоренко</a>
       </div>
 
       <nav class="header__nav">
         <ul>
-          <li><a class="link" href="#">резюме</a></li>
-          <li><a class="link" href="https://www.behance.net/zorenko">behance</a></li>
-          <li><a class="link" href="https://github.com/zorenko">github</a></li>
+          <li><a class="link" href="resume.html">резюме</a></li>
+          <li><a class="link" target="_blank" href="https://www.behance.net/zorenko">behance</a></li>
+          <li><a class="link" target="_blank" href="https://github.com/zorenko">github</a></li>
           <li><a class="link link--icon link--mail" href="mailto: zorenkoa@gmail.com">zorenkoa@gmail.com</a></li>
-          <li><a class="link link--icon link--tl" href="https://telegram.me/zorenko/">telegram</a></li>
-          <li><a class="link link--icon link--vk" href="https://vk.com/anastasia_zorenko">vk</a></li>
+          <li><a class="link link--icon link--tl" target="_blank" href="https://telegram.me/zorenko/">telegram</a></li>
+          <li><a class="link link--icon link--vk" target="_blank" href="https://vk.com/anastasia_zorenko">vk</a></li>
         </ul>
       </nav>
     </header>
+
     <main class="container  content content--portfolio">
       <a class="project project--active" href="jt.html">
         <img width="230px" alt="james travel"
@@ -85,5 +89,11 @@
         <span class="project__descr">ui design, web dev</span>
       </a>
     </main>
+
+    <script>
+    function closeFunct() {
+       document.querySelector(".alert").style.display='none';
+      }
+    </script>
   </body>
 </html>
