@@ -27,11 +27,26 @@ li {
   display: inline-block;
 }
 
+.comment {
+  color: $grey;
+  font-family: $regular;
+  display: block;
+  font-size: 12px;
+}
+
 .link {
   color: #000;
 
+  &--block {
+    display: block;
+  }
+
   &--active {
     color: $grey;
+  }
+
+  &--color {
+    color: $primary;
   }
 
   &:hover {
