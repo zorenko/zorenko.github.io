@@ -8,7 +8,7 @@
     display: block;
     float: left;
     padding: 10px 20px;
-    text-transform: lowercase;
+    // text-transform: lowercase;
   }
 
   &__logo {
@@ -28,10 +28,14 @@
       left: 5px;
       width: 7px;
       height: 10px;
-      margin-top: -4px;
+      margin-top: -3px;
       background-image: url("../img/icon-back.svg");
       background-position: center;
       background-size: auto 10px;
+      -webkit-transition: background-image .3s ease-out 0s;
+      -moz-transition: background-image .3s ease-out 0s;
+      -o-transition: background-image .3s ease-out 0s;
+      transition: background-image .3s ease-out 0s;
     }
 
     &:hover {
@@ -42,7 +46,10 @@
   }
 
   &__nav {
-    // font-family: $bold;
+    ul>li {
+      display: block;
+      float: left;
+    }
 
     .link {
       &--icon {

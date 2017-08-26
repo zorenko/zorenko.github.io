@@ -24,6 +24,24 @@
   }
 
   &--active {
+
+
+    &:hover {
+      img {
+        box-shadow: 0 10px 25px -10px rgba($primary, .4);
+        -webkit-transition: box-shadow .3s ease-out 0s;
+        -moz-transition: box-shadow .3s ease-out 0s;
+        -o-transition: box-shadow .3s ease-out 0s;
+        transition: box-shadow .3s ease-out 0s;
+      }
+      .project__title {
+        color: $primary;
+        -webkit-transition: color .3s ease-out 0s;
+        -moz-transition: color .3s ease-out 0s;
+        -o-transition: color .3s ease-out 0s;
+        transition: color .3s ease-out 0s;
+      }
+    }
   }
 
   &--disabled {

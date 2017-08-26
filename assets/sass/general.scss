@@ -36,20 +36,28 @@ li {
 
 .link {
   color: #000;
+  -webkit-transition: color .3s ease-out 0s;
+  -moz-transition: color .3s ease-out 0s;
+  -o-transition: color .3s ease-out 0s;
+  transition: color .3s ease-out 0s;
+
+  &:hover {
+    color: $primary;
+  }
 
   &--block {
     display: block;
   }
 
-  &--active {
+  &--disabled {
     color: $grey;
+
+    &:hover {
+      color: $grey;
+    }
   }
 
   &--color {
-    color: $primary;
-  }
-
-  &:hover {
     color: $primary;
   }
 
@@ -61,6 +69,10 @@ li {
     background-size: 16px;
     background-position: center;
     background-repeat: no-repeat;
+    -webkit-transition: background-image .8s ease-out 0s;
+    -moz-transition: background-image .8s ease-out 0s;
+    -o-transition: background-image .8s ease-out 0s;
+    transition: background-image .8s ease-out 0s;
   }
 
   &--mail {
