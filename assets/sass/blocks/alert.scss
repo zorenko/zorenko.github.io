@@ -27,3 +27,9 @@
     background-size: 15px;
   }
 }
+
+@media (max-width: 768px) {
+  .alert {
+    display: none;
+  }
+}
