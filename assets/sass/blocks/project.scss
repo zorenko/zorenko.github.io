@@ -28,7 +28,7 @@
 
     &:hover {
       img {
-        box-shadow: 0 10px 25px -10px rgba($primary, .4);
+        box-shadow: 0 10px 25px -10px rgba($primary, .25);
         -webkit-transition: box-shadow .3s ease-out 0s;
         -moz-transition: box-shadow .3s ease-out 0s;
         -o-transition: box-shadow .3s ease-out 0s;
@@ -54,10 +54,13 @@
 
 
 @media (max-width: 768px) {
-  .project {
-    width: 230px;
-    margin-right: 10px;
-  }
+  // .project {
+  //   width: 100%;
+  //
+  //   img {
+  //     width: 100%;
+  //   }
+  // }
 }
 
 @media (min-width: 768px) {

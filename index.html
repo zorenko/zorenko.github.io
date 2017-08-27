@@ -17,10 +17,10 @@
 
     <header class="header container clearfix">
       <div class="header__logo">
-        <a class="header__title">Анастасия Зоренко</a>
+        <a class="header__title header__title--name">Анастасия Зоренко</a>
       </div>
 
-      <nav class="header__nav">
+      <nav class="header__nav" id="dropper">
         <ul>
           <li><a class="link" href="resume.html">резюме</a></li>
           <li><a class="link" target="_blank" href="https://www.behance.net/zorenko">behance</a></li>
@@ -30,6 +30,8 @@
           <li><a class="link link--icon link--vk" target="_blank" href="https://vk.com/anastasia_zorenko">vk</a></li>
         </ul>
       </nav>
+
+      <span class="header__burger" onClick="toggleDiv('dropper');"></span>
     </header>
 
     <main class="container clearfix content content--portfolio">

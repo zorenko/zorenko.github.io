@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="10px" viewBox="0 0 16 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.2 (44496) - http://www.bohemiancoding.com/sketch -->
+    <title>icon-burger</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Portfolio" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Mobile-Portrait" transform="translate(-216.000000, -18.000000)" fill="#D9D9D9">
+            <path d="M227.101266,15 L229,15 L229,31 L227.101266,31 L227.101266,15 Z M219,15 L220.898734,15 L220.898734,31 L219,31 L219,15 Z M223.050633,15 L224.949367,15 L224.949367,31 L223.050633,31 L223.050633,15 Z" id="icon-burger" transform="translate(224.000000, 23.000000) rotate(90.000000) translate(-224.000000, -23.000000) "></path>
+        </g>
+    </g>
+</svg>
