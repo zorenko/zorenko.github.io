@@ -28,7 +28,7 @@
 
     &:hover {
       img {
-        box-shadow: 0 10px 25px -10px rgba($primary, .25);
+        box-shadow: 0 10px 25px -10px rgba(#4a5558, .25);
         -webkit-transition: box-shadow .3s ease-out 0s;
         -moz-transition: box-shadow .3s ease-out 0s;
         -o-transition: box-shadow .3s ease-out 0s;
@@ -47,6 +47,7 @@
   &--disabled {
     .project__title {
       color: $grey;
+      font-family: $regular;
     }
   }
 
