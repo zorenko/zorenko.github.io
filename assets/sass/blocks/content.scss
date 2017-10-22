@@ -1,20 +1,28 @@
 .content {
-  padding-bottom: 80px;
+  padding: 50px 0;
 
   &__title {
-    font-family: $bold;
     font-size: 28px;
     margin: 0;
     padding: 0;
     margin-bottom: 20px;
 
     .comment {
-      font-size: 16px;
+      font-size: 14px;
+      margin-top: 7px;
+      line-height: 1.4;
     }
   }
 
   &__text {
+    position: relative;
     max-width: 640px;
+
+    .moar {
+      position: absolute;
+      top: 0;
+      right: -320px;
+    }
 
     p {
       line-height: 1.4;
@@ -29,7 +37,6 @@
   }
 
   &__h2 {
-    font-family: $bold;
     font-size: 21px;
     margin: 0;
     padding: 0;

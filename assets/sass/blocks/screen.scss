@@ -1,0 +1,33 @@
+.screen {
+  min-height: 80vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+
+  &.contacts {
+    min-height: 50vh;
+  }
+
+  &__title {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 10px;
+    font-size: 36px;
+    line-height: 1.4;
+  }
+
+  p {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .screen {
+    min-height: 50vh;
+
+    &__title {
+      font-size: 24px;
+    }
+  }
+}

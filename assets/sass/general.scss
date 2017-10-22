@@ -10,7 +10,7 @@
 }
 
 body {
-  font-family: $regular, Arial, sans-serif;
+  font-family: 'Fira Sans', sans-serif;
   font-size: 16px;
 }
 
@@ -27,21 +27,43 @@ li {
   display: inline-block;
 }
 
+.text {
+  &--grey {
+    color: $grey;
+  }
+
+  &--underlined {
+    position: relative;
+
+    &::after {
+      position: absolute;
+      display: block;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 3px;
+      background: $primary;
+    }
+  }
+}
+
 .comment {
   color: $grey;
-  font-family: $regular;
   display: block;
   font-size: 12px;
 }
 
 .link {
-  color: #000;
   -webkit-transition: color .3s ease-out 0s;
   -moz-transition: color .3s ease-out 0s;
   -o-transition: color .3s ease-out 0s;
   transition: color .3s ease-out 0s;
 
   &:hover {
+    text-decoration: underline;
+  }
+
+  &--color {
     color: $primary;
   }
 
@@ -57,10 +79,6 @@ li {
     }
   }
 
-  &--color {
-    color: $primary;
-  }
-
   &--icon {
     font-size: 0;
     display: block;
@@ -74,29 +92,15 @@ li {
     -o-transition: background-image .8s ease-out 0s;
     transition: background-image .8s ease-out 0s;
   }
+}
 
-  &--mail {
-    background-image: url("../img/icon-mail.svg");
-
-    &:hover {
-      background-image: url("../img/icon-mail-hover.svg");
-    }
-  }
-  &--tl {
-    background-image: url("../img/icon-tl.svg");
-
-    &:hover {
-      background-image: url("../img/icon-tl-hover.svg");
-    }
-  }
-  &--vk {
-    background-image: url("../img/icon-vk.svg");
-    background-size: 20px;
-
-    &:hover {
-      background-image: url("../img/icon-vk-hover.svg");
-    }
-  }
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  text-decoration: none;
+  border: 1px solid $primary;
+  color: $primary;
+  font-weight: normal;
 }
 
 
@@ -117,9 +121,3 @@ li {
     max-width: 960px;
   }
 }
-
-// @media (min-width: 1200px) {
-//   .container {
-//     max-width: 1070px;
-//   }
-// }

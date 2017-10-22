@@ -8,21 +8,21 @@
     <link rel="stylesheet" href="assets/css/style.css">
   </head>
   <body>
-    <header class="header container clearfix">
+    <header class="header">
       <div class="header__logo">
-        <a class="header__title link" href="index.html"><span class="icon-back"></span>вернуться</a>
+        <a class="header__title link" href="index.html"><span class="icon-back"></span>go back</a>
       </div>
 
-      <nav class="header__nav">
+      <nav class="header__nav" id="dropper">
         <ul>
-          <li><a class="link" href="resume.html">резюме</a></li>
+          <li><a class="link" href="#contacts">contacts</a></li>
+          <li><a class="link" href="resume.html">resume</a></li>
           <li><a class="link" target="_blank" href="https://www.behance.net/zorenko">behance</a></li>
           <li><a class="link" target="_blank" href="https://github.com/zorenko">github</a></li>
-          <li><a class="link link--icon link--mail" href="mailto: zorenkoa@gmail.com">zorenkoa@gmail.com</a></li>
-          <li><a class="link link--icon link--tl" target="_blank" href="https://telegram.me/zorenko/">telegram</a></li>
-          <li><a class="link link--icon link--vk" target="_blank" href="https://vk.com/anastasia_zorenko">vk</a></li>
         </ul>
       </nav>
+
+      <span class="header__burger" onClick="toggleDiv('dropper');"></span>
     </header>
 
     <main class="container clearfix content content--project">

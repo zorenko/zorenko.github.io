@@ -1,83 +1,90 @@
 .project {
   display: block;
   float: left;
-  text-align: center;
-  text-transform: lowercase;
-  margin-bottom: 50px;
+  margin-bottom: 120px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   img {
     width: 100%;
     height: auto;
   }
 
+  &__pic {
+    display: block;
+    float: left;
+    width: 200px;
+    height: 200px;
+    margin-right: 80px;
+    background: $primary;
+  }
+
+  &__info {
+    display: block;
+    float: left;
+    max-width: 550px;
+  }
+
   &__title {
     margin: 0;
     padding: 0;
-    padding-top: 10px;
-    font-size: 14px;
-    font-weight: normal;
+    font-size: 30px;
+    line-height: 1;
+    font-weight: bold;
   }
 
-  &__descr {
-    font-size: 12px;
-    color: $grey;
+  &__subtitle {
+    margin: 0;
+    padding: 0;
+    margin-top: 10px;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: bold;
   }
 
-  &--active {
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 10px 0;
 
+    &:first-of-type {
+      margin-top: 25px;
+    }
 
-    &:hover {
-      img {
-        box-shadow: 0 10px 25px -10px rgba(#4a5558, .25);
-        -webkit-transition: box-shadow .3s ease-out 0s;
-        -moz-transition: box-shadow .3s ease-out 0s;
-        -o-transition: box-shadow .3s ease-out 0s;
-        transition: box-shadow .3s ease-out 0s;
-      }
-      .project__title {
-        color: $primary;
-        -webkit-transition: color .3s ease-out 0s;
-        -moz-transition: color .3s ease-out 0s;
-        -o-transition: color .3s ease-out 0s;
-        transition: color .3s ease-out 0s;
-      }
+    &:last-of-type {
+      margin-bottom: 25px;
     }
   }
 
-  &--disabled {
-    .project__title {
-      color: $grey;
-      font-family: $regular;
-    }
-  }
 
 }
 
 
 @media (max-width: 768px) {
-  // .project {
-  //   width: 100%;
-  //
-  //   img {
-  //     width: 100%;
-  //   }
-  // }
+  .project {
+    margin-bottom: 50px;
+
+    &__pic {
+      display: none;
+    }
+
+    &__title {
+      font-size: 24px;
+    }
+
+    &__subtitle {
+      font-size: 16px;
+    }
+  }
 }
 
 @media (min-width: 768px) {
-  .project {
-    width: 230px;
-    margin-right: 10px;
-  }
+
 }
 
 @media (min-width: 992px) {
   .project {
-    width: 230px;
-    margin-right: 10px;
-
-    &:nth-child(4) {
-      margin-right: 0;
-    }
   }
 }

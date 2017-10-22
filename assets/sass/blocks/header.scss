@@ -1,6 +1,6 @@
 .header {
-  position: relative;
-  padding: 60px 0;
+  box-sizing: border-box;
+  padding: 15px 20px;
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -8,8 +8,8 @@
   a {
     display: block;
     float: left;
-    padding: 10px 20px;
-    // text-transform: lowercase;
+    padding: 20px;
+    line-height: 1;
   }
 
   &__logo {
@@ -18,12 +18,6 @@
 
   &__title {
     position: relative;
-    margin-left: -20px;
-
-    &--name {
-      // font-family: $bold;
-      // font-size: 21px;
-    }
 
     .icon-back {
       position: absolute;
@@ -32,20 +26,10 @@
       left: 5px;
       width: 7px;
       height: 10px;
-      margin-top: -3px;
+      margin-top: -4px;
       background-image: url("../img/icon-back.svg");
       background-position: center;
       background-size: auto 10px;
-      -webkit-transition: background-image .3s ease-out 0s;
-      -moz-transition: background-image .3s ease-out 0s;
-      -o-transition: background-image .3s ease-out 0s;
-      transition: background-image .3s ease-out 0s;
-    }
-
-    &:hover {
-      .icon-back {
-        background-image: url("../img/icon-back-hover.svg");
-      }
     }
   }
 
@@ -69,7 +53,9 @@
 
 @media (max-width: 768px) {
   .header {
-    padding: 15px 0;
+    position: relative;
+    min-height: 50px;
+    padding: 10px 0;
     flex-direction: column;
     align-items: flex-start;
 
@@ -81,23 +67,26 @@
     &__nav {
       display: none;
 
-      ul>li:first-child a {
-        margin-left: -20px;
+      > ul {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-content: flex-start;
       }
     }
 
     &__burger {
       display: block;
       position: absolute;
-      top: 15px;
-      right: -10px;
-      width: 14px;
-      height: 20px;
+      top: 0;
+      right: 0;
+      width: 18px;
+      height: 24px;
       padding: 10px 15px;
       background-image: url("../img/icon-burger.svg");
       background-position: center;
       background-repeat: no-repeat;
-      background-size: 14px 20px;
+      background-size: 18px 24px;
     }
   }
 }
