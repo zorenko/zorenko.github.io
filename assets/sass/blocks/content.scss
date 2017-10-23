@@ -1,57 +1,64 @@
 .content {
-  padding: 50px 0;
+  padding: 80px 0;
 
   &__title {
-    font-size: 28px;
+    font-size: 36px;
     margin: 0;
     padding: 0;
-    margin-bottom: 20px;
+    margin: 0 auto;
+    margin-bottom: 50px;
+    max-width: 680px;
 
     .comment {
-      font-size: 14px;
-      margin-top: 7px;
+      font-size: 15px;
+      margin-top: 15px;
       line-height: 1.4;
     }
   }
 
   &__text {
     position: relative;
-    max-width: 640px;
-
-    .moar {
-      position: absolute;
-      top: 0;
-      right: -320px;
-    }
+    max-width: 680px;
+    margin: 0 auto;
 
     p {
-      line-height: 1.4;
+      font-size: 18px;
+      line-height: 1.6;
       margin: 0;
-      margin: 20px 0;
-    }
-
-    img {
-      display: block;
-      margin: 20px 0 30px;
+      margin: 30px 0;
     }
   }
 
   &__h2 {
-    font-size: 21px;
+    font-size: 24px;
     margin: 0;
     padding: 0;
-    margin: 40px 0 20px;
+    margin: 50px 0 20px;
+  }
+
+  &__pic {
+    max-width: 780px;
+    margin: 30px auto;
+
+    img {
+      display: block;
+      width: 100%;
+    }
   }
 }
 
 @media (max-width: 768px) {
   .content {
+    padding-top: 20px;
     padding-bottom: 20px;
 
     &__text {
-      img {
-        max-width: 100%;
+      p {
+        font-size: 16px;
       }
+    }
+    &__h2 {
+      font-size: 20px;
     }
   }
 }
