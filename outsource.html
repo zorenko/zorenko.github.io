@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anastasia Zorenko</title>
+    <title>Anastasia Zorenko | Outsource projects (2017)</title>
     <link rel="stylesheet" href="assets/css/normalize.css">
     <link rel="stylesheet" href="assets/css/style.css">
   </head>
@@ -26,22 +26,145 @@
     </header>
 
     <main class="container clearfix content content--project">
-      <h1 class="content__title">Outsource project</h1>
+      <h1 class="content__title">
+        Outsource projects (2017)
+        <span class="comment">UI design and web development</span>
+      </h1>
       <div class="content__text">
+        <h2 class="content__h2">tl;dr</h2>
+        <ul>
+          <li><a class="link link--color" href="#project__rtk">E-book</a> platform for creating interactive e-workbooks for schools.</li>
+          <li><a class="link link--color" href="#project__empire">Империя Репетиторов</a> (Tutors' Empire), platform for preparation to the russian Unified State Exam.</li>
+          <li><a class="link link--color" href="#project__trifit">TriFit</a> is a platform where professional fitness coaches can work with their clients remotely by providing them meal and workout plans. Learn more on a <a href="http://21day.trifit.ru/" target="_blank" class="link link--color">TRIFIT 21DAY</a> website.</li>
+        </ul>
+
+        <h2 class="content__h2" id="project__rtk">E-book platform</h2>
         <p>
-          <a class="link link--color" href="trifit.html">TriFit</a> — platform where professional fitness couches can work with their clients remotely.
+          My favorite project at that period. The projects has hundreds of screens, systems, details and elements inside, I was very exited to be a part of it.
+
+          <img width="640px" alt="Архитектура пользовательской части учебника"
+            src="assets/img/pic/case-rtk-architecture.jpg"
+            srcset="assets/img/pic/case-rtk-architecture@2x.jpg 2x">
+          <span class="comment">Architacture visualization of a book UI</span>
+
+          The goal of this project is a development of a platform for creating, distributing and using e-books, primarily for schools.
+
+          <img width="640px" alt="Стартовая страница редактора"
+            src="assets/img/pic/case-rtk-start.jpg"
+            srcset="assets/img/pic/case-rtk-start@2x.jpg 2x">
+          <span class="comment">Starting page that I was working on</span>
+
+          This platform provides various tools for representing information in different formats like texts, audio, video, presentations. More than that, you can create tasks and tests such as multiple choice tests, drag-n-drop, graph and matrix builders and so on.
+
+          <!-- <img width="640px" alt="Схема плеера"
+            src="assets/img/pic/case-rtk-player.jpg"
+            srcset="assets/img/pic/case-rtk-player@2x.jpg 2x">
+          <span class="comment">This is how book navigation looks. UI designed by <a class="link link--color" target="_blank" href="http://kushedow.github.io/">Gleb Kushedow</a>, presentation by me.</span>
+
+          <img width="640px" alt="Структура задания"
+            src="assets/img/pic/case-rtk-task.jpg"
+            srcset="assets/img/pic/case-rtk-task@2x.jpg 2x">
+          <span class="comment">Task structure. Designed by <a class="link link--color" target="_blank" href="http://kushedow.github.io/">Gleb Kushedow</a> and partly by me.</span> -->
+        </p>
+
+        <h3 class="content__h3">Interface Design</h3>
+        <p>
+          I took part in adapting UI elements for different screen sizes, completing designs of some elements or their different states, designing new types of tasks, media representation tools and was working on presentation materials.
         </p>
         <p>
-          <a class="link link--color" href="imperia.html">Империя Репетиторов</a>, platform for preparation to russian state graduation exams.
+          For example, I worked with text editing tool:
+
+          <img width="640px" alt="Стартовая страница редактора"
+            src="assets/img/pic/case-rtk-text.jpg"
+            srcset="assets/img/pic/case-rtk-text@2x.jpg 2x">
+        </p>
+
+        <h3 class="content__h3">Media Player</h3>
+        <p>
+          As I said the platform provides different tools for media files representation (images, audio, video and presentations). I was given a task to design a media player for presentations and refine and unify UI of video and audio players.
         </p>
         <p>
-          <a class="link link--color" href="rtk.html">E-book</a> platform for creating interactive electronic workbooks for schools.
+          So, this is how player for presentations looks in IDE. You can download presentation, switch to a full-screen mode. Hover on progressbar shows slides preview. When editing, slides can be swapped, deleted and added new ones. You can also add explanatory text to the slide.
+
+          <img width="640px" alt="Плеер для презентаций"
+            src="assets/img/pic/case-media-pres-basic.jpg"
+            srcset="assets/img/pic/case-media-pres-basic@2x.jpg 2x">
+          <span class="comment">Player for presentations inside IDE</span>
+
+          The player has audio and reading modes for users with disabilities.
+
+          <img width="640px" alt="Плеер для презентаций — режим аудио"
+            src="assets/img/pic/case-media-pres-audio.jpg"
+            srcset="assets/img/pic/case-media-pres-audio@2x.jpg 2x">
+          <span class="comment">Audio mode</span>
+
+          <img width="640px" alt="Плеер для презентаций — режим чтения"
+            src="assets/img/pic/case-media-pres-read.jpg"
+            srcset="assets/img/pic/case-media-pres-read@2x.jpg 2x">
+          <span class="comment">Reading mode</span>
+
+          Video player looks similar, but has buttons and toggles for working with video file and for turning on/off subtitles.
+
+          <img width="640px" alt="Плеер для презентаций"
+            src="assets/img/pic/case-media-vid-basic.jpg"
+            srcset="assets/img/pic/case-media-vid-basic@2x.jpg 2x">
+          <span class="comment">Video player inside IDE</span>
+
+          For clarity I documented all the states of media players for audio, video and presentations.
+
+          <img alt="Состояния медиаплееров"
+            src="assets/img/pic/case-media-mediaplayer.jpg"
+            srcset="assets/img/pic/case-media-mediaplayer@2x.jpg 2x">
+          <span class="comment">States of media players</span>
         </p>
+
+        <h3 class="content__h3">Documentation</h3>
         <p>
-          <a class="link link--color" href="chitka.html">#ТотальнаяЧитка</a>, project that help people be more effective with their readings.
+          Most of my assignments related to this project were to work with the documentation. I needed to show all the screens, the states of the components of the system (and finish them, if something was missing).
+
+          <img width="640px" alt="Документация проекта"
+            src="assets/img/pic/case-rtk-docs.jpg"
+            srcset="assets/img/pic/case-rtk-docs@2x.jpg 2x">
+
+          <img width="640px" alt="Документация проекта"
+            src="assets/img/pic/case-rtk-docs-2.jpg"
+            srcset="assets/img/pic/case-rtk-docs-2@2x.jpg 2x">
+          <span class="comment">Documentation of task's hints and buttons</span>
+        </p>
+
+        <h2 class="content__h2" id="project__empire">Империя репетиторов (Tutors' Empire)</h2>
+        <p>
+          For this project I designed tutors' UI for a management of courses, classes and students, using wireframes provided me by <a class="link link--color" target="_blank" href="http://kushedow.github.io/">Gleb Kushedow</a>. Plus, I did a <a href="https://github.com/zorenko/imperia" target="_blank" class="link link--color">markup</a> of some pages.
+
+          <img width="640px" alt="Wireframes"
+            src="assets/img/pic/case-imperia-wireframes.jpg"
+            srcset="assets/img/pic/case-imperia-wireframes@2x.jpg 2x">
+
+          <img width="580px" alt="Screens"
+            src="assets/img/pic/case-imperia-screens.jpg"
+            srcset="assets/img/pic/case-imperia-screens@2x.jpg 2x">
+        </p>
+
+        <h2 class="content__h2" id="project__trifit">Trifit</h2>
+        <p>
+          I worked a little on wireframing and UI, but that wasn't used for the actual project. So my biggest contribution was a pages' markup. You can find it <a href="https://github.com/zorenko/trifit" target="_blank" class="link link--color">here</a> on github.
+
+          <img width="640px" alt="Рецепт. Вариант 1"
+            src="assets/img/pic/case-trifit-recipe.jpg"
+            srcset="assets/img/pic/case-trifit-recipe@2x.jpg 2x">
+          <img width="640px" alt="Рецепт. Вариант 2"
+            src="assets/img/pic/case-trifit-recipe2.jpg"
+            srcset="assets/img/pic/case-trifit-recipe2@2x.jpg 2x">
+           <span class="comment">Recipe designs</span>
         </p>
       </div>
     </main>
+
+    <footer>
+      <div class="">
+
+      </div>
+    </footer>
 
     <script src="assets/js/script.js" type="text/javascript"></script>
 

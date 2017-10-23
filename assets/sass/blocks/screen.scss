@@ -7,7 +7,7 @@
   flex-direction: column;
 
   &.contacts {
-    height: 50vh;
+    height: 60vh;
   }
 
   &__title {
@@ -34,6 +34,7 @@
 
     &__title {
       font-size: 28px;
+      max-width: 410px;
     }
 
     p {
@@ -45,8 +46,7 @@
 @media (min-width: 1200px) {
   .screen {
     &__title {
-      font-size: 48px;
-      margin-bottom: 30px;
+      font-size: 45px;
       max-width: 670px;
     }
   }
