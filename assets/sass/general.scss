@@ -100,6 +100,19 @@ li {
   border: 1px solid $primary;
   color: $primary;
   font-weight: normal;
+
+  -webkit-transition: background .2s ease-out 0s;
+  -moz-transition: background .2s ease-out 0s;
+  -o-transition: background .2s ease-out 0s;
+  transition: background .2s ease-out 0s;
+
+  &:hover,
+  &:active,
+  &focus {
+    border: 1px solid $primary;
+    background: $primary;
+    color: #fff;
+  }
 }
 
 
