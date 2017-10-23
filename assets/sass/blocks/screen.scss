@@ -1,12 +1,13 @@
 .screen {
-  min-height: 80vh;
+  min-height: 200px;
+  height: 75vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   flex-direction: column;
 
   &.contacts {
-    min-height: 50vh;
+    height: 50vh;
   }
 
   &__title {
@@ -25,10 +26,9 @@
 
 @media (max-width: 768px) {
   .screen {
-    min-height: 50vh;
 
     &.contacts {
-      min-height: 30vh;
+      height: 30vh;
     }
 
     &__title {

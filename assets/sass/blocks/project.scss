@@ -1,6 +1,7 @@
 .project {
   display: block;
   float: left;
+  width: 100%;
   margin-bottom: 120px;
 
   &:last-child {
@@ -10,15 +11,6 @@
   img {
     width: 100%;
     height: auto;
-  }
-
-  &__pic {
-    display: block;
-    float: left;
-    width: 200px;
-    height: 200px;
-    margin-right: 80px;
-    background: $primary;
   }
 
   &__info {
@@ -81,10 +73,29 @@
 }
 
 @media (min-width: 768px) {
-
 }
 
 @media (min-width: 992px) {
   .project {
+    &__pic {
+      display: block;
+      float: left;
+      width: 200px;
+      height: 200px;
+      background: $primary;
+      margin-right: 60px;
+    }
+
+    &__info {
+
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .project {
+    &__pic {
+
+    }
   }
 }
