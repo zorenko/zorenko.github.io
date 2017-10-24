@@ -26,6 +26,7 @@
     .comment {
       margin-top: 15px;
       text-align: left;
+      font-weight: normal;
     }
   }
 
@@ -99,7 +100,7 @@
     padding-bottom: 20px;
 
     &__text {
-      p {
+      p, li {
         font-size: 16px;
       }
     }
