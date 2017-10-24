@@ -1,6 +1,19 @@
 .content {
   padding: 80px 0;
 
+  img {
+    display: block;
+    width: 100%;
+  }
+
+  .comment {
+    font-size: 15px;
+    text-align: center;
+    line-height: 1.4;
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
   &__title {
     font-size: 36px;
     margin: 0;
@@ -10,9 +23,8 @@
     max-width: 680px;
 
     .comment {
-      font-size: 15px;
       margin-top: 15px;
-      line-height: 1.4;
+      text-align: left;
     }
   }
 
@@ -28,7 +40,7 @@
     }
 
     p {
-      margin: 25px 0;
+      margin: 20px 0;
     }
 
     li {
@@ -36,15 +48,8 @@
     }
 
     img {
-      width: 100%;
-      margin-top: 25px;
-    }
-
-    .comment {
-      font-size: 15px;
-      text-align: center;
-      line-height: 1.4;
-      margin-bottom: 25px;
+      margin-top: 20px;
+      margin-bottom: 5px;
     }
   }
 
@@ -53,7 +58,7 @@
     font-size: 28px;
     margin: 0;
     padding: 0;
-    margin: 50px 0 25px;
+    margin: 60px 0 20px;
   }
 
   &__h3 {
@@ -61,12 +66,19 @@
   }
 
   &__pic {
-    max-width: 780px;
-    margin: 25px auto;
+    .img {
+      max-width: 780px;
+      margin: 30px auto;
+    }
 
-    img {
-      display: block;
-      width: 100%;
+    &.imperia {
+      background: #eaeef1;
+    }
+    &.rtk {
+      background: #413F4A;
+    }
+    &.trifit {
+      background: #7D8086;
     }
   }
 }
