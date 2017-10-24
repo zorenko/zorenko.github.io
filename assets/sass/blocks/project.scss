@@ -78,10 +78,10 @@
 @media (min-width: 992px) {
   .project {
     &__pic {
-      display: none;
+      display: block;
       float: left;
-      width: 200px;
-      height: 200px;
+      width: 320px;
+      height: 220px;
       background: $primary;
       margin-right: 60px;
     }
