@@ -1,7 +1,8 @@
 .content {
   padding: 80px 0;
 
-  img {
+  img,
+  video {
     display: block;
     width: 100%;
   }
@@ -47,9 +48,14 @@
       margin-bottom: 10px;
     }
 
-    img {
+    img,
+    video {
       margin-top: 20px;
       margin-bottom: 5px;
+    }
+
+    video {
+      box-shadow: 0 1px 20px 0 rgba(#001F44, .1);
     }
   }
 
@@ -68,7 +74,8 @@
   &__pic {
     .img {
       max-width: 780px;
-      margin: 30px auto;
+      margin: 0 auto;
+      padding: 20px 0;
     }
 
     &.imperia {
@@ -79,6 +86,9 @@
     }
     &.trifit {
       background: #7D8086;
+    }
+    &.speakability {
+      background: #f1f1f1;
     }
   }
 }
