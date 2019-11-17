@@ -66,6 +66,10 @@ li {
     color: $primary;
   }
 
+  &--inline {
+    text-decoration: underline;
+  }
+
   &--block {
     display: block;
   }
@@ -95,11 +99,12 @@ li {
 
 .btn {
   display: inline-block;
-  padding: 10px 20px;
+  padding: 8px 14px;
   text-decoration: none;
   border: 1px solid $primary;
   color: $primary;
   font-weight: normal;
+  border-radius: 5px;
 
   -webkit-transition: background .2s ease-out 0s;
   -moz-transition: background .2s ease-out 0s;
@@ -112,6 +117,19 @@ li {
     border: 1px solid $primary;
     background: $primary;
     color: #fff;
+  }
+
+  &--disalbed {
+    border: 1px solid $light-grey;
+    color: $grey;
+
+    &:hover,
+    &:active,
+    &focus {
+      border: 1px solid $light-grey;
+      background: none;
+      color: $grey;
+    }
   }
 }
 

@@ -1,9 +1,10 @@
 .header {
   box-sizing: border-box;
-  padding: 15px 20px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-around;
+  font-size: 14px;
 
   a {
     display: block;
@@ -78,7 +79,7 @@
       right: 0;
       width: 18px;
       height: 24px;
-      padding: 25px 30px;
+      padding: 16px 16px;
       background-image: url("../img/icon-burger.svg");
       background-position: center;
       background-repeat: no-repeat;
