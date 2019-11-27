@@ -60,6 +60,7 @@ li {
 
   &:hover {
     text-decoration: underline;
+    color: $grey;
   }
 
   &--color {
@@ -70,8 +71,26 @@ li {
     text-decoration: underline;
   }
 
+  &--publication {
+    display: block;
+    margin-bottom: 16px;
+    padding-left: 20px;
+    border-left: 3px solid $black;
+
+    &:first-of-type {
+      margin-top: 24px;
+    }
+
+    &:hover {
+      text-decoration: none;
+      color: $grey;
+    }
+  }
+
+
   &--block {
     display: block;
+    margin-bottom: 16px;
   }
 
   &--disabled {
@@ -99,7 +118,8 @@ li {
 
 .btn {
   display: inline-block;
-  padding: 8px 14px;
+  padding: 8px 16px;
+  margin-top: 16px;
   text-decoration: none;
   border: 1px solid $primary;
   color: $primary;

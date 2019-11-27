@@ -4,10 +4,6 @@
   width: 100%;
   margin-bottom: 120px;
 
-  // &:last-child {
-  //   margin-bottom: 0;
-  // }
-
   img {
     width: 100%;
     height: auto;
@@ -16,7 +12,7 @@
   &__info {
     display: block;
     float: left;
-    max-width: 550px;
+    max-width: 580px;
   }
 
   &__title {
@@ -43,10 +39,6 @@
 
     &:first-of-type {
       margin-top: 16px;
-    }
-
-    &:last-of-type {
-      margin-bottom: 28px;
     }
   }
 
@@ -88,19 +80,7 @@
       width: 320px;
       height: 220px;
       background: $primary;
-      margin-right: 60px;
-    }
-
-    &__info {
-
-    }
-  }
-}
-
-@media (min-width: 1200px) {
-  .project {
-    &__pic {
-
+      margin-right: 56px;
     }
   }
 }
