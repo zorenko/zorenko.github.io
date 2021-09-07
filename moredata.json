@@ -1,11 +1,54 @@
 {
-	"Name":"John",
-	"Age":28,
-	"ID":623213244,
-	"Description":{
-		"Height":178,
-		"Width":88,
-		"Unit":"cm"
+	"Group_name":"My project",
+	"Version":"Version 2.0",
+	"Governance":"Ungoverned",
+	"Templates":{
+		"Template":{
+			"Template_name":"ProducedWaterSeparator",
+			"Template_description":"Produced Water Separators for PowerBI",
+			"Template_stats":"14 instances, 11 fields",
+			"Instances":[
+				{
+				  "Instances":"Instances",
+				  "Function":"Function",
+				  "Tag":"Tag",
+				  "Pressure":"Pressure",
+				  "Flowrate":"Flowrate",
+				  "Main_LCV":"Main_LCV"
+				},
+        {
+				  "Instances":"Separator_1",
+				  "Function":"F_Sep_01",
+				  "Tag":"Tag_Name_01",
+				  "Pressure":"SEP_P_8876",
+				  "Flowrate":"FR_1233",
+				  "Main_LCV":"LCV_8821"
+				}
+			]
+		},
+		"Template":{
+			"Template name":"CrudeOilSep",
+			"Template_description":"CrudeOilSep for PowerBI",
+			"Template_stats":"24 instances, 11 fields",
+      "Instances":[
+				{
+				  "Instances":"Instances",
+				  "Function":"Function",
+				  "Tag":"Tag",
+				  "Pressure":"Pressure",
+				  "Flowrate":"Flowrate",
+				  "Main_LCV":"Main_LCV"
+				},
+        {
+				  "Instances":"Separator_1",
+				  "Function":"F_Sep_01",
+				  "Tag":"Tag_Name_01",
+				  "Pressure":"SEP_P_8876",
+				  "Flowrate":"FR_1233",
+				  "Main_LCV":"LCV_8821"
+				}
+			]
+		}
 	},
 	"Town":"Ljubljana",
 	"Food":{
@@ -14,3 +57,4 @@
 		"Dislikes":[ "Hamburger", "Salad", "Orange" ]
 	}
 }
+
