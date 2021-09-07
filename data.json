@@ -46,21 +46,5 @@
   "Pressure":"SEP_P_1950",
   "Flowrate":"FR_1233",
   "Main LCV":"LCV_8821"
-},
-{
-  "Instances":"Separator_7",
-  "Function":"F_Sep_07",
-  "Tag":"Tag_Name_07",
-  "Pressure":"SEP_P_4325",
-  "Flowrate":"FR_1233",
-  "Main LCV":"LCV_8821"
-},
-{
-  "Instances":"Separator_8",
-  "Function":"F_Sep_08",
-  "Tag":"Tag_Name_08",
-  "Pressure":"SEP_P_9096",
-  "Flowrate":"FR_1233",
-  "Main LCV":"LCV_8821"
 }
 ]
