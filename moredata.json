@@ -16,7 +16,7 @@
 				  "Flowrate":"Flowrate",
 				  "Main_LCV":"Main_LCV"
 				},
-        {
+        			{
 				  "Instances":"Separator_1",
 				  "Function":"F_Sep_01",
 				  "Tag":"Tag_Name_01",
@@ -49,11 +49,5 @@
 				}
 			]
 		}
-	},
-	"Town":"Ljubljana",
-	"Food":{
-		"Likes":[ "Pizza", "Fries", "Ice cream" ],
-		"Alergies":"None",
-		"Dislikes":[ "Hamburger", "Salad", "Orange" ]
 	}
 }
