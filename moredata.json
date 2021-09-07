@@ -1,34 +1,16 @@
 {
-  "employees":[
-    { 
-     "firstName":"John", 
-     "lastName":"Doe" 
-    },
-    { 
-      "firstName":"Anna", 
-      "lastName":"Smith" 
-    },
-    { 
-      "firstName":"Peter", 
-      "lastName":"Jones" 
-    }
-  ],
-  "separators":[
-    {
-      "Instances":"Instances",
-      "Function":"Function",
-      "Tag":"Tag",
-      "Pressure":"Pressure",
-      "Flowrate":"Flowrate",
-      "Main LCV":"Main LCV"
-    },
-    {
-      "Instances":"Separator_1",
-      "Function":"F_Sep_01",
-      "Tag":"Tag_Name_01",
-      "Pressure":"SEP_P_8876",
-      "Flowrate":"FR_1233",
-      "Main LCV":"LCV_8821"
-    }
-  ]
+	"Name":"John",
+	"Age":28,
+	"ID":623213244,
+	"Description":{
+		"Height":178,
+		"Width":88,
+		"Unit":"cm"
+	},
+	"Town":"Ljubljana",
+	"Food":{
+		"Likes":[ "Pizza", "Fries", "Ice cream" ],
+		"Alergies":"None",
+		"Dislikes":[ "Hamburger", "Salad", "Orange" ]
+	}
 }
