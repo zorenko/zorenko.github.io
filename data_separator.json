@@ -1,0 +1,20 @@
+{
+  "Template":"Separators",
+  "Fields":{
+    "Instances":{
+      "Title":"Instances",
+      "Row_01":"Asset_01",
+      "Row_02":"Asset_01",
+    },
+    "Function":{
+      "Title":"Function",
+      "Row_01":"Function_01",
+      "Row_02":"Function_01",
+    },
+    "Tag":{
+      "Title":"Tag",
+      "Row_01":"Tag_01",
+      "Row_02":"Tag_01",
+    }
+  }
+}
