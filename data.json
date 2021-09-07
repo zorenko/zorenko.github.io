@@ -1,50 +1,50 @@
 [
-{
-  "Instances":"Separator_1",
-  "Function":"F_Sep_01",
-  "Tag":"Tag_Name_01",
-  "Pressure":"SEP_P_8876",
-  "Flowrate":"FR_1233",
-  "Main LCV":"LCV_8821"
-},
-{
-  "Instances":"Separator_2",
-  "Function":"F_Sep_02",
-  "Tag":"Tag_Name_02",
-  "Pressure":"SEP_P_0895",
-  "Flowrate":"FR_1233",
-  "Main LCV":"LCV_8821"
-},
-{
-  "Instances":"Separator_3",
-  "Function":"F_Sep_03",
-  "Tag":"Tag_Name_03",
-  "Pressure":"SEP_P_7293",
-  "Flowrate":"FR_1233",
-  "Main LCV":"LCV_8821"
-},
-{
-  "Instances":"Separator_4",
-  "Function":"F_Sep_04",
-  "Tag":"Tag_Name_04",
-  "Pressure":"SEP_P_1251",
-  "Flowrate":"FR_1233",
-  "Main LCV":"LCV_8821"
-},
-{
-  "Instances":"Separator_5",
-  "Function":"F_Sep_05",
-  "Tag":"Tag_Name_05",
-  "Pressure":"SEP_P_9232",
-  "Flowrate":"FR_1233",
-  "Main LCV":"LCV_8821"
-},
-{
-  "Instances":"Separator_6",
-  "Function":"F_Sep_06",
-  "Tag":"Tag_Name_06",
-  "Pressure":"SEP_P_1950",
-  "Flowrate":"FR_1233",
-  "Main LCV":"LCV_8821"
-}
+  {
+    "Instances":"Separator_1",
+    "Function":"F_Sep_01",
+    "Tag":"Tag_Name_01",
+    "Pressure":"SEP_P_8876",
+    "Flowrate":"FR_1233",
+    "Main LCV":"LCV_8821"
+  },
+  {
+    "Instances":"Separator_2",
+    "Function":"F_Sep_02",
+    "Tag":"Tag_Name_02",
+    "Pressure":"SEP_P_0895",
+    "Flowrate":"FR_1233",
+    "Main LCV":"LCV_8821"
+  },
+  {
+    "Instances":"Separator_3",
+    "Function":"F_Sep_03",
+    "Tag":"Tag_Name_03",
+    "Pressure":"SEP_P_7293",
+    "Flowrate":"FR_1233",
+    "Main LCV":"LCV_8821"
+  },
+  {
+    "Instances":"Separator_4",
+    "Function":"F_Sep_04",
+    "Tag":"Tag_Name_04",
+    "Pressure":"SEP_P_1251",
+    "Flowrate":"FR_1233",
+    "Main LCV":"LCV_8821"
+  },
+  {
+    "Instances":"Separator_5",
+    "Function":"F_Sep_05",
+    "Tag":"Tag_Name_05",
+    "Pressure":"SEP_P_9232",
+    "Flowrate":"FR_1233",
+    "Main LCV":"LCV_8821"
+  },
+  {
+    "Instances":"Separator_6",
+    "Function":"F_Sep_06",
+    "Tag":"Tag_Name_06",
+    "Pressure":"SEP_P_1950",
+    "Flowrate":"FR_1233",
+    "Main LCV":"LCV_8821"
+  }
 ]
