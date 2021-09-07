@@ -1,10 +1,66 @@
-[{"Instances":"Separator_1","Description":"—","Pressure":"SEP_P_8876"},
-{"Instances":"Separator_2","Description":"—","Pressure":"SEP_P_0895"},
-{"Instances":"Separator_3","Description":"—","Pressure":"SEP_P_7293"},
-{"Instances":"Separator_4","Description":"—","Pressure":"SEP_P_1251"},
-{"Instances":"Separator_5","Description":"—","Pressure":"SEP_P_9232"},
-{"Instances":"Separator_6","Description":"—","Pressure":"SEP_P_1950"},
-{"Instances":"Separator_7","Description":"—","Pressure":"SEP_P_4325"},
-{"Instances":"Separator_8","Description":"—","Pressure":"SEP_P_9096"},
-{"Instances":"Separator_9","Description":"—","Pressure":"SEP_P_3499"},
-{"Instances":"Separator_10","Description":"—","Pressure":"SEP_P_5443"}]
+[
+{
+  "Instances":"Separator_1",
+  "Function":"F_Sep_01",
+  "Tag":"Tag_Name_01",
+  "Pressure":"SEP_P_8876",
+  "Flowrate":"FR_1233",
+  "Main LCV":"LCV_8821"
+},
+{
+  "Instances":"Separator_2",
+  "Function":"F_Sep_02",
+  "Tag":"Tag_Name_02",
+  "Pressure":"SEP_P_0895",
+  "Flowrate":"FR_1233",
+  "Main LCV":"LCV_8821"
+},
+{
+  "Instances":"Separator_3",
+  "Function":"F_Sep_03",
+  "Tag":"Tag_Name_03",
+  "Pressure":"SEP_P_7293",
+  "Flowrate":"FR_1233",
+  "Main LCV":"LCV_8821"
+},
+{
+  "Instances":"Separator_4",
+  "Function":"F_Sep_04",
+  "Tag":"Tag_Name_04",
+  "Pressure":"SEP_P_1251",
+  "Flowrate":"FR_1233",
+  "Main LCV":"LCV_8821"
+},
+{
+  "Instances":"Separator_5",
+  "Function":"F_Sep_05",
+  "Tag":"Tag_Name_05",
+  "Pressure":"SEP_P_9232",
+  "Flowrate":"FR_1233",
+  "Main LCV":"LCV_8821"
+},
+{
+  "Instances":"Separator_6",
+  "Function":"F_Sep_06",
+  "Tag":"Tag_Name_06",
+  "Pressure":"SEP_P_1950",
+  "Flowrate":"FR_1233",
+  "Main LCV":"LCV_8821"
+},
+{
+  "Instances":"Separator_7",
+  "Function":"F_Sep_07",
+  "Tag":"Tag_Name_07",
+  "Pressure":"SEP_P_4325",
+  "Flowrate":"FR_1233",
+  "Main LCV":"LCV_8821"
+},
+{
+  "Instances":"Separator_8",
+  "Function":"F_Sep_08",
+  "Tag":"Tag_Name_08",
+  "Pressure":"SEP_P_9096",
+  "Flowrate":"FR_1233",
+  "Main LCV":"LCV_8821"
+}
+]
