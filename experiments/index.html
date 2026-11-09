@@ -11,17 +11,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Geist:wght@100..900&display=swap">
-    <link rel="stylesheet" href="/assets/css/site.css?v=7">
+    <link rel="stylesheet" href="/assets/css/site.css?v=8">
     <script>try{var t=localStorage.getItem("q-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.classList.add("q-dark")}catch(e){}</script>
-    <script src="/assets/js/site.js?v=7" defer></script>
-    <script src="/assets/js/dock.js?v=7" defer></script>
-    <script src="/assets/js/experiments.js?v=7" defer></script>
+    <script src="/assets/js/site.js?v=8" defer></script>
+    <script src="/assets/js/dock.js?v=8" defer></script>
+    <script src="/assets/js/experiments.js?v=8" defer></script>
+    <script src="/assets/js/canvas.js?v=8" defer></script>
+    <script>try{if(!location.hash&&localStorage.getItem("q-xp-view")==="canvas")document.documentElement.dataset.xpView="canvas"}catch(e){}</script>
   </head>
   <body class="v-quiet">
     <a class="q-skip" href="#q-main">Skip to content</a>
     <div class="q-fade" aria-hidden="true"></div>
 
-    <main class="q" id="q-main">
+    <main class="q q-xp-page" id="q-main">
       <header class="q-phead" data-enter style="--i:1">
         <h1>Experiments</h1>
         <p class="q-plead">Small interaction patterns and component ideas, built in the browser. Each one is live, so go ahead and poke it.</p>
@@ -84,5 +86,52 @@
         <p>Let’s connect: <button class="q-copy" type="button" data-copy="zorenkoa@gmail.com" aria-label="Email: copy address">Email<span class="q-tip" role="status"></span></button> or <a href="https://www.linkedin.com/in/anastasiazorenko/" target="_blank" rel="noopener">LinkedIn</a></p>
       </footer>
     </main>
+    <!-- Cards for the canvas view (/assets/js/canvas.js tiles them). One per experiment, same order as the list. -->
+    <template id="q-cv-cards">
+      <a class="q-cv-tile" href="#morphing-button" tabindex="-1">
+        <span class="q-thumb q-thumb--stage">
+          <span class="q-stage">
+            <span class="q-morph q-morph--lg" data-morph>
+              <span class="q-morph-icon"><span class="q-swap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.25" y="5.25" width="8.5" height="8.5" rx="1.75"/><path d="M10.75 5.25V3.5c0-.7-.55-1.25-1.25-1.25h-6c-.7 0-1.25.55-1.25 1.25v6c0 .7.55 1.25 1.25 1.25h1.75"/></svg></span></span>
+              <span class="q-morph-label"><span class="q-swap">Copy email</span></span>
+              <span class="q-morph-sizer"><span class="q-morph-icon"></span><span>Copy email</span></span>
+            </span>
+          </span>
+        </span>
+        <span class="q-card-text"><span>Morphing Button</span><span class="q-muted">A button that resizes smoothly as its label and icon change</span></span>
+      </a>
+      <a class="q-cv-tile" href="#scrambled-text" tabindex="-1">
+        <span class="q-thumb q-thumb--stage">
+          <span class="q-stage">
+            <span class="q-scr" data-scramble-group>
+              <span class="q-scr-mark">az</span>
+              <span class="q-scr-who">
+                <span class="q-scr-line q-scr-name"><span class="q-scr-ghost">Anastasia Zorenko</span><span class="q-scr-live" data-text="Anastasia Zorenko">Anastasia Zorenko</span></span>
+                <span class="q-scr-line q-scr-role"><span class="q-scr-ghost">Design engineer</span><span class="q-scr-live" data-text="Design engineer">Design engineer</span></span>
+              </span>
+            </span>
+          </span>
+        </span>
+        <span class="q-card-text"><span>Scrambled Text</span><span class="q-muted">Type that resolves out of random glyphs, one letter at a time</span></span>
+      </a>
+      <a class="q-cv-tile" href="#theme-switch" tabindex="-1">
+        <span class="q-thumb q-thumb--stage">
+          <span class="q-stage">
+            <span class="q-mini q-mini--md" data-mini>
+              <span class="q-mini-top">
+                <span class="q-mini-mark"></span>
+                <span class="q-mini-who"><span class="q-mini-line" style="--w:44em"></span><span class="q-mini-line" style="--w:30em"></span></span>
+                <span class="q-mini-icon">
+                  <svg class="q-mini-moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 9.6A5.75 5.75 0 1 1 6.4 2.5a4.5 4.5 0 0 0 7.1 7.1Z"/></svg>
+                  <svg class="q-mini-sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.4 3.4l.85.85M11.75 11.75l.85.85M3.4 12.6l.85-.85M11.75 4.25l.85-.85"/></svg>
+                </span>
+              </span>
+              <span class="q-mini-body"><span class="q-mini-line"></span><span class="q-mini-line" style="--w:86%"></span><span class="q-mini-line" style="--w:58%"></span></span>
+            </span>
+          </span>
+        </span>
+        <span class="q-card-text"><span>Theme Switch</span><span class="q-muted">A light and dark toggle whose icon spins and unblurs into place</span></span>
+      </a>
+    </template>
   </body>
 </html>

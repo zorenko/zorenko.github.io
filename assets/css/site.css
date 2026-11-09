@@ -414,12 +414,153 @@ html.q-dark .q-frame img { filter: brightness(0.9); }
 /* Post body: reads at 14/24 */
 .q-pbody { margin-top: 40px; line-height: 24px; max-width: 34em; }
 .q-pbody:empty { margin-top: 0; }
-.q-pbody > * + * { margin-top: 16px; }
+.v-quiet .q-pbody > * + * { margin-top: 16px; }
 
 .q-pnav { display: flex; justify-content: space-between; gap: 16px; margin-top: var(--q-gap); padding-top: 24px; border-top: 1px solid var(--q-frame); color: var(--q-muted); }
 .v-quiet .q-pnav a { color: var(--q-muted); text-decoration: none; transition: color 200ms var(--q-ease); }
 .v-quiet .q-pnav a:hover { color: var(--q-title); }
-.q-phead + .q-shots { margin-top: 48px; }
+.q-phead + .q-shots, .q-pbody + .q-shots { margin-top: 48px; }
+
+/* Case study text: short headed sections of points under the screens */
+.q-case { margin-top: var(--q-gap); max-width: 34em; line-height: 24px; }
+.q-case + .q-case { margin-top: 64px; }
+.v-quiet .q-case h2 { margin-bottom: 16px; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--q-title); }
+.v-quiet .q-case h3 { margin: 28px 0 8px; font-size: 14px; font-weight: 400; line-height: 20px; color: var(--q-title); }
+.q-points { display: flex; flex-direction: column; gap: 8px; list-style: none; }
+.q-points li { position: relative; padding-left: 18px; }
+.q-points li::before { content: ""; position: absolute; top: 11px; left: 2px; width: 6px; height: 1px; background: var(--q-date); }
+.v-quiet .q-note { margin-top: 16px; font-size: 12px; line-height: 20px; color: var(--q-muted); }
+
+/* Experiments view switch: List or Canvas, pinned to the top-right corner (built by /assets/js/canvas.js) */
+.q-views {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  z-index: 150;
+  display: grid;
+  grid-template-columns: repeat(2, 32px);
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--q-card-line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--q-bg) 94%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.q-views-pill { position: absolute; top: 2px; left: 2px; width: 32px; height: 28px; border-radius: 8px; background: var(--q-frame); transition: translate 280ms var(--q-ease), background-color 0.3s ease; }
+html[data-xp-view="canvas"] .q-views-pill { translate: 34px 0; }
+.v-quiet .q-views button {
+  all: unset;
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--q-icon);
+  cursor: pointer;
+  transition: color 200ms var(--q-ease), transform 160ms var(--q-ease);
+}
+.q-views svg { display: block; width: 16px; height: 16px; }
+.v-quiet .q-views button:hover, .v-quiet .q-views button[aria-checked="true"] { color: var(--q-icon-hover); }
+.q-views button:active { transform: scale(0.94); }
+.v-quiet .q-views button:focus-visible { outline: 2px solid var(--q-icon-hover); outline-offset: 2px; }
+.q-views-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -2px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--q-cta);
+  color: var(--q-cta-text);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-3px);
+  filter: blur(4px);
+  transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
+}
+.q-views button:focus-visible .q-views-tip { opacity: 1; transform: none; filter: none; }
+@media (hover: hover) and (pointer: fine) {
+  .q-views button:hover .q-views-tip { opacity: 1; transform: none; filter: none; }
+}
+@media (max-width: 640px) { .q-views { top: 14px; right: 14px; } }
+
+/* Canvas view: a pannable, endless board of experiment cards in staggered columns. Tiles are a fixed pool that wraps
+   around as you pan, so nothing is created or destroyed while dragging. Edges fade out with a mask. */
+html[data-xp-view="canvas"] body { overflow: hidden; }
+html[data-xp-view="canvas"] .q-fade,
+html[data-xp-view="canvas"] .q-xp-page { display: none; }
+html:not([data-xp-view="canvas"]) .q-cv { display: none; }
+.q-cv {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-mask: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent), linear-gradient(to bottom, transparent, #000 72px, #000 calc(100% - 72px), transparent);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent), linear-gradient(to bottom, transparent, #000 72px, #000 calc(100% - 72px), transparent);
+  mask-composite: intersect;
+  animation: q-cv-in 500ms var(--q-ease) both;
+}
+.q-cv[data-dragging] { cursor: grabbing; }
+.q-cv:focus-visible { outline: none; }
+.v-quiet .q-cv:focus-visible .q-cv-tile[data-centre] { outline: 2px solid var(--q-title); outline-offset: 3px; }
+@keyframes q-cv-in { from { opacity: 0; transform: scale(0.985); } }
+.q-cv-layer { position: absolute; inset: 0; }
+.v-quiet .q-cv-tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: 248px;
+  padding: 4px;
+  border: 1px solid var(--q-card-line);
+  border-bottom-width: 2px;
+  border-radius: 13px;
+  background: var(--q-card);
+  color: var(--q-text);
+  text-decoration: none;
+  -webkit-user-drag: none;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.q-cv-tile .q-thumb { border: 0; border-radius: 9px; background: var(--q-well); }
+.q-cv-tile .q-card-text { padding: 12px 8px 8px; }
+.q-cv-tile .q-muted { font-size: 12px; }
+.q-cv[data-dragging] .q-cv-tile { pointer-events: none; }
+@media (hover: hover) and (pointer: fine) {
+  .q-cv-tile:hover .q-stage { transform: scale(1.08); }
+}
+.q-cv-hint {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  z-index: 150;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--q-card-line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--q-bg) 94%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  line-height: 20px;
+  color: var(--q-muted);
+  pointer-events: none;
+  animation: q-in 650ms var(--q-ease) 80ms both;
+}
+.v-quiet .q-cv-hint b { font-weight: 500; color: var(--q-title); }
+html:not([data-xp-view="canvas"]) .q-cv-hint { display: none; }
+@media (max-width: 640px) { .q-cv-hint { top: 14px; left: 14px; } }
+.q-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* Entrance: whole sections, 70ms apart */
 @keyframes q-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
@@ -603,4 +744,5 @@ html.q-dark .q-lb-bg { background: rgb(15 15 15 / 0.85); }
   .v-quiet .q-morph.is-ready, .v-quiet .q-mini, .q-stage { transition: none; }
   .q-swap.is-in, .q-swap.is-out, .q-mini-icon[data-anim] svg { animation: none; }
   .q-dock-island, .q-dock-bar.is-entering, .q-dock-panel.is-entering *, .q-dock-pill { animation: none !important; transition: none; }
+  .q-cv, .q-cv-hint, .q-views-pill { animation: none; transition: none; }
 }
