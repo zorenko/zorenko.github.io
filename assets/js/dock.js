@@ -1,5 +1,6 @@
 /* Dock: a floating bottom bar (Home, Experiments, About) whose last button opens a menu upward with the
-   theme switch, the same pages and a link to Writing. Built here so every page gets identical markup from one place. */
+   same pages, links to Writing and Tech stack, and an icon-only theme switch at the bottom. On a Writing or
+   Tech stack page, that page's icon joins the bar while you're there. Built here so every page gets identical markup from one place. */
 (() => {
   const root = document.documentElement;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -19,6 +20,10 @@
       outline: g('<path d="M14.25 5.25 18.75 9.75M4.5 19.5l1-4.25L15.6 5.15a1.77 1.77 0 0 1 2.5 0l.75.75a1.77 1.77 0 0 1 0 2.5L8.75 18.5Z"/><path d="M13 19.5h6.5"/>'),
       active: g('<path class="q-dock-fill" d="M4.5 19.5l1-4.25L15.6 5.15a1.77 1.77 0 0 1 2.5 0l.75.75a1.77 1.77 0 0 1 0 2.5L8.75 18.5Z"/><path d="M13 19.5h6.5"/>'),
     },
+    stack: {
+      outline: g('<path d="M12 3.75 3.75 8 12 12.25 20.25 8Z"/><path d="m3.75 12 8.25 4.25L20.25 12M3.75 16l8.25 4.25L20.25 16"/>'),
+      active: g('<path class="q-dock-fill" d="M12 3.75 3.75 8 12 12.25 20.25 8Z"/><path d="m3.75 12 8.25 4.25L20.25 12M3.75 16l8.25 4.25L20.25 16"/>'),
+    },
     about: {
       outline: g('<circle cx="12" cy="8" r="3.75"/><path d="M5 19.25c.9-3.4 3.7-5.5 7-5.5s6.1 2.1 7 5.5a1 1 0 0 1-1 1.25H6a1 1 0 0 1-1-1.25Z"/>'),
       active: g('<circle class="q-dock-fill" cx="12" cy="8" r="3.75"/><path class="q-dock-fill" d="M5 19.25c.9-3.4 3.7-5.5 7-5.5s6.1 2.1 7 5.5a1 1 0 0 1-1 1.25H6a1 1 0 0 1-1-1.25Z"/>'),
@@ -34,8 +39,12 @@
     { label: "Experiments", href: "/experiments/", icon: "lab", on: path.startsWith("/experiments/") },
     { label: "About", href: "/about/", icon: "about", on: path.startsWith("/about/") },
   ];
-  const MORE = [{ label: "Writing", href: "/blog/", icon: "writing", on: path.startsWith("/blog/") }];
+  const MORE = [
+    { label: "Writing", href: "/blog/", icon: "writing", on: path.startsWith("/blog/") },
+    { label: "Tech stack", href: "/stack/", icon: "stack", on: path.startsWith("/stack/") },
+  ];
   const current = (it) => (it.on ? ' aria-current="page" data-active' : "");
+  const BAR = [...ITEMS, ...MORE.filter((it) => it.on)];
 
   const row = (it) => `<li><a class="q-dock-row" href="${it.href}"${current(it)}>${it.on ? ICON[it.icon].active : ICON[it.icon].outline}<span>${it.label}</span></a></li>`;
 
@@ -46,18 +55,20 @@
     <div class="q-dock-island">
       <span class="q-dock-bg" aria-hidden="true"></span>
       <div class="q-dock-bar">
-        ${ITEMS.map((it) => `<a class="q-dock-icon" href="${it.href}" aria-label="${it.label}"${current(it)}>${it.on ? ICON[it.icon].active : ICON[it.icon].outline}<span class="q-dock-tip" aria-hidden="true">${it.label}</span></a>`).join("")}
+        ${BAR.map((it) => `<a class="q-dock-icon" href="${it.href}" aria-label="${it.label}"${current(it)}>${it.on ? ICON[it.icon].active : ICON[it.icon].outline}<span class="q-dock-tip" aria-hidden="true">${it.label}</span></a>`).join("")}
         <button class="q-dock-icon q-dock-expand" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="q-dock-menu">${CHEVRONS}<span class="q-dock-tip" aria-hidden="true">More</span></button>
       </div>
       <div class="q-dock-panel" id="q-dock-menu" hidden>
-        <div class="q-dock-theme" role="radiogroup" aria-label="Colour theme">
-          <span class="q-dock-pill" aria-hidden="true"></span>
-          <button type="button" role="radio" data-theme="light">${SUN}Light</button>
-          <button type="button" role="radio" data-theme="dark">${MOON}Dark</button>
-          <button type="button" role="radio" data-theme="system">${SYSTEM}System</button>
-        </div>
         <ul class="q-dock-list" role="list">${ITEMS.map(row).join("")}</ul>
         <ul class="q-dock-list q-dock-list--more" role="list">${MORE.map(row).join("")}</ul>
+        <div class="q-dock-foot">
+          <div class="q-dock-theme" role="radiogroup" aria-label="Colour theme">
+            <span class="q-dock-pill" aria-hidden="true"></span>
+            <button type="button" role="radio" data-theme="light" aria-label="Light">${SUN}</button>
+            <button type="button" role="radio" data-theme="dark" aria-label="Dark">${MOON}</button>
+            <button type="button" role="radio" data-theme="system" aria-label="System">${SYSTEM}</button>
+          </div>
+        </div>
       </div>
     </div>`;
   document.body.append(nav);

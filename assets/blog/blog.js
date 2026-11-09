@@ -1,5 +1,6 @@
 /* Renders post lists from /blog/posts.json into every <ul data-posts="N"> (empty value = all posts),
-   newest first. To publish a post: add /blog/<slug>/index.html and one entry to posts.json. */
+   newest first. To publish a post: add /blog/<slug>/index.html and one entry to posts.json.
+   Give it "tags": ["Tech stack"] to also list it as a version on /stack/ (see /assets/js/stack.js). */
 (() => {
   const lists = [...document.querySelectorAll("ul[data-posts]")];
   if (!lists.length) return;
