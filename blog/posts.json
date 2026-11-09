@@ -1,8 +1,8 @@
 [
   { "slug": "tech-stack-november-2026", "title": "Tech stack, November 2026", "date": "2026-11-09", "tags": ["Tech stack"] },
-  { "slug": "designing-in-the-browser", "title": "Designing in the browser: ten weeks of shipping as a designer", "date": "2026-10-21" },
+  { "slug": "designing-in-the-browser", "title": "Designing in the browser: ten weeks of shipping as a designer", "date": "2026-10-21", "stack": ["product/build"] },
   { "slug": "what-esg-reporting-taught-me", "title": "What ESG reporting taught me about dense interfaces", "date": "2026-09-12" },
-  { "slug": "borrowing-timing", "title": "Borrowing timing: notes on motion for small sites", "date": "2026-08-03" },
+  { "slug": "borrowing-timing", "title": "Borrowing timing: notes on motion for small sites", "date": "2026-08-03", "stack": ["growth/make"] },
   { "slug": "building-for-people-who-read-tables", "title": "Building for people who read tables all day", "date": "2026-06-18" },
-  { "slug": "a-design-system-for-one", "title": "A design system for one", "date": "2026-05-02" }
+  { "slug": "a-design-system-for-one", "title": "A design system for one", "date": "2026-05-02", "stack": ["product/design"] }
 ]

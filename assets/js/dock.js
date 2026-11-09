@@ -1,6 +1,6 @@
 /* Dock: a floating bottom bar (Home, Experiments, About) whose last button opens a menu upward with the
-   same pages, links to Writing and Tech stack, and an icon-only theme switch at the bottom. On a Writing or
-   Tech stack page, that page's icon joins the bar while you're there. Built here so every page gets identical markup from one place. */
+   same pages, links to Writing and How I work, and an icon-only theme switch at the bottom. On a Writing or
+   How I work page, that page's icon joins the bar while you're there. Built here so every page gets identical markup from one place. */
 (() => {
   const root = document.documentElement;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -41,7 +41,7 @@
   ];
   const MORE = [
     { label: "Writing", href: "/blog/", icon: "writing", on: path.startsWith("/blog/") },
-    { label: "Tech stack", href: "/stack/", icon: "stack", on: path.startsWith("/stack/") },
+    { label: "How I work", href: "/how-i-work/", icon: "stack", on: path.startsWith("/how-i-work/") },
   ];
   const current = (it) => (it.on ? ' aria-current="page" data-active' : "");
   const BAR = [...ITEMS, ...MORE.filter((it) => it.on)];
