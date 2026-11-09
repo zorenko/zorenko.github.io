@@ -1,25 +1,6 @@
-/* Site: theme toggle, name scramble, scroll reveal, copy email, lightbox. Each part runs only where its markup exists. */
+/* Site: name scramble, scroll reveal, copy email, lightbox. Each part runs only where its markup exists. (Theme lives in the dock: /assets/js/dock.js) */
 (() => {
-  const root = document.documentElement;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // Theme (saved, falls back to the system preference)
-  const themeBtn = document.querySelector(".q-theme");
-  const applyTheme = (dark) => {
-    root.classList.toggle("q-dark", dark);
-    themeBtn?.setAttribute("aria-pressed", String(dark));
-    themeBtn?.setAttribute("aria-label", dark ? "Light theme" : "Dark theme");
-  };
-  const saved = localStorage.getItem("q-theme");
-  applyTheme(saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches);
-  themeBtn?.addEventListener("click", () => {
-    const dark = !root.classList.contains("q-dark");
-    applyTheme(dark);
-    localStorage.setItem("q-theme", dark ? "dark" : "light");
-    themeBtn.removeAttribute("data-anim");
-    void themeBtn.offsetWidth;
-    themeBtn.setAttribute("data-anim", "");
-  });
 
   // Name and role resolve out of placeholder glyphs, one letter every 70ms
   const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&*+=?/";
