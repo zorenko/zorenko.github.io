@@ -1,10 +1,11 @@
 "$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
 
 [scripts]
+setup = "npm install"
 run_mode = "concurrent"
 
 [scripts.run.serve]
 available_in = [ "local" ]
-command = "python3 -m http.server $CONDUCTOR_PORT"
+command = "npm run dev -- --port $CONDUCTOR_PORT"
 default = true
 icon = "play"

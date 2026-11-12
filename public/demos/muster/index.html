@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <!-- A copy of the Muster landing page (musteryourskills.com, from the landing repo) for the demo on the portfolio home page, opened with ?embed.
+       Analytics and the variants switcher are left out. To update it, copy index.html, styles.css, script.js and assets/ again
+       and reapply: the ?embed line in the first script, no PostHog block, no variants.js, and the embed block at the end of styles.css. -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Muster your skills for Claude Code and Codex</title>
+  <meta name="description" content="Skills pile up across Claude Code, Codex, plugins and projects, and start to clash. Muster finds every one, flags conflicts, duplicates and unused skills every day, and sorts them into folders when you say so." />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <meta property="og:title" content="Muster: 100 skills, zero order. Time to muster them." />
+  <meta property="og:description" content="Muster finds every Claude Code and Codex skill on your Mac, shows which ones conflict, repeat or never run, and sorts them into folders when you say so. No account, no Muster cloud." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500&family=Geist:wght@400..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- phones: the hero stage starts below the fold, so its entrance waits for it (script.js lifts hero-wait).
+       iOS: maximum-scale stops Safari zooming into the demo's small fields on focus; iOS still lets you pinch-zoom -->
+  <script>(d => {
+    d.classList.remove('no-js');
+    // ?shot=web|pop|term: the page as a screenshot of one demo surface, for the phone carousel's frames (script.js)
+    const shot = new URLSearchParams(location.search).get('shot');
+    if (/^(web|pop|term)$/.test(shot)) { d.classList.add('is-shot'); d.dataset.shot = shot; }
+    // ?embed: just the Mac desktop, live, filling the frame (the demo on zorenko.github.io's home page)
+    else if (new URLSearchParams(location.search).has('embed')) d.classList.add('is-embed');
+    else if (matchMedia('(max-width: 809px)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('hero-wait');
+    // /hero2 (?hero=2): the hero's folders instead of the Mac app, to try both on the live site (script.js)
+    if (new URLSearchParams(location.search).get('hero') === '2') d.classList.add('hero-folders');
+    if (/iP(hone|od|ad)/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+      d.querySelector('meta[name="viewport"]').content = 'width=device-width, initial-scale=1, maximum-scale=1';
+  })(document.documentElement)</script>
+</head>
+<body>
+
+<!-- ───────────── Nav ───────────── -->
+<header class="nav" id="top">
+  <div class="nav__inner">
+    <a class="brand" href="#top" aria-label="Muster home">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__name">Muster</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#how">How it works</a>
+      <a href="#demo">Try it</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#faq">FAQ</a>
+      <button class="link-btn" type="button" data-contact-open aria-haspopup="dialog">Contact</button>
+    </nav>
+    <div class="nav__right">
+      <a class="btn btn--primary btn--sm nav__cta" href="#join">Get your invite</a>
+      <button class="nav__burger" aria-label="Open menu" aria-expanded="false" aria-controls="sheet" data-burger>
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <!-- phones: the whole screen under the bar (after interfere.com): big quiet links, the CTA at the bottom -->
+  <div class="nav__sheet" id="sheet" data-sheet>
+    <nav class="nav__sheet-links" aria-label="Menu">
+      <a href="#how">How it works</a>
+      <a href="#demo">Try it</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#faq">FAQ</a>
+      <button class="link-btn" type="button" data-contact-open aria-haspopup="dialog">Contact</button>
+    </nav>
+    <a class="btn btn--primary btn--lg nav__sheet-cta" href="#join">Get your invite</a>
+  </div>
+</header>
+
+<main>
+
+<!-- ───────────── 1. Hero: the pile in one line, then the mess sorting itself ───────────── -->
+<section class="hero" id="hero">
+  <div class="wrap hero__copy">
+    <p class="hero__kicker"><span class="hero__works">For<span class="agent"><i class="logo logo--claude" style="--src:url(assets/logos/claude.svg)" aria-hidden="true"></i>Claude Code</span>and<span class="agent"><i class="logo" style="--src:url(assets/logos/openai.svg)" aria-hidden="true"></i>Codex</span></span></p>
+    <!-- the token cycles through what goes wrong in a pile of skills (after graphicalui.com's hero):
+         auto-plays, and a click shows the next one. Pictures live in script.js (TOKENS).
+         Each .hw is one word of the entrance (after interfere.com): --i is its place in the stagger. -->
+    <h1 class="h-hero"><span class="hw" style="--i:0">100</span> <span class="hw" style="--i:1">skills.</span><br class="br-m" /> <span class="hw" style="--i:2"><button class="token" type="button" data-token="pile" aria-label="Zero order. Show duplicates" aria-describedby="token-hint" style="--label-w:4.6em"><span class="token__sizer" aria-hidden="true">&#8203;</span><span class="token__icon" aria-hidden="true"><span class="token__layer" data-r="-9" style="rotate:-9deg"><span class="token__art"><svg viewBox="0 0 64 64"><g fill="#fff" stroke="#fff" stroke-width="7.5" stroke-linejoin="round"> <rect x="5" y="16" width="26" height="32" rx="6" transform="rotate(-16 18 32)"/><rect x="24" y="5" width="26" height="32" rx="6" transform="rotate(12 37 21)"/><rect x="27" y="27" width="30" height="31" rx="6" transform="rotate(-5 42 42)"/></g> <rect x="5" y="16" width="26" height="32" rx="6" transform="rotate(-16 18 32)" fill="#EFEFED"/> <rect x="24" y="5" width="26" height="32" rx="6" transform="rotate(12 37 21)" fill="#DEDEDA"/> <rect x="27" y="27" width="30" height="31" rx="6" transform="rotate(-5 42 42)" fill="#202020"/> <rect x="33" y="35" width="14" height="5" rx="2.5" transform="rotate(-5 42 42)" style="fill:var(--accent-on-dark)"/> <rect x="33" y="44" width="18" height="3" rx="1.5" transform="rotate(-5 42 42)" fill="#6C6C6C"/></svg></span></span></span><span class="token__text" aria-hidden="true"><span class="token__morph">Zero order</span></span></button>.</span><br /> <span class="hw" style="--i:3">Time</span> <span class="hw" style="--i:4">to</span> <span class="hw" style="--i:5">muster</span> <span class="hw" style="--i:6">them.</span></h1>
+    <p class="sr-only" id="token-hint">Select the highlighted words to see what else goes wrong.</p>
+    <p class="lede"><span class="m-hide">Muster finds every skill you've installed and sorts them into folders, from your terminal, your browser or your menu bar. It flags the ones that clash, repeat or never run, and suggests fixes and improvements.</span><span class="m-only">Muster finds every skill you've installed, sorts them into folders and flags the ones that clash, repeat or never run.</span></p>
+    <div class="btns">
+      <a class="btn btn--primary btn--lg" href="#join">Get your invite</a>
+      <a class="btn btn--soft btn--lg" href="#demo">See it in action</a>
+    </div>
+    <ul class="hero__facts">
+      <li>Checked every day</li>
+      <li>Runs on your Mac</li>
+      <li>No account</li>
+      <li>Nothing changes without you</li>
+    </ul>
+  </div>
+
+  <!-- the folders (after the app's first run): skills swirl and fly into folders, which say what Muster found.
+       script.js builds it and plays it without end, with a pause button; only on /hero2 (?hero=2); the stage below is the default -->
+  <div class="muster canvas" data-muster>
+    <div class="muster__orbit" data-muster-orbit aria-hidden="true"></div>
+    <div class="muster__front" role="img" aria-label="Skills swirling and flying into folders: Code, Review, Design, Motion, Writing, Inbox and meetings, Planning and Admin. Under each folder, what Muster found in it, like a conflict, a duplicate or an unused skill">
+      <ul class="muster__folders" data-muster-folders aria-hidden="true"></ul>
+    </div>
+    <div class="muster__fly" data-muster-fly aria-hidden="true"></div>
+    <button type="button" class="muster__pause" data-muster-pause aria-label="Pause the animation" hidden>
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path class="muster__ico-pause" d="M5.5 3.5v9M10.5 3.5v9" /><path class="muster__ico-play" d="M5 3.2v9.6L12.6 8z" /></svg>
+    </button>
+  </div>
+
+  <div class="hero__stage canvas" data-hero>
+    <!-- the skills on your Mac pop up, each with what's wrong with it; on scroll they file themselves into folders -->
+    <div class="swarm" data-swarm aria-hidden="true"></div>
+
+    <div class="hero__shot" data-hero-shot>
+      <div class="app" data-fit="1180" role="img" aria-label="Muster on a Mac: 98 Claude Code and Codex skills sorted into eight folders, 621 runs in 30 days, 26 that need a look. As they file in, it finds 12 duplicated skills, 9 updates, 37 barely used skills and 4 in conflict">
+        <div class="app__inner" aria-hidden="true">
+          <aside class="app__side">
+            <div class="app__search"><span>Search skills</span><kbd>⌘K</kbd></div>
+            <ul class="app__nav">
+              <li class="is-on"><i class="ico ico--grid"></i>Overview</li>
+              <li><i class="ico ico--heart"></i>Health <em>26</em></li>
+              <li><i class="ico ico--plus"></i>Add skills</li>
+            </ul>
+            <p class="app__group">Skills <em>98</em></p>
+            <ul class="app__list" data-landing>
+              <li data-row="Admin"><i class="ico ico--folder"></i>Admin<span class="pair pair--amber"></span></li>
+              <li data-row="Code"><i class="ico ico--folder"></i>Code<span class="pair pair--red"></span></li>
+              <li data-row="Review" class="is-sub"><i class="ico ico--folder"></i>Review<b class="dot dot--amber"></b></li>
+              <li data-row="Design"><i class="ico ico--folder"></i>Design<span class="pair pair--red"></span></li>
+              <li data-row="Motion" class="is-sub"><i class="ico ico--folder"></i>Motion</li>
+              <li data-row="Inbox"><i class="ico ico--folder"></i>Inbox and meetings<b class="dot dot--amber"></b></li>
+              <li data-row="Personal"><i class="ico ico--folder"></i>Personal<span class="pair pair--amber"></span></li>
+              <li data-row="Planning"><i class="ico ico--folder"></i>Planning<b class="dot dot--amber"></b></li>
+              <li data-row="Side"><i class="ico ico--folder"></i>Side project<b class="dot dot--amber"></b></li>
+              <li data-row="Writing"><i class="ico ico--folder"></i>Writing<span class="pair pair--amber"></span></li>
+              <li data-row="my-fancy-skill"><i class="ico ico--doc"></i>my-fancy-skill <small>v2</small></li>
+              <li data-row="find-skills"><i class="ico ico--globe"></i>find-skills <small>v0.4.0</small></li>
+              <li data-row="grill-me"><i class="ico ico--globe"></i>grill-me <small>v1.2.0</small></li>
+            </ul>
+            <div class="app__user"><span class="app__avatar"><i class="ico ico--laptop"></i></span>This Mac<span class="app__agents"><i class="logo logo--claude" style="--src:url(assets/logos/claude.svg)"></i><i class="logo" style="--src:url(assets/logos/openai.svg)"></i></span></div>
+          </aside>
+          <div class="app__main">
+            <div class="app__bar">
+              <span>Overview</span>
+              <span class="app__range"><span>7 days</span><span class="is-on">30 days</span><span>90 days</span></span>
+            </div>
+            <div class="app__body">
+              <h3 class="app__h">Overview<small>Checked today at 08:00</small></h3>
+              <div class="app__stats app__panel">
+                <div><span>Skills</span><strong>98</strong><small>in 8 folders</small></div>
+                <div><span>Runs, 30 days</span><strong>621</strong><svg class="app__spark" viewBox="0 0 120 18" preserveAspectRatio="none"><polyline points="0.0,12.6 4.1,10.5 8.3,14.1 12.4,9.0 16.6,6.8 20.7,16.3 24.8,17.0 29.0,9.7 33.1,7.5 37.2,5.4 41.4,8.3 45.5,6.1 49.7,14.8 53.8,15.5 57.9,9.0 62.1,4.6 66.2,6.8 70.3,3.2 74.5,5.4 78.6,13.4 82.8,14.1 86.9,6.1 91.0,3.9 95.2,7.5 99.3,2.5 103.4,4.6 107.6,11.9 111.7,12.6 115.9,3.9 120.0,1.0" /></svg></div>
+                <div><span>Active skills</span><strong>88</strong><i class="app__meter" style="--v:.9"></i></div>
+                <div><span><b class="dot dot--amber"></b>Needs a look</span><strong>26</strong><small>3 new since yesterday</small></div>
+              </div>
+              <!-- what the check turns up while the skills file in: the row opens and the cards rise in, one more on scroll (script.js) -->
+              <div class="app__flags" data-flags><div class="app__flags-clip"><div class="app__flags-row">
+                <div class="flag"><p class="flag__top"><em class="sw__tag sw__tag--copy">Duplicates</em><span class="app__btn">Merge</span></p><strong>12</strong><small>skills in 6 pairs</small></div>
+                <div class="flag"><p class="flag__top"><em class="sw__tag sw__tag--new">Updates</em><span class="app__btn">Update</span></p><strong>9</strong><small>new versions out</small></div>
+                <div class="flag"><p class="flag__top"><em class="sw__tag sw__tag--unused">Unused</em><span class="app__btn">Switch off</span></p><strong>37</strong><small>barely ran in 30 days</small></div>
+                <div class="flag"><p class="flag__top"><em class="sw__tag sw__tag--conflict">Conflicts</em><span class="app__btn">Review</span></p><strong>4</strong><small>in 2 pairs that clash</small></div>
+              </div></div></div>
+              <!-- most used, the top 10 (255 runs, 41% of 621), running on past the hero's edge: each row's bar is its runs (the longest is 42), split by version, newest first and darkest -->
+              <div class="app__card app__panel">
+                <div class="app__sub"><span>Most used</span><small>The top 10 skills account for 41% of runs</small></div>
+                <table class="app__top">
+                  <thead><tr><th>Skill</th><th>Runs</th><th>By version</th></tr></thead>
+                  <tbody>
+                    <tr><td><span class="app__rank">1</span><code>pr-review</code></td><td>42</td><td><span class="app__runs" style="--r:42"><b style="--n:18"></b><b style="--n:24"></b></span>v1.1.0: 18 · v1.0.0: 24</td></tr>
+                    <tr><td><span class="app__rank">2</span><code>commit-message</code></td><td>40</td><td><span class="app__runs" style="--r:40"><b style="--n:22"></b><b style="--n:14"></b><b style="--n:4"></b></span>v3: 22 · v2: 14 · v1: 4</td></tr>
+                    <tr><td><span class="app__rank">3</span><code>ticket-tagger</code></td><td>31</td><td><span class="app__runs" style="--r:31"><b style="--n:22"></b><b style="--n:9"></b></span>v1.1.0: 22 · v1.0.0: 9</td></tr>
+                    <tr><td><span class="app__rank">4</span><code>summarize-thread</code></td><td>27</td><td><span class="app__runs" style="--r:27"><b style="--n:27"></b></span>v1: 27</td></tr>
+                    <tr><td><span class="app__rank">5</span><code>frontend-design</code></td><td>25</td><td><span class="app__runs" style="--r:25"><b style="--n:17"></b><b style="--n:8"></b></span>v2: 17 · v1: 8</td></tr>
+                    <tr><td><span class="app__rank">6</span><code>meeting-notes</code></td><td>22</td><td><span class="app__runs" style="--r:22"><b style="--n:15"></b><b style="--n:7"></b></span>v1.2.0: 15 · v1.1.0: 7</td></tr>
+                    <tr><td><span class="app__rank">7</span><code>code-search</code></td><td>20</td><td><span class="app__runs" style="--r:20"><b style="--n:20"></b></span>v1: 20</td></tr>
+                    <tr><td><span class="app__rank">8</span><code>translate-es</code></td><td>18</td><td><span class="app__runs" style="--r:18"><b style="--n:11"></b><b style="--n:7"></b></span>v3: 11 · v2: 7</td></tr>
+                    <tr><td><span class="app__rank">9</span><code>weekly-plan</code></td><td>16</td><td><span class="app__runs" style="--r:16"><b style="--n:16"></b></span>v1: 16</td></tr>
+                    <tr><td><span class="app__rank">10</span><code>inbox-zero</code></td><td>14</td><td><span class="app__runs" style="--r:14"><b style="--n:10"></b><b style="--n:4"></b></span>v0.3: 10 · v0.2: 4</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 2. Problem: no order, so they clash ───────────── -->
+<section class="problem" id="problem" data-scrub>
+  <div class="problem__sticky">
+    <p class="problem__text" data-scrub-text>You saw a skill on X and installed it. Then a few more. Then a plugin brought its friends. Now there are 98, in no order, and you could name maybe twenty. Some have newer versions now. Nobody told you. All 98 load into every session, even the ones you never use. Two of them tell your agent opposite things. And you wonder why it’s been acting strange lately…</p>
+
+    <!-- revealed in DOM order as the text scrubs: the pile first, the red clashes last; the class sets the position -->
+    <div class="chip chip--2" aria-hidden="true"><i class="chip__warn chip__warn--grey"></i>8 skills from a plugin you used once</div>
+    <div class="chip chip--1" aria-hidden="true"><i class="chip__warn chip__warn--grey"></i>98 skills, 0 folders</div>
+    <div class="chip chip--4" aria-hidden="true"><i class="chip__warn"></i><code>helper</code>: “A helpful skill.”</div>
+    <div class="chip chip--9" aria-hidden="true"><i class="chip__warn chip__warn--grey"></i>10 skills unused in 30 days</div>
+    <div class="chip chip--10" aria-hidden="true"><i class="chip__warn chip__warn--grey"></i>+1,000 tokens on every turn</div>
+    <div class="chip chip--7" aria-hidden="true"><i class="chip__warn"></i>2 skills write the same standup</div>
+    <div class="chip chip--8" aria-hidden="true"><i class="chip__warn"></i>3 animation skills, 3 different names</div>
+    <div class="chip chip--3" aria-hidden="true"><i class="chip__warn"></i><code>pr-review</code> copied to Codex, now different</div>
+    <div class="chip chip--5" aria-hidden="true"><i class="chip__warn chip__warn--red"></i><code>commit-message</code> vs <code>conventional-commits</code>: opposite rules</div>
+    <div class="chip chip--6" aria-hidden="true"><i class="chip__warn chip__warn--red"></i><code>brand-fonts</code> vs <code>ui-taste</code>: opposite fonts</div>
+  </div>
+</section>
+
+<!-- ───────────── 3. How it works: one idea per step ───────────── -->
+<section class="section how" id="how">
+  <div class="wrap">
+    <header class="head head--center">
+      <span class="eyebrow">How it works</span>
+      <h2 class="h-section">Muster gets them in line.</h2>
+      <p class="sub"><span class="m-hide">One line to install. It finds every skill in Claude Code and Codex, sorts them into folders, checks them every day, and lets you fix a clash in one click.</span><span class="m-only">One line to install. Then it finds, sorts, checks and fixes.</span></p>
+    </header>
+
+    <ol class="steps">
+      <!-- 1. Install: one line in a terminal, then it's a CLI, a local web app and a menu bar icon.
+           TODO: the command is a placeholder until the real install name is secured (see README). -->
+      <li class="step">
+        <div class="step__copy">
+          <span class="step__n">1</span>
+          <h3 class="step__title">You install it with one line</h3>
+          <p class="step__text"><span class="m-hide">Paste one command. Muster is now a command in your terminal, an app in your browser and an icon in your menu bar. No account, nothing to configure. It starts on the skills you already have.</span><span class="m-only">Paste one command, and Muster is in your terminal, your browser and your menu bar.</span></p>
+        </div>
+        <div class="step__art art-install canvas" aria-hidden="true">
+          <div class="shell" data-shell>
+            <div class="shell__bar"><span class="shell__lights"><i></i><i></i><i></i></span><span class="shell__title">zsh</span></div>
+            <div class="shell__body">
+              <p><span class="t-dir">~</span> <span class="t-dim">%</span> <span data-type>brew install --cask muster</span></p>
+              <p class="shell__spin" data-at="1500" data-until="2600"><span class="t-dim" data-spinner>⠋</span> Downloading Muster…</p>
+              <p data-at="2600"><span class="t-ok">✓</span> Installed Muster.app</p>
+              <p data-at="2850"><span class="t-ok">✓</span> Daily check scheduled</p>
+              <p data-at="3300" class="shell__gap"><span class="t-strong">Muster is in your menu bar.</span></p>
+              <p data-at="3550"><span class="t-dim">Next: muster scan, or muster open for the app</span></p>
+              <p data-at="3900" class="shell__gap"><span class="t-dir">~</span> <span class="t-dim">%</span> <i class="shell__cursor"></i></p>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <!-- 2. Find: every place skills live → one scan -->
+      <li class="step">
+        <div class="step__copy">
+          <span class="step__n">2</span>
+          <h3 class="step__title">It finds every skill you have</h3>
+          <p class="step__text"><span class="m-hide">Claude Code, Codex, your projects, your plugins: one scan finds every skill, wherever it lives. It only reads. Nothing moves.</span><span class="m-only">One scan finds every skill in Claude Code, Codex, your projects and plugins. It only reads.</span></p>
+        </div>
+        <div class="step__art art-find canvas" data-play aria-hidden="true">
+          <div class="find">
+            <div class="find__src">
+              <div class="src"><p class="src__path"><i class="logo logo--claude" style="--src:url(assets/logos/claude.svg)"></i>~/.claude/skills</p><p class="src__meta">Claude Code, every project</p><span class="src__n">52</span></div>
+              <div class="src"><p class="src__path"><i class="logo" style="--src:url(assets/logos/openai.svg)"></i>~/.agents/skills</p><p class="src__meta">Codex, every project</p><span class="src__n">9</span></div>
+              <div class="src"><p class="src__path"><i class="ico ico--box"></i>3 plugins</p><p class="src__meta">Load in every session</p><span class="src__n">29</span></div>
+              <div class="src"><p class="src__path"><i class="ico ico--folder"></i>your-repo/.claude/skills</p><p class="src__meta">Inside 4 projects</p><span class="src__n">8</span></div>
+            </div>
+            <svg class="find__wires" viewBox="0 0 56 300" preserveAspectRatio="none">
+              <path d="M0 33 C 30 33, 26 150, 56 150" /><path d="M0 111 C 30 111, 26 150, 56 150" /><path d="M0 189 C 30 189, 26 150, 56 150" /><path d="M0 267 C 30 267, 26 150, 56 150" />
+            </svg>
+            <div class="term">
+              <div class="term__bar"><i></i><i></i><i></i><span>zsh</span></div>
+              <div class="term__body">
+                <p class="term__cmd"><b>$</b> muster scan</p>
+                <p><i class="ok"></i>98 skills in 4 places</p>
+                <p><i class="ok"></i>89 for Claude Code</p>
+                <p><i class="ok"></i>9 for Codex</p>
+                <p><i class="ok"></i>No files changed</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <!-- 3. Sort: flat list → folders -->
+      <li class="step">
+        <div class="step__copy">
+          <span class="step__n">3</span>
+          <h3 class="step__title">It sorts them into folders</h3>
+          <p class="step__text"><span class="m-hide">No more one long list. Your skills get folders and subfolders, and every new skill gets a suggested home. The files stay where they are, so your agent still finds them.</span><span class="m-only">Folders and subfolders, and a suggested home for every new skill. The files stay put.</span></p>
+        </div>
+        <div class="step__art art-sort canvas" data-play aria-hidden="true">
+          <div class="sort">
+            <div class="sort__flat">
+              <p class="sort__cap">Your skills today</p>
+              <ul>
+                <li>animation-polish</li><li>brand-fonts</li><li>code-review</li><li>code-search</li><li>commit-message</li><li>easing-tokens</li><li>frontend-design</li><li>pr-review</li><li>spring-curves</li><li>ui-taste</li><li>…88 more</li>
+              </ul>
+            </div>
+            <span class="sort__arrow"></span>
+            <div class="sort__tree">
+              <p class="sort__cap">In Muster</p>
+              <ul class="tree">
+                <li><p class="tree__f"><i class="ico ico--folder"></i>Design<em>23</em></p>
+                  <ul>
+                    <li><p class="tree__f"><i class="ico ico--folder"></i>Motion<em>3</em></p>
+                      <ul><li>animation-polish</li><li>easing-tokens</li><li class="is-new">spring-curves <span class="pv-new">Suggested</span></li></ul>
+                    </li>
+                    <li>brand-fonts</li><li>frontend-design</li><li>ui-taste</li>
+                  </ul>
+                </li>
+                <li><p class="tree__f"><i class="ico ico--folder"></i>Code<em>23</em></p>
+                  <ul>
+                    <li><p class="tree__f"><i class="ico ico--folder"></i>Review<em>3</em></p>
+                      <ul><li>pr-review</li><li class="tree__agent">code-review <i class="logo" style="--src:url(assets/logos/openai.svg)"></i></li></ul>
+                    </li>
+                    <li>commit-message</li>
+                  </ul>
+                </li>
+                <li><p class="tree__f is-closed"><i class="ico ico--folder"></i>Writing<em>10</em></p></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </li>
+      <!-- 4. Check: the daily report -->
+      <li class="step">
+        <div class="step__copy">
+          <span class="step__n">4</span>
+          <h3 class="step__title">It checks them every day</h3>
+          <p class="step__text"><span class="m-hide">It flags what needs a look: skills that contradict each other, skills that do the same job, skills you never use, and descriptions too vague for your agent to pick. It also checks as soon as you add or change a skill, and whenever you ask.</span><span class="m-only">It flags clashes, duplicates, skills you never use and descriptions too vague to pick.</span></p>
+        </div>
+        <div class="step__art art-check canvas" data-play aria-hidden="true">
+          <div class="report">
+            <div class="report__head"><span class="report__title"><span class="brand__mark"></span>Daily check</span><span class="report__time">Today, 08:00 · 98 skills</span></div>
+            <div class="report__sum"><span><b class="dot dot--red"></b>2 conflicts</span><span><b class="dot dot--amber"></b>6 duplicates</span><span><b class="dot dot--grey"></b>10 unused</span><span><b class="dot dot--amber"></b>8 vague</span></div>
+            <ul class="report__list">
+              <li><i class="dot dot--red"></i><div><p><code>commit-message</code> × <code>conventional-commits</code></p><small>Both load for “commit message”. One says never start with “feat:”, the other says always do.</small></div><em class="tag tag--red">Conflict</em></li>
+              <li><i class="dot dot--amber"></i><div><p><code>pr-review</code> × <code>code-review</code></p><small>The same skill, once for Claude Code and once for Codex. Only one got your last edit.</small></div><em class="tag tag--amber">Codex copy</em></li>
+              <li><i class="dot dot--grey"></i><div><p>8 skills from <code>design-pack</code></p><small>None ran in 30 days, yet they add ~800 tokens to every turn.</small></div><em class="tag">Unused</em></li>
+            </ul>
+          </div>
+        </div>
+      </li>
+
+      <!-- 5. Fix: two clashing skills and the tiebreak -->
+      <li class="step">
+        <div class="step__copy">
+          <span class="step__n">5</span>
+          <h3 class="step__title">You fix them in one click</h3>
+          <p class="step__text"><span class="m-hide">Every flag comes with a ready fix: merge the duplicates, settle the conflicts, switch off what you never use. Nothing changes until you say so.</span><span class="m-only">Every flag comes with a ready fix. Nothing changes until you say so.</span></p>
+        </div>
+        <div class="step__art art-fix canvas" data-play aria-hidden="true">
+          <div class="cmp">
+            <p class="cmp__q"><i class="dot dot--red"></i>Which should Claude follow?</p>
+            <p class="cmp__trigger">Both load for anything with headings.</p>
+            <div class="cmp__cols">
+              <div class="cmp__skill">
+                <p class="cmp__name"><code>brand-fonts</code><small>Yours · 9 runs</small></p>
+                <p class="cmp__body">Set every heading in the brand typeface. <mark class="hl hl--r">Never fall back to Inter.</mark></p>
+              </div>
+              <div class="cmp__skill">
+                <p class="cmp__name"><code>ui-taste</code><small>From GitHub · 14 runs</small></p>
+                <p class="cmp__body">Keep interfaces neutral. <mark class="hl hl--r">Use Inter for all text, headings included.</mark></p>
+              </div>
+            </div>
+            <p class="cmp__fix"><b>Suggested fix: one line in ~/.claude/CLAUDE.md</b><q>When brand-fonts and ui-taste disagree on typefaces, follow brand-fonts on marketing pages and ui-taste on product screens.</q></p>
+            <div class="cmp__actions"><span class="mbtn mbtn--dark">Add the tiebreak</span><span class="mbtn">Copy instead</span><span class="mbtn mbtn--ghost">Skip</span></div>
+          </div>
+        </div>
+      </li>
+
+    </ol>
+    <!-- phones: the steps are a row to swipe; these step through it -->
+    <div class="row-nav" data-row-nav=".steps">
+      <button type="button" class="btn btn--soft row-nav__btn" data-dir="-1" aria-label="Previous step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg></button>
+      <button type="button" class="btn btn--soft row-nav__btn" data-dir="1" aria-label="Next step"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></button>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 4. Proof: what one cleanup did ───────────── -->
+<section class="section story" id="story">
+  <div class="wrap">
+    <div class="story__top">
+      <h2 class="story__title">
+        <span>Installing skills is easy now.</span>
+        <span>Keeping track of what you installed is the hard part.</span>
+      </h2>
+      <div class="story__body">
+        <p>We built Muster for our own Macs first. This is what the first cleanup did to one of them. Now we’re letting a few people in at a time.</p>
+        <p class="story__sign"><strong>The Muster team</strong></p>
+      </div>
+    </div>
+
+    <!-- TODO before launch: 229 and "half from one plugin" are from the team's own Mac; the
+         breakdown is a placeholder: 114 + 23 + 17 + 75 = 229, and the 9 conflicts are fixes, not removals.
+         Swap in the real counts. -->
+    <!-- hover or focus a segment, a number or a receipt: the matching pieces light up together -->
+    <div class="cleanup" data-play data-cleanup>
+      <p class="cleanup__big"><span>229</span><i class="cleanup__arrow" aria-hidden="true"></i><span class="sr-only"> to </span><span data-k="kept" data-count="229">75</span></p>
+      <p class="cleanup__cap">skills on one of our Macs, before and after the first cleanup</p>
+      <div class="cleanup__track">
+        <p class="cleanup__tip" data-tip aria-hidden="true"></p>
+        <div class="cleanup__bar" role="list" aria-label="What happened to 229 skills">
+          <i role="listitem" tabindex="0" class="is-off" style="--n:114" data-k="off" data-label="<b>114</b> switched off" aria-label="114 switched off"></i><i role="listitem" tabindex="0" class="is-merged" style="--n:23" data-k="merged" data-label="<b>23</b> merged" aria-label="23 merged"></i><i role="listitem" tabindex="0" class="is-archived" style="--n:17" data-k="archived" data-label="<b>17</b> archived" aria-label="17 archived"></i><i role="listitem" tabindex="0" class="is-kept" style="--n:75" data-k="kept" data-label="<b>75</b> kept, 9 of them fixed" aria-label="75 kept, 9 of them fixed"></i>
+        </div>
+        <div class="cleanup__labels" aria-hidden="true">
+          <span class="is-off" style="--n:114" data-k="off"><b>114</b>switched off</span><span class="is-merged" style="--n:23" data-k="merged"><b>23</b>merged</span><span class="is-archived" style="--n:17" data-k="archived"><b>17</b>archived</span><span class="is-kept" style="--n:75" data-k="kept"><span><b>75</b>kept</span><span class="is-fixed"><b>9</b>fixed</span></span>
+        </div>
+      </div>
+    </div>
+    <dl class="receipts">
+      <div data-k="off"><dt>114</dt><dd>switched off. All from one plugin, installed for one job.</dd></div>
+      <div data-k="merged"><dt>23</dt><dd>duplicates merged. 8 were animation skills under different names.</dd></div>
+      <div data-k="archived"><dt>17</dt><dd>archived after 30 days unused. Nothing deleted.</dd></div>
+      <div data-k="kept"><dt>9</dt><dd>conflicts fixed in the 75 that stayed</dd></div>
+    </dl>
+
+    <!-- what the cleanup above saves: tokens, money and sanity. TODO before launch: same placeholder Mac as the numbers
+         above; check the per-turn figures with /context there. The model (script.js: PART, USE, READ, WRITE):
+         - every skill's description rides along on every turn, ~100 tokens (Anthropic's figure:
+           platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
+         - Claude Code caps the list at 1% of the context window in characters (skillListingBudgetFraction: 40,000 chars
+           on a 1M window, ~10,000 tokens) and drops descriptions past it, least-used first; so 229 skills sat at the cap
+           and 75 come to ~7,500: the 154 that went add ~2,500 tokens to every turn
+         - a skill that loads stays in the session (code.claude.com/docs/en/skills). At turn 4 a duplicate loads by
+           mistake, then the skill you meant (2,500 each); at turn 8 two of your skills with opposite rules both load (2,500 each; the fix narrows one so only one loads).
+           After Muster the skills you meant still load, so After steps 7,500 → 10,000 → 12,500, and Before 10,000 →
+           15,000 → 20,000: 7,500 off by turn 12
+         The chart is one bad session, turn by turn, to scale; Before / After Muster drops what goes.
+         The card: per month on an API key at Opus 5.5 prices ($0.20 per million cached tokens read, $5 per million
+         written once a session), the list plus one wrong pick and one clash a day (2,500 each saved); not Muster's own
+         daily check -->
+    <div class="turn" data-turn>
+      <h3 class="turn__title"><span>Every skill rides along on every turn.</span> <span>Muster saves you tokens, money and sanity.</span></h3>
+      <figure class="tchart" data-play aria-labelledby="tchart-cap">
+        <div class="tchart__top">
+          <p class="tchart__cap" id="tchart-cap">Skill text in each turn of one bad session on that Mac, in tokens</p>
+          <div class="turn__seg" role="radiogroup" aria-label="Show the session" data-turn-group="view">
+            <span class="turn__seg-hl" aria-hidden="true"></span>
+            <button type="button" role="radio" aria-checked="true" data-turn-pick="before">Before</button>
+            <button type="button" role="radio" aria-checked="false" data-turn-pick="after">After Muster</button>
+          </div>
+        </div>
+        <div class="tchart__plot">
+          <div class="tchart__grid" aria-hidden="true"><span style="--at:0.00%" data-v="0"></span><span style="--at:22.73%" data-v="5k"></span><span style="--at:45.45%" data-v="10k"></span><span style="--at:68.18%" data-v="15k"></span><span style="--at:90.91%" data-v="20k"></span></div>
+          <div class="tchart__cols" data-turn-cols aria-hidden="true"></div>
+          <p class="tchart__flag tchart__flag--wrong" aria-hidden="true"><span class="m-hide">The wrong duplicate runs</span><span class="m-only">Wrong skill</span></p>
+          <p class="tchart__flag tchart__flag--clash" aria-hidden="true"><span class="m-hide">Two skills, opposite rules</span><span class="m-only">Opposite rules</span></p>
+          <span class="tchart__gap" aria-hidden="true"></span>
+          <p class="tchart__end" data-turn-end aria-hidden="true"><span class="m-hide">20,000 tokens · 7,500 Muster takes off</span><span class="m-only">7,500 off</span></p>
+          <p class="tchart__tip" data-turn-tip aria-hidden="true"></p>
+        </div>
+        <div class="tchart__x" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span></div>
+        <p class="tchart__def">Turns in one session. A turn is one call to the model: your message, or a step your agent takes on its own.</p>
+        <p class="sr-only" aria-live="polite" data-turn-live></p>
+        <table class="tchart__table">
+          <caption>Tokens the skills put into each turn of one session</caption>
+          <thead><tr><th scope="col">Turn</th><th scope="col">Before</th><th scope="col">After Muster</th></tr></thead>
+          <tbody><tr><th scope="row">1</th><td>10,000</td><td>7,500</td></tr><tr><th scope="row">2</th><td>10,000</td><td>7,500</td></tr><tr><th scope="row">3</th><td>10,000</td><td>7,500</td></tr><tr><th scope="row">4</th><td>15,000</td><td>10,000</td></tr><tr><th scope="row">5</th><td>15,000</td><td>10,000</td></tr><tr><th scope="row">6</th><td>15,000</td><td>10,000</td></tr><tr><th scope="row">7</th><td>15,000</td><td>10,000</td></tr><tr><th scope="row">8</th><td>20,000</td><td>12,500</td></tr><tr><th scope="row">9</th><td>20,000</td><td>12,500</td></tr><tr><th scope="row">10</th><td>20,000</td><td>12,500</td></tr><tr><th scope="row">11</th><td>20,000</td><td>12,500</td></tr><tr><th scope="row">12</th><td>20,000</td><td>12,500</td></tr></tbody>
+        </table>
+      </figure>
+
+      <aside class="tsave" aria-labelledby="tsave-label">
+        <p class="tsave__label" id="tsave-label">How much Muster can save you</p>
+        <div class="turn__seg turn__seg--fill" role="radiogroup" aria-label="How much you use your agent" data-turn-group="use">
+          <span class="turn__seg-hl" aria-hidden="true"></span>
+          <button type="button" role="radio" aria-checked="false" data-turn-pick="light">Light</button>
+          <button type="button" role="radio" aria-checked="true" data-turn-pick="typical">Typical</button>
+          <button type="button" role="radio" aria-checked="false" data-turn-pick="heavy">Heavy</button>
+        </div>
+        <p class="tsave__big"><b data-save-month>$8</b> <span>a month</span></p>
+        <p class="tsave__year"><span data-save-year>$93 a year</span> · <span data-save-tokens>1.1M fewer tokens sent a day</span></p>
+        <p class="tsave__plan">On a Claude or ChatGPT plan, the same tokens come out of your limits. Run <code>/context</code> in Claude Code before and after, and compare the Skills line.</p>
+        <p class="tsave__fine" data-save-fine>The chart is one bad session; this counts one wrong pick and one clash a day. 400 turns a day over 10 sessions, 21 days a month, on an API key at Opus 5.5 prices. Muster’s own daily check isn’t counted.</p>
+      </aside>
+
+      <ul class="turn__facts">
+        <li data-part="kept"><b><i class="tkey tkey--kept" aria-hidden="true"></i>What stays</b> The list of the 75 kept, 7,500 tokens a turn, and each skill that runs because you asked for it.</li>
+        <li data-part="idle"><b><i class="tkey tkey--idle" aria-hidden="true"></i>Skills you don’t need</b> On a 1M context window, Claude Code caps the skill list at about 10,000 tokens. The 154 that went filled it: 2,500 more, every turn.</li>
+        <li data-part="wrong"><b><i class="tkey tkey--wrong" aria-hidden="true"></i>A wrong pick</b> A duplicate loads instead of the skill you meant, and stays for the rest of the session.</li>
+        <li data-part="clash"><b><i class="tkey tkey--clash" aria-hidden="true"></i>A clash</b> Two of your skills with opposite rules both load, and your agent follows one. Muster narrows one so only the right one loads.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 5. Try it: one Muster, three ways in (terminal, browser, menu bar), clickable ───────────── -->
+<section class="section demo" id="demo">
+  <div class="wrap">
+    <header class="head head--center">
+      <span class="eyebrow"><span class="m-hide">Try it</span><span class="m-only">Take a look</span></span>
+      <h2 class="h-section">Browser, menu bar or terminal.</h2>
+      <p class="sub"><span class="sub__more">The full app in your browser, today’s summary in your menu bar, every command in your terminal. </span>Same skills and counts, so a fix in one shows in all three.</p>
+    </header>
+
+    <div class="scenes" data-scenes>
+      <div class="scenes__list" role="tablist" aria-label="Where to use Muster">
+        <button type="button" class="scene" role="tab" data-scene="web" aria-selected="true">
+          <img class="scene__ico" src="assets/dock/safari.webp" alt="" width="44" height="44" draggable="false" />
+          <span class="scene__body"><b>In your browser</b><span>The full app, on a page your Mac serves. Folders, usage and every fix.</span></span>
+        </button>
+        <button type="button" class="scene" role="tab" data-scene="pop" aria-selected="false">
+          <span class="scene__ico scene__ico--mbar" aria-hidden="true"><i class="mbar__glyph"></i><span data-badge-mini>26</span></span>
+          <span class="scene__body"><b>In your menu bar</b><span>Today’s runs and what needs a look, one click away all day.</span></span>
+        </button>
+        <button type="button" class="scene" role="tab" data-scene="term" aria-selected="false">
+          <img class="scene__ico" src="assets/dock/terminal.webp" alt="" width="44" height="44" draggable="false" />
+          <span class="scene__body"><b>In your terminal</b><span>Every command, from the keyboard or a script. Scan, check, fix and sort.</span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- a Mac desktop showing one surface at a time, picked with the cards above (or the Dock, or the menu bar icon).
+         The sample data is shared (script.js, "Try it"), so the menu bar badge follows whatever you do -->
+    <div class="desk" data-desk>
+      <div class="mbar">
+        <span class="mbar__apple" aria-hidden="true"></span>
+        <span class="mbar__app" data-front-app>Safari</span>
+        <span class="mbar__menu" data-menus aria-hidden="true"><span>File</span><span>Edit</span><span>View</span><span>History</span><span>Bookmarks</span><span>Window</span><span>Help</span></span>
+        <span class="mbar__right">
+          <button class="mbar__muster" type="button" data-pop-toggle aria-expanded="false" aria-controls="pop" aria-label="Muster menu"><i class="mbar__glyph"></i><span data-badge>26</span></button>
+          <i class="mbar__ico mbar__ico--wifi" aria-hidden="true"></i>
+          <i class="mbar__ico mbar__ico--search" aria-hidden="true"></i>
+          <i class="mbar__ico mbar__ico--cc" aria-hidden="true"></i>
+          <span class="mbar__time" data-desk-time aria-hidden="true">Mon 19 Oct 15:34</span>
+        </span>
+      </div>
+
+      <!-- the full app: a local page the Mac app serves, opened with `muster open` or "Open Muster" -->
+      <section class="win win--web" data-win="web" aria-label="Muster in Safari">
+        <div class="win__bar sbar" data-drag>
+          <span class="win__lights"><button type="button" data-close aria-label="Close Safari"></button><button type="button" data-close aria-label="Minimise Safari"></button><i></i></span>
+          <i class="sbar__ico sbar__ico--side" aria-hidden="true"></i>
+          <span class="sbar__nav"><button type="button" class="sbar__btn" data-web-back aria-label="Back"></button><button type="button" class="sbar__btn sbar__btn--fwd" data-web-fwd aria-label="Forward"></button></span>
+          <span class="sbar__url"><i class="sbar__fav" aria-hidden="true"><i class="mbar__glyph"></i></i><span class="sbar__host">127.0.0.1:55350</span><span data-web-path>/</span><i class="sbar__ico sbar__ico--reload" aria-hidden="true"></i></span>
+          <span class="sbar__right" aria-hidden="true"><i class="sbar__ico sbar__ico--share"></i><i class="sbar__ico sbar__ico--plus"></i><i class="sbar__ico sbar__ico--tabs"></i></span>
+        </div>
+        <div class="web">
+          <aside class="web__side">
+            <label class="web__search"><input type="search" placeholder="Search or ask" aria-label="Search skills" data-web-q spellcheck="false" autocomplete="off" /><kbd>⌘K</kbd></label>
+            <div class="web__list" data-web-side></div>
+          </aside>
+          <div class="web__main" data-web-main aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- the CLI: launched from the Dock (or its card). Type a muster command, or click a highlighted one -->
+      <section class="win win--term" data-win="term" aria-label="Terminal" hidden>
+        <div class="win__bar" data-drag>
+          <span class="win__lights"><button type="button" data-close aria-label="Close Terminal"></button><button type="button" data-close aria-label="Minimise Terminal"></button><i></i></span>
+          <span class="win__title">muster — zsh — 80×24</span>
+        </div>
+        <div class="tty" data-tty>
+          <div class="tty__log" data-tty-log aria-live="polite"></div>
+          <label class="tty__line"><span data-tty-prompt><span class="t-dir">~</span> <span class="t-dim">%</span></span><input type="text" data-tty-input spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Type a muster command" /></label>
+        </div>
+      </section>
+
+      <div class="pop is-closed" id="pop" data-pop>
+        <div class="pop__view" data-view aria-live="polite"></div>
+      </div>
+
+      <!-- the Dock: Safari and Terminal open their windows; the rest is set dressing. Tahoe glass, no magnification (off by default in macOS 26).
+           Icons are the system ones, rendered from macOS 26 (assets/dock) -->
+      <nav class="dock" aria-label="Dock">
+        <span class="dock__app is-running" data-name="Finder"><img class="ai" src="assets/dock/finder.webp" alt="" width="52" height="52" draggable="false" /></span>
+        <button type="button" class="dock__app is-running" data-dock="web" data-name="Safari" aria-label="Safari"><img class="ai" src="assets/dock/safari.webp" alt="" width="52" height="52" draggable="false" /></button>
+        <span class="dock__app is-running" data-name="Claude"><img class="ai" src="assets/dock/claude.webp" alt="" width="52" height="52" draggable="false" /></span>
+        <span class="dock__app is-running" data-name="Codex"><img class="ai" src="assets/dock/codex.webp" alt="" width="52" height="52" draggable="false" /></span>
+        <button type="button" class="dock__app" data-dock="term" data-name="Terminal" aria-label="Terminal"><img class="ai" src="assets/dock/terminal.webp" alt="" width="52" height="52" draggable="false" /></button>
+        <span class="dock__sep"></span>
+        <span class="dock__app" data-name="Trash"><img class="ai" src="assets/dock/trash.webp" alt="" width="52" height="52" draggable="false" /></span>
+      </nav>
+
+      <p class="desk__toast" data-toast role="status" hidden></p>
+    </div>
+    <p class="demo__foot"><button type="button" class="demo__reset" data-reset hidden>Reset the demo</button></p>
+
+    <!-- phones: the demo as three screenshots to swipe through. Each frame is this page in shot mode (?shot=…),
+         laid out at desktop width and scaled down, so the pictures are the live demo's own. script.js loads
+         them only on a phone, as the carousel comes near. The arrows step through it, like the steps' and the roadmap's -->
+    <div class="shots" data-shots>
+      <ul class="shots__track" aria-label="Muster's three ways in">
+        <li class="shot" data-shot="web" data-x="0">
+          <div class="shot__frame" data-shot-frame></div>
+          <p class="shot__cap"><img class="shot__ico" src="assets/dock/safari.webp" alt="" width="32" height="32" /><span><b>In your browser</b>The full app, on a page your Mac serves. Folders, usage and every fix.</span></p>
+        </li>
+        <li class="shot" data-shot="pop" data-x="420">
+          <div class="shot__frame" data-shot-frame></div>
+          <p class="shot__cap"><span class="shot__ico shot__ico--mbar" aria-hidden="true"><i class="mbar__glyph"></i>26</span><span><b>In your menu bar</b>Today’s runs and what needs a look, one click away all day.</span></p>
+        </li>
+        <li class="shot" data-shot="term" data-x="0">
+          <div class="shot__frame" data-shot-frame></div>
+          <p class="shot__cap"><img class="shot__ico" src="assets/dock/terminal.webp" alt="" width="32" height="32" /><span><b>In your terminal</b>Every command, from the keyboard or a script. Scan, check, fix and sort.</span></p>
+        </li>
+      </ul>
+      <div class="row-nav" data-row-nav=".shots__track">
+        <button type="button" class="btn btn--soft row-nav__btn" data-dir="-1" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg></button>
+        <button type="button" class="btn btn--soft row-nav__btn" data-dir="1" aria-label="Next screenshot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 6. Privacy: what moves where ───────────── -->
+<section class="section privacy" id="privacy">
+  <div class="wrap">
+    <!-- one sentence for the heading: the nouns wear the hero token's pill and sticker art (after interfere.com's
+         how-it-works line). The stickers pop in once, like the hero's (script.js) -->
+    <header class="head head--center">
+      <span class="eyebrow">Privacy</span>
+      <h2 class="h-section snt" data-stickers>Your skills stay on your <span class="tok" style="--r:-8deg"><span class="token__icon" aria-hidden="true"><span class="token__layer"><span class="token__art"><svg viewBox="0 0 64 64"><g fill="#fff" stroke="#fff" stroke-width="7.5" stroke-linejoin="round"><rect x="9" y="11" width="46" height="32" rx="6"/><rect x="3" y="44" width="58" height="9" rx="4.5"/></g><rect x="9" y="11" width="46" height="32" rx="6" fill="#202020"/><rect x="16" y="19" width="15" height="5" rx="2.5" style="fill:var(--accent-on-dark)"/><rect x="16" y="29" width="22" height="3" rx="1.5" fill="#6C6C6C"/><rect x="16" y="35" width="14" height="3" rx="1.5" fill="#6C6C6C"/><rect x="3" y="44" width="58" height="9" rx="4.5" fill="#DEDEDA"/><rect x="25" y="44" width="14" height="3" rx="1.5" fill="#BDBDB8"/></svg></span></span></span>Mac</span>. <span class="snt__soft">The daily check is a normal session of your own <span class="tok" style="--r:7deg"><span class="token__icon" aria-hidden="true"><span class="token__layer"><span class="token__art"><svg viewBox="0 0 64 64"><g transform="translate(5.6 5.6) scale(2.2)"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z" fill="#fff" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z" fill="#D97757"/></g></svg></span></span></span>Claude Code</span> or <span class="tok" style="--r:-6deg"><span class="token__icon" aria-hidden="true"><span class="token__layer"><span class="token__art"><svg viewBox="0 0 64 64"><g transform="translate(5.6 5.6) scale(2.2)"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" fill="#fff" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" fill="#202020"/></g></svg></span></span></span>Codex</span>. Nothing goes to <span class="tok" style="--r:8deg"><span class="token__icon" aria-hidden="true"><span class="token__layer"><span class="token__art"><svg viewBox="0 0 64 64"><g fill="#fff" stroke="#fff" stroke-width="7.5" stroke-linejoin="round"><rect x="8" y="8" width="48" height="48" rx="13"/></g><rect x="8" y="8" width="48" height="48" rx="13" style="fill:var(--accent)"/><path transform="translate(8 8) scale(1.5)" style="fill:var(--accent-ink)" d="M19.2 16A3.2 3.2 0 0 1 12.8 16A3.2 3.2 0 0 1 19.2 16ZM15.43 10.07L13.35 7.98A1.3 1.3 0 0 1 14.03 5.79A10.4 10.4 0 0 1 17.97 5.79A1.3 1.3 0 0 1 18.65 7.98L16.57 10.07A0.8 0.8 0 0 1 15.43 10.07ZM21.93 15.43L24.02 13.35A1.3 1.3 0 0 1 26.21 14.03A10.4 10.4 0 0 1 26.21 17.97A1.3 1.3 0 0 1 24.02 18.65L21.93 16.57A0.8 0.8 0 0 1 21.93 15.43ZM16.57 21.93L18.65 24.02A1.3 1.3 0 0 1 17.97 26.21A10.4 10.4 0 0 1 14.03 26.21A1.3 1.3 0 0 1 13.35 24.02L15.43 21.93A0.8 0.8 0 0 1 16.57 21.93ZM10.07 16.57L7.98 18.65A1.3 1.3 0 0 1 5.79 17.97A10.4 10.4 0 0 1 5.79 14.03A1.3 1.3 0 0 1 7.98 13.35L10.07 15.43A0.8 0.8 0 0 1 10.07 16.57Z"/></svg></span></span></span>us</span>.</span></h2>
+    </header>
+
+    <div class="flow" data-play>
+      <div class="flow__mac canvas" aria-hidden="true"></div>
+      <p class="fpill flabel"><i class="ico ico--laptop" aria-hidden="true"></i>Your Mac</p>
+
+      <div class="fnode f-skills"><span class="fnode__ico"><i class="ico ico--folder"></i></span><b>Your skills</b><small>~/.claude, ~/.agents, projects</small></div>
+      <div class="farrow f-a1"><span>reads</span></div>
+      <div class="fnode f-muster is-muster"><span class="fnode__ico"><span class="brand__mark"></span></span><b>Muster</b><small>Menu bar, browser, terminal</small></div>
+      <div class="farrow farrow--both f-a2"><span>daily check</span></div>
+      <div class="fnode f-claude"><span class="fnode__icos" aria-hidden="true"><span class="fnode__ico"><i class="logo logo--claude" style="--src:url(assets/logos/claude.svg)"></i></span><span class="fnode__ico"><i class="logo" style="--src:url(assets/logos/openai.svg)"></i></span></span><b>Your Claude Code or Codex</b><small>Talks to Anthropic or OpenAI</small></div>
+    </div>
+
+    <!-- one column under each box above, on the diagram's own grid -->
+    <ul class="facts">
+      <li><b>Reads your skills</b>And your Claude Code and Codex history, to count which skill ran when. All on your Mac.</li>
+      <li><b>Changes nothing on its own</b>It writes only to its own folder. Your skills stay as they are until you apply a fix.</li>
+      <li><b>Checks through your agent</b>Your Claude Code or Codex runs the daily check on your plan, like any session. Nothing goes to us.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ───────────── 7. Roadmap: you’re done, your team is next ───────────── -->
+<section class="section roadmap" id="roadmap">
+  <div class="wrap">
+    <header class="head head--split">
+      <div>
+        <span class="eyebrow">Roadmap</span>
+        <h2 class="h-section">Ready for you.<br /> Now for your team.</h2>
+      </div>
+      <p class="sub">The personal version is done: one person, one Mac, free. Now we’re building team plans, and what people ask for when they sign up decides the order.</p>
+    </header>
+
+    <ol class="road">
+      <li class="stage stage--done">
+        <p class="stage__when"><span class="stage__node"></span>Ready</p>
+        <h3>Your skills, on your Mac</h3>
+        <ul class="ticks">
+          <li>Find, check and fix, every day</li>
+          <li>Folders, subfolders and usage, in your menu bar</li>
+          <li>Claude Code and Codex on macOS</li>
+        </ul>
+      </li>
+      <li class="stage stage--now">
+        <p class="stage__when"><span class="stage__node"></span>Building now</p>
+        <h3>Your team</h3>
+        <ul class="ticks ticks--soon">
+          <li>A shared team space next to your private one</li>
+          <li>Suggest a skill, an admin approves, it lands on every teammate’s Mac</li>
+          <li>Connectors like Linear, GitHub and Notion, set up once for everyone</li>
+        </ul>
+      </li>
+      <li class="stage">
+        <p class="stage__when"><span class="stage__node"></span>Later</p>
+        <h3>More agents</h3>
+        <ul class="ticks ticks--soon">
+          <li>Cursor, Gemini CLI and other agents</li>
+          <li>Windows and Linux</li>
+          <li class="is-tease">And a few bigger ideas we’re not ready to show yet</li>
+        </ul>
+      </li>
+    </ol>
+    <!-- phones: the stages are a row to swipe; these step through it -->
+    <div class="row-nav" data-row-nav=".road">
+      <button type="button" class="btn btn--soft row-nav__btn" data-dir="-1" aria-label="Previous stage"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg></button>
+      <button type="button" class="btn btn--soft row-nav__btn" data-dir="1" aria-label="Next stage"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></button>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 8. FAQ ───────────── -->
+<section class="section faq" id="faq">
+  <div class="wrap faq__grid">
+    <header class="head">
+      <span class="eyebrow">Questions</span>
+      <h2 class="h-section">Short answers.<br /> No sales call.</h2>
+      <p class="sub">What people ask before they point something at their <code>~/.claude</code> or <code>~/.agents</code> folder.</p>
+      <div class="faq__ask">
+        <p>Something we missed?</p>
+        <button class="btn btn--soft btn--sm" type="button" data-contact-open aria-haspopup="dialog">Ask a question</button>
+      </div>
+    </header>
+    <div class="accordion" data-accordion>
+      <details class="qa" name="faq">
+        <summary>What does Muster work with?<i></i></summary>
+        <div class="qa__a"><p>Claude Code and Codex on macOS. It reads your global skills in <code>~/.claude/skills</code> and <code>~/.agents/skills</code> (plus Codex’s older <code>~/.codex/skills</code>), the skill folders inside your projects, and skills that came with plugins, including ones you installed from skills.sh or GitHub. Other agents come later, then Windows and Linux.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>I use both Claude Code and Codex. Does that help?<i></i></summary>
+        <div class="qa__a"><p>That’s where the mess grows fastest: you copy a skill over for Codex, then edit only one copy. Muster reads both, spots skills that exist in both places, shows where the copies drifted apart, and brings them back in line.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>Will it change or delete my skills?<i></i></summary>
+        <div class="qa__a"><p>Not without asking. The scan only reads. Every fix is a suggestion: apply it, copy it and do it yourself, or skip it. Unused skills you wrote get archived, not deleted.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>Does anything leave my Mac?<i></i></summary>
+        <div class="qa__a"><p>Nothing goes to us. There’s no Muster account and no Muster cloud. The daily check asks your own Claude Code or Codex to read your skills, so their contents go only where that agent already sends them.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>Do folders change anything for my agent?<i></i></summary>
+        <div class="qa__a"><p>No. Folders and subfolders live in Muster, so you can sort a hundred skills however you like while every file stays exactly where Claude Code or Codex looks for it. Moving a skill between folders never touches the skill itself.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>Does it use my Claude or ChatGPT plan?<i></i></summary>
+        <div class="qa__a"><p>Yes, if you sign in to Claude Code or Codex with your Claude or ChatGPT account: the check runs through the one you pick and counts toward that plan like any other session. With an API key, it’s billed to that key. By default it runs once a day and when you add or remove a skill; you can switch it to only when you ask.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>Will a cleanup make my agent cheaper to run?<i></i></summary>
+        <div class="qa__a"><p>A little on every turn, and turns add up. Every skill’s description, about 100 tokens, goes with every turn, used or not, and a skill that loads by mistake keeps its full instructions in the session. With fewer skills, they all stay in view: past a limit, Claude Code drops descriptions, least-used first. On a Claude or ChatGPT plan, your limits last longer. On an API key, the bill is smaller, though most of these tokens are cached and cheap. Run <code>/context</code> in Claude Code before and after a cleanup to see it.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>How does it spot conflicts and duplicates?<i></i></summary>
+        <div class="qa__a"><p>It reads every skill’s description, which is what your agent matches your request against, and then the full instructions. Two skills only count as a conflict if both would load for the same request and it can quote the lines that contradict; similar but compatible skills are duplicates. The fix depends on who owns the skill: yours get edited or merged, installed ones get a tiebreak line in <code>~/.claude/CLAUDE.md</code> or <code>~/.codex/AGENTS.md</code>, and unused ones get archived or switched off.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>How do I get it, and how do I remove it?<i></i></summary>
+        <div class="qa__a"><p>The install comes with your invite. Uninstalling removes the app, its folder and its daily schedule; Muster stores nothing anywhere else. Your skills stay as they are, apart from fixes you applied.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>What if it doesn’t work for me?<i></i></summary>
+        <div class="qa__a"><p>It’s free for personal use, so all it costs you is the uninstall. But please <button class="link-btn qa__link" type="button" data-contact-open aria-haspopup="dialog">send us a message</button> first and tell us what went wrong. That’s how it gets fixed for the next person.</p></div>
+      </details>
+      <details class="qa" name="faq">
+        <summary>What about my team?<i></i></summary>
+        <div class="qa__a"><p>That’s next. You’ll be able to suggest a skill from your Mac to a team space; an admin approves it, and Muster puts it on every teammate’s Mac. Connectors like Linear, GitHub and Notion come with it. Personal use stays free; team plans will be paid. If that’s what you need most, pick it when you sign up.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 9. Join ───────────── -->
+<section class="cta canvas" id="join">
+  <div class="cta__rows" data-cta-rows aria-hidden="true"></div>
+  <div class="wrap cta__grid">
+    <div class="cta__copy">
+      <span class="eyebrow">Early access</span>
+      <h2 class="h-cta">Muster your skills.</h2>
+      <p class="cta__sub">Answer three questions, add your email, and we’ll send your invite. Your answers decide what we build next.</p>
+    </div>
+
+    <form class="signup" data-join novalidate>
+      <fieldset class="signup__q" data-q="wants" aria-describedby="join-wants-error">
+        <legend>What would you fix first?</legend>
+        <div class="picks">
+          <label class="pick"><input type="checkbox" name="wants" value="conflicts" /><span>Skills that contradict each other</span></label>
+          <label class="pick"><input type="checkbox" name="wants" value="duplicates" /><span>Duplicates</span></label>
+          <label class="pick"><input type="checkbox" name="wants" value="unused" /><span>Skills I never use</span></label>
+          <label class="pick"><input type="checkbox" name="wants" value="finding" /><span>Seeing what I have</span></label>
+          <label class="pick"><input type="checkbox" name="wants" value="sync" /><span>Same skills in Claude Code and Codex</span></label>
+          <label class="pick"><input type="checkbox" name="wants" value="team" /><span>Sharing with my team</span></label>
+        </div>
+        <p class="signup__error" id="join-wants-error" hidden></p>
+      </fieldset>
+      <fieldset class="signup__q" data-q="skills" aria-describedby="join-skills-error">
+        <legend>How many skills do you have?</legend>
+        <div class="seg">
+          <span class="seg__hl" aria-hidden="true"></span>
+          <label><input type="radio" name="skills" value="1-20" required /><span>Under 20</span></label>
+          <label><input type="radio" name="skills" value="20-100" /><span>20–100</span></label>
+          <label><input type="radio" name="skills" value="100+" /><span>100+</span></label>
+          <label><input type="radio" name="skills" value="unsure" /><span>No idea</span></label>
+        </div>
+        <p class="signup__error" id="join-skills-error" hidden></p>
+      </fieldset>
+      <fieldset class="signup__q" data-q="roles" aria-describedby="join-roles-error">
+        <legend>What do you do?</legend>
+        <div class="picks">
+          <label class="pick"><input type="checkbox" name="roles" value="engineering" /><span>Engineering</span></label>
+          <label class="pick"><input type="checkbox" name="roles" value="design" /><span>Design</span></label>
+          <label class="pick"><input type="checkbox" name="roles" value="product" /><span>Product</span></label>
+          <label class="pick"><input type="checkbox" name="roles" value="data" /><span>Data</span></label>
+          <label class="pick"><input type="checkbox" name="roles" value="marketing" /><span>Marketing</span></label>
+          <label class="pick"><input type="checkbox" name="roles" value="founder" /><span>Founder</span></label>
+          <label class="pick"><input type="checkbox" name="roles" value="other" /><span>Something else</span></label>
+        </div>
+        <p class="signup__error" id="join-roles-error" hidden></p>
+      </fieldset>
+      <div class="signup__q" data-q="email">
+        <label class="signup__label" for="join-email">Email</label>
+        <div class="signup__row">
+          <input id="join-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" maxlength="254" required aria-describedby="join-email-error" />
+          <button class="btn btn--primary btn--lg" type="submit">Get your invite</button>
+        </div>
+        <p class="signup__error" id="join-email-error" hidden></p>
+      </div>
+      <p class="join__error" data-join-error role="alert" hidden></p>
+      <p class="signup__fine">Free for personal use. Team plans, when they come, will be paid. One email with your invite, nothing else.</p>
+    </form>
+
+    <div class="signup signup--done" data-join-done role="status" tabindex="-1" hidden>
+      <span class="signup__check" aria-hidden="true"></span>
+      <p class="signup__done-title">Your invite is on its way.</p>
+      <p class="signup__done-text" data-join-done-text>We send each one by hand, usually within a few hours. Check your inbox, and your spam folder if it’s not there by tomorrow.</p>
+      <a class="btn btn--soft" href="#demo">Play with the demo meanwhile</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ───────────── Footer ───────────── -->
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div class="footer__brand">
+      <a class="brand" href="#top"><span class="brand__mark" aria-hidden="true"></span><span class="brand__name">Muster</span></a>
+      <p>Sort every Claude Code and Codex skill on your Mac. Checked every day, fixed when you say so.</p>
+    </div>
+    <div class="footer__col">
+      <p class="footer__h">Product</p>
+      <a href="#how">How it works</a>
+      <a href="#demo">Try it</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="footer__col">
+      <p class="footer__h">Contact</p>
+      <button class="footer__link link-btn" type="button" data-contact-open aria-haspopup="dialog">Send us a message</button>
+      <a href="#join">Get your invite</a>
+    </div>
+  </div>
+  <div class="wrap footer__bottom">
+    <span>© 2026 Muster. All rights reserved.</span>
+    <a href="#top">Back to top</a>
+  </div>
+  <div class="wrap">
+    <!-- footer-art: python3 logo/footer/build.py -->
+    <svg class="footer__art" viewBox="0 0 1050 210" aria-hidden="true" focusable="false"><defs><path id="footer-art" fill-rule="evenodd" vector-effect="non-scaling-stroke" d="M80 0L130 0L130 10L140 10L140 20L130 20L130 30L120 30L120 40L110 40L110 50L100 50L100 40L90 40L90 30L80 30L80 20L70 20L70 10L80 10ZM10 70L20 70L20 80L30 80L30 90L40 90L40 100L50 100L50 110L40 110L40 120L30 120L30 130L20 130L20 140L10 140L10 130L0 130L0 80L10 80ZM90 70L120 70L120 80L130 80L130 90L140 90L140 120L130 120L130 130L120 130L120 140L90 140L90 130L80 130L80 120L70 120L70 90L80 90L80 80L90 80ZM190 70L200 70L200 80L210 80L210 130L200 130L200 140L190 140L190 130L180 130L180 120L170 120L170 110L160 110L160 100L170 100L170 90L180 90L180 80L190 80ZM100 160L110 160L110 170L120 170L120 180L130 180L130 190L140 190L140 200L130 200L130 210L80 210L80 200L70 200L70 190L80 190L80 180L90 180L90 170L100 170ZM290 10L330 10L330 30L340 30L340 60L350 60L350 90L360 90L360 110L370 110L370 140L380 140L380 160L390 160L390 140L400 140L400 110L410 110L410 80L420 80L420 50L430 50L430 30L440 30L440 10L480 10L480 200L450 200L450 80L440 80L440 100L430 100L430 130L420 130L420 160L410 160L410 190L400 190L400 200L370 200L370 190L360 190L360 160L350 160L350 140L340 140L340 110L330 110L330 80L320 80L320 200L290 200ZM760 20L780 20L780 30L790 30L790 60L830 60L830 80L790 80L790 170L800 170L800 180L830 180L830 200L780 200L780 190L770 190L770 180L760 180L760 80L740 80L740 60L760 60ZM660 50L680 50L680 60L710 60L710 70L720 70L720 90L730 90L730 100L700 100L700 90L690 90L690 80L650 80L650 90L640 90L640 110L650 110L650 120L700 120L700 130L720 130L720 150L730 150L730 170L720 170L720 190L710 190L710 200L630 200L630 190L620 190L620 180L610 180L610 150L630 150L630 160L640 160L640 170L650 170L650 180L690 180L690 170L700 170L700 150L680 150L680 140L640 140L640 130L620 130L620 120L610 120L610 80L620 80L620 70L630 70L630 60L660 60ZM890 50L910 50L910 60L940 60L940 70L950 70L950 80L960 80L960 100L970 100L970 140L870 140L870 170L890 170L890 180L920 180L920 170L930 170L930 160L960 160L960 180L950 180L950 190L940 190L940 200L870 200L870 190L860 190L860 180L850 180L850 170L840 170L840 90L850 90L850 70L870 70L870 60L890 60ZM490 60L510 60L510 160L520 160L520 170L530 170L530 180L560 180L560 170L570 170L570 60L600 60L600 200L580 200L580 190L560 190L560 200L500 200L500 190L490 190ZM980 60L1000 60L1000 70L1010 70L1010 60L1050 60L1050 80L1020 80L1020 90L1010 90L1010 100L1000 100L1000 200L980 200ZM880 80L880 90L870 90L870 120L930 120L930 110L940 110L940 100L930 100L930 90L920 90L920 80Z"/><clipPath id="footer-art-clip"><use href="#footer-art"/></clipPath><linearGradient id="footer-art-fill" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="210"><stop stop-color="currentColor" style="stop-opacity:var(--art-fill)"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><linearGradient id="footer-art-line" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="210"><stop stop-color="currentColor" style="stop-opacity:var(--art-line)"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><use href="#footer-art" fill="url(#footer-art-fill)"/><use href="#footer-art" fill="none" stroke="url(#footer-art-line)" stroke-width="2" clip-path="url(#footer-art-clip)"/></svg>
+  </div>
+</footer>
+
+<!-- ───────────── Contact (opened from the nav, the FAQ and the footer) ───────────── -->
+<dialog class="contact" data-contact aria-labelledby="contact-title">
+  <button class="contact__close" type="button" data-contact-close aria-label="Close"></button>
+  <form class="contact__form" data-contact-form novalidate>
+    <div class="contact__head">
+      <h2 class="contact__title" id="contact-title">Send us a message</h2>
+      <p class="contact__sub">Questions, ideas, a skill setup that breaks things. We read every message.</p>
+    </div>
+    <div class="contact__field">
+      <label class="signup__label" for="contact-email">Email</label>
+      <input class="contact__input" id="contact-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" maxlength="254" aria-describedby="contact-email-error" />
+      <p class="contact__error" id="contact-email-error" hidden></p>
+    </div>
+    <div class="contact__field">
+      <label class="signup__label" for="contact-message">Message</label>
+      <textarea class="contact__input contact__input--area" id="contact-message" name="message" rows="5" maxlength="5000" placeholder="What’s on your mind?" aria-describedby="contact-message-error"></textarea>
+      <p class="contact__error" id="contact-message-error" hidden></p>
+    </div>
+    <!-- only bots fill this in -->
+    <input class="contact__trap" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <p class="join__error" data-contact-error role="alert" hidden></p>
+    <button class="btn btn--primary btn--lg contact__send" type="submit">Send message</button>
+  </form>
+  <div class="contact__done" data-contact-done role="status" tabindex="-1" hidden>
+    <span class="signup__check" aria-hidden="true"></span>
+    <p class="signup__done-title">Thanks for your message.</p>
+    <p class="signup__done-text">We read every one. If it needs an answer, we’ll get back to you as soon as we can.</p>
+    <button class="btn btn--soft" type="button" data-contact-close>Close</button>
+  </div>
+</dialog>
+
+<script src="assets/token.js" defer></script>
+<script src="script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+/* The blog. To publish a post: add an entry here and write the post in content/blog/<slug>.mdx.
+   - tags: ["Tech stack"] also lists the post as a version of the stack on /how-i-work/.
+   - stack: ["product/design"] lists it under that step on /how-i-work/ (tab id, then the step name in lowercase with dashes).
+   - description is optional; the title is used when it's missing. */
+export type Post = {
+  slug: string;
+  title: string;
+  date: string; // YYYY-MM-DD
+  description?: string;
+  tags?: string[];
+  stack?: string[];
+};
+
+const POSTS: Post[] = [
+  { slug: "tech-stack-november-2026", title: "Tech stack, November 2026", date: "2026-11-09", tags: ["Tech stack"], description: "What changed in my tech stack in November 2026, and why." },
+  { slug: "designing-in-the-browser", title: "Designing in the browser: ten weeks of shipping as a designer", date: "2026-10-21", stack: ["product/build"] },
+  { slug: "what-esg-reporting-taught-me", title: "What ESG reporting taught me about dense interfaces", date: "2026-09-12" },
+  { slug: "borrowing-timing", title: "Borrowing timing: notes on motion for small sites", date: "2026-08-03", stack: ["growth/make"] },
+  { slug: "building-for-people-who-read-tables", title: "Building for people who read tables all day", date: "2026-06-18" },
+  { slug: "a-design-system-for-one", title: "A design system for one", date: "2026-05-02", stack: ["product/design"] },
+];
+
+/** All posts, newest first */
+export const posts = [...POSTS].sort((a, b) => b.date.localeCompare(a.date));
+
+export const isStackVersion = (p: Post) => (p.tags ?? []).some((t) => t.toLowerCase() === "tech stack");
