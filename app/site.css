@@ -252,6 +252,114 @@ body.v-quiet {
 .q-xp-text h2 a span { display: inline-block; color: var(--q-muted); transition: transform 200ms var(--q-ease); }
 @media (hover: hover) and (pointer: fine) { .q-xp-text h2 a:hover span { transform: translateX(3px); } }
 .q-xp-solo { margin-top: 40px; }
+
+/* Stamp Folder (components/experiments.tsx): drawn in em, 1em = 10px at full size. The right margin leaves room for
+   the stamps when it opens, so the whole thing stays centred in its well. */
+.v-quiet .q-fold {
+  --c: #e9bf45;
+  --ink: #3a2f12;
+  --fold-spring: cubic-bezier(0.34, 1.35, 0.64, 1);
+  --fold-out: cubic-bezier(0.22, 1, 0.36, 1);
+  display: block;
+  font-family: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  line-height: normal;
+}
+.q-fold[data-color="pink"] { --c: #e0369f; --ink: #fff; }
+.q-fold[data-color="black"] { --c: #222; --ink: #fff; }
+.v-quiet .q-fold--md { font-size: 5.5px; }
+.v-quiet .q-fold--lg { font-size: 8.5px; }
+.v-quiet .q-fold-folder {
+  all: unset;
+  position: relative;
+  display: block;
+  width: 18em;
+  height: 22em;
+  margin-right: 15em;
+  perspective: 90em;
+  -webkit-tap-highlight-color: transparent;
+}
+.v-quiet button.q-fold-folder { cursor: pointer; }
+.q-fold-folder:focus-visible .q-fold-cover { box-shadow: 0 0 0 3px var(--q-well), 0 0 0 5px var(--q-title); }
+.q-fold-edge, .q-fold-back { position: absolute; border-radius: 1.6em; transition: background-color 0.35s var(--fold-out); }
+.q-fold-edge { inset: 0.2em -0.6em -0.3em 0.4em; background: color-mix(in oklab, var(--c), black 14%); }
+.q-fold-back { inset: 0; background: color-mix(in oklab, var(--c), white 22%); }
+.q-fold-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 1.4em 1.6em 1.6em 1.4em;
+  background: color-mix(in srgb, var(--c) 70%, transparent);
+  -webkit-backdrop-filter: blur(1em) saturate(1.1);
+  backdrop-filter: blur(1em) saturate(1.1);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), inset 0 -1px 0 rgb(0 0 0 / 0.08), 0 1em 2.4em -1.2em rgb(0 0 0 / 0.35);
+  color: var(--ink);
+  transform-origin: left center;
+  transition: transform 0.55s var(--fold-out), background-color 0.35s var(--fold-out);
+}
+.q-fold-title { position: absolute; left: 1.286em; bottom: 3.143em; font-size: 1.4em; font-weight: 600; letter-spacing: 0.02em; }
+.q-fold-sub { position: absolute; left: 2em; bottom: 2.889em; font-size: 0.9em; opacity: 0.55; font-family: system-ui, sans-serif; }
+.q-fold-rule { position: absolute; left: 1.8em; right: 1.8em; bottom: 1.4em; height: 1px; background: currentColor; opacity: 0.12; }
+
+/* Stamps: a perforated edge from half-circle bites round a solid content box */
+.q-stamp {
+  position: absolute;
+  z-index: 2;
+  width: 12em;
+  height: 15em;
+  padding: 0.5em;
+  background: #fbf8f1;
+  -webkit-mask: radial-gradient(circle 0.32em, #0000 96%, #000) -0.5em -0.5em / 1em 1em, linear-gradient(#000 0 0) content-box;
+  mask: radial-gradient(circle 0.32em, #0000 96%, #000) -0.5em -0.5em / 1em 1em, linear-gradient(#000 0 0) content-box;
+  filter: drop-shadow(0 0.4em 0.6em rgb(0 0 0 / 0.18));
+  transition: transform 0.6s var(--fold-spring);
+  pointer-events: none;
+}
+.q-stamp-art { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; }
+.q-stamp--a { left: 4.6em; top: 2.8em; }
+.q-stamp--b { left: 5.4em; top: 4.6em; transition-delay: 40ms; }
+.q-stamp--a .q-stamp-art { background: #f1ede2; outline: 1px solid #e3ddcd; outline-offset: -0.4em; }
+.q-stamp-v { position: absolute; right: 0.8em; top: 0.8em; writing-mode: vertical-rl; font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif; font-size: 1.5em; letter-spacing: 0.15em; color: #2c2a26; }
+.q-stamp-v2 { position: absolute; right: 4.857em; top: 9.143em; writing-mode: vertical-rl; font-family: serif; font-size: 0.7em; color: #555; }
+.q-stamp--a .q-stamp-bird { position: absolute; left: 0.6em; bottom: 3em; width: 8em; }
+.q-stamp-val { position: absolute; right: 0.714em; bottom: 1.143em; font-family: "Times New Roman", serif; font-size: 1.4em; color: #2c2a26; }
+.q-stamp-val small { font-size: 0.571em; }
+.q-stamp-np { position: absolute; right: 1.429em; bottom: 1em; font-family: "Times New Roman", serif; font-size: 0.7em; letter-spacing: 0.08em; color: #2c2a26; }
+.q-stamp--b .q-stamp-art { background: radial-gradient(circle at 50% 100%, #0000 0.7em, #8fd3cc 0.75em 0.85em, #0000 0.9em) 0 0 / 1.8em 0.9em, #2f9c9a; }
+.q-stamp-band { position: absolute; left: 0; right: 0; top: 0; padding: 0.7em 0.8em 0.5em; background: #f3ecd9; }
+.q-stamp-t, .q-stamp-t2 { display: block; color: #1d2a55; }
+.q-stamp-t { font-size: 1.7em; font-weight: 800; line-height: 1; letter-spacing: 0.02em; }
+.q-stamp-t2 { margin-top: 0.462em; font-size: 0.65em; font-weight: 700; }
+.q-stamp-sun { position: absolute; right: 1.2em; top: 4.6em; width: 1.2em; height: 1.2em; border-radius: 50%; background: #e2513b; }
+.q-stamp--b .q-stamp-bird { position: absolute; left: 1.8em; top: 4.4em; width: 6.2em; }
+.q-stamp-foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; height: 2.2em; padding: 0 0.6em; background: #f3ecd9; color: #1d2a55; font-weight: 800; }
+.q-stamp-foot span { font-size: 0.8em; }
+.q-stamp-price { position: absolute; right: 0.333em; bottom: 1.222em; font-size: 1.8em; font-weight: 900; color: #e2513b; -webkit-text-stroke: 0.033em #1d2a55; }
+
+/* States: peek on hover or focus, open on click */
+.q-fold-folder.is-peek .q-fold-cover { transform: rotateY(-7deg); }
+.q-fold-folder.is-peek .q-stamp--a { transform: translate(3.4em, -1.2em) rotate(5deg); }
+.q-fold-folder.is-peek .q-stamp--b { transform: translate(6.2em, 0) rotate(11deg); transition-delay: 30ms; }
+.q-fold-folder.is-open .q-fold-cover { transform: rotateY(-68deg); }
+.q-fold-folder.is-open .q-stamp--a { transform: translate(3.6em, -0.8em); transition-delay: 40ms; }
+.q-fold-folder.is-open .q-stamp--b { transform: translate(15.8em, -2.6em); transition-delay: 0ms; }
+
+.q-fold-swatches { position: absolute; left: 14px; bottom: 14px; display: flex; gap: 10px; }
+.v-quiet .q-fold-swatch {
+  all: unset;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--s);
+  box-shadow: 0 0 0 0 var(--q-well), 0 0 0 0 var(--s);
+  cursor: pointer;
+  transition: box-shadow 0.25s var(--fold-out), transform 0.15s var(--fold-out);
+}
+.q-fold-swatch:active { transform: scale(0.9); }
+.q-fold-swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--q-well), 0 0 0 3.5px var(--s); }
+.q-fold-swatch:focus-visible { outline: 2px solid var(--q-title); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .q-fold-cover, .q-stamp { transition-duration: 0.01ms; transition-delay: 0ms; }
+}
 /* Koi and Birds fills its well: an iframe of public/demos/koi-and-birds/, on the demo's own dark ground */
 .q-stage:has(> .q-scene) { width: 100%; height: 100%; }
 .q-scene { display: block; width: 100%; height: 100%; background: #1a1921; }

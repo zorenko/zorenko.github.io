@@ -40,6 +40,17 @@ export const EXPERIMENTS = [
     ],
     basedOn: { label: "the koi pond on daoho.dev", href: "https://www.daoho.dev/" },
   },
+  {
+    id: "stamp-folder",
+    title: "Stamp Folder",
+    blurb: "A frosted folder whose stamps peek out on hover and fan out when it opens",
+    about: [
+      "A frosted folder cover, hinged on the left, with two stamps blurred behind it. On hover the cover tilts a little and the stamps slide partway out, tipped at an angle, one just after the other, with a small spring.",
+      "Click it and the cover swings open while the stamps settle flat, side by side. The stamps are drawn in CSS and SVG, their perforated edges are a mask of half-circle bites, and the cover blurs whatever is behind it.",
+      "Hover, focus or click the folder, and use the dots to change its colour.",
+    ],
+    basedOn: { label: "a folder animation by @AdityaSur11 on X", href: "https://x.com/AdityaSur11/status/2116088350071558294" },
+  },
 ] as const satisfies readonly {
   id: string;
   title: string;
