@@ -4,9 +4,6 @@
 @import "tailwindcss/theme.css" layer(theme);
 @import "./site.css" layer(base);
 /* Each experiment's styles, next to its component, in the same layer as site.css */
-@import "../components/experiments/morphing-button.css" layer(base);
-@import "../components/experiments/scrambled-text.css" layer(base);
-@import "../components/experiments/theme-switch.css" layer(base);
 @import "../components/experiments/koi-and-birds.css" layer(base);
 @import "../components/experiments/stamp-folder.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);

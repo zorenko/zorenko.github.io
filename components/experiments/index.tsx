@@ -10,15 +10,9 @@
 import type { Experiment } from "@/content/experiments";
 import type { ExperimentUI } from "./types";
 import { ui as koiAndBirds } from "./koi-and-birds";
-import { ui as morphingButton } from "./morphing-button";
-import { ui as scrambledText } from "./scrambled-text";
 import { ui as stampFolder } from "./stamp-folder";
-import { ui as themeSwitch } from "./theme-switch";
 
 const UI: Record<Experiment["id"], ExperimentUI> = {
-  "morphing-button": morphingButton,
-  "scrambled-text": scrambledText,
-  "theme-switch": themeSwitch,
   "koi-and-birds": koiAndBirds,
   "stamp-folder": stampFolder,
 };
