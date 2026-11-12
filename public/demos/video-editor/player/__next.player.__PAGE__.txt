@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[32665,["/demos/video-editor/_next/static/chunks/158myu8e_yme3.js","/demos/video-editor/_next/static/chunks/3pvfizs6mnao9.js","/demos/video-editor/_next/static/chunks/3ilclw3h2mkz5.js","/demos/video-editor/_next/static/chunks/3ytzc56njxsdj.js"],"default"]
+3:I[97367,["/demos/video-editor/_next/static/chunks/158myu8e_yme3.js","/demos/video-editor/_next/static/chunks/3pvfizs6mnao9.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"mode":"player"}],[["$","script","script-0",{"src":"/demos/video-editor/_next/static/chunks/3ilclw3h2mkz5.js","async":true}],["$","script","script-1",{"src":"/demos/video-editor/_next/static/chunks/3ytzc56njxsdj.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"L8QzGEG3jRZ9gAJfMni1B"}
+5:null
