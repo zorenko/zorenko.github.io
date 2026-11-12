@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ExperimentsCanvas } from "@/components/experiments-canvas";
-import { ExperimentDemo } from "@/components/experiments";
+import { ExperimentPreview } from "@/components/experiments";
 import { LISTED, experimentHref } from "@/content/experiments";
 import { enter } from "@/lib/dom";
 import { pageMeta } from "@/lib/site";
@@ -17,16 +17,20 @@ export default function Experiments() {
         </header>
 
         <div className="q-tray q-tray--stack q-xp-list" {...enter(2)}>
+          {/* Each row: a small square of the looping preview, then the title and blurb. The whole row links to the
+              experiment's page, where the full demo is */}
           {LISTED.map((xp) => (
-            <article className="q-xp" id={xp.id} key={xp.id} aria-labelledby={`xp-${xp.id}`}>
-              <ExperimentDemo xp={xp} />
-              <div className="q-xp-text">
-                <h2 id={`xp-${xp.id}`}>
-                  <Link href={experimentHref(xp)}>{xp.title} <span aria-hidden="true">→</span></Link>
-                </h2>
+            <Link className="q-xp q-xp--row" id={xp.id} key={xp.id} href={experimentHref(xp)}>
+              <span className="q-xp-thumb" aria-hidden="true">
+                <span className="q-stage">
+                  <ExperimentPreview xp={xp} />
+                </span>
+              </span>
+              <span className="q-xp-text">
+                <h2>{xp.title} <span aria-hidden="true">→</span></h2>
                 <p>{xp.blurb}.</p>
-              </div>
-            </article>
+              </span>
+            </Link>
           ))}
         </div>
       </main>

@@ -258,6 +258,19 @@ body.v-quiet {
 .q-xp-list .q-xp { scroll-margin-top: 96px; }
 .v-quiet .q-xp-list .q-xp-text p { font-size: 14px; line-height: 24px; max-width: 34em; }
 
+/* The /experiments/ list: rows of a small square preview on the left and the title and blurb on the right */
+.v-quiet .q-xp--row { flex-direction: row; align-items: center; gap: 16px; min-height: 0; color: inherit; }
+.q-xp-thumb { position: relative; display: grid; place-items: center; flex: none; width: 120px; aspect-ratio: 1; overflow: hidden; border-radius: 9px; background: var(--q-well); transition: background-color 150ms ease; }
+.q-xp-thumb .q-stage { transition: transform 700ms var(--q-ease); }
+.q-xp--row .q-xp-text { margin-top: 0; padding: 8px 16px 8px 0; }
+.q-xp--row .q-xp-text h2 span { display: inline-block; color: var(--q-muted); transition: transform 200ms var(--q-ease); }
+.v-quiet .q-xp-list .q-xp--row .q-xp-text p { margin-top: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .q-xp--row:hover .q-xp-thumb .q-stage { transform: scale(1.08); }
+  .q-xp--row:hover .q-xp-text h2 span { transform: translateX(3px); }
+}
+.q-xp--row:focus-visible { outline: 2px solid var(--q-title); outline-offset: 2px; }
+
 
 
 
