@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { prefersReducedMotion } from "@/lib/dom";
-import { EXPERIMENTS, experimentHref } from "@/content/experiments";
+import { LISTED, experimentHref } from "@/content/experiments";
 import { ExperimentCardBody } from "./experiments";
 
 const KEY = "q-xp-view";
@@ -42,7 +42,7 @@ export function ExperimentsCanvas() {
     const cv = cvRef.current!;
     const root = document.documentElement;
     const reduce = prefersReducedMotion();
-    const n = EXPERIMENTS.length;
+    const n = LISTED.length;
     type Tile = { i: number; j: number; el: HTMLAnchorElement };
     let tiles: Tile[] = [];
     let cols = 0, rows = 0, cw = 0, ch = 0, th = 0, px = 0, py = 0;
@@ -238,13 +238,13 @@ export function ExperimentsCanvas() {
     };
   }, [router]);
 
-  const n = EXPERIMENTS.length;
+  const n = LISTED.length;
   const step = n > 2 ? 2 : 1; // neighbours, including the staggered ones, never repeat a card
   const tiles = [];
   for (let i = 0; i < grid.cols; i++) {
     for (let j = 0; j < grid.rows; j++) {
       const idx = i * grid.rows + j;
-      const xp = EXPERIMENTS[mod(step * i + j, n)];
+      const xp = LISTED[mod(step * i + j, n)];
       tiles.push(
         <a
           key={`${i}-${j}`}
@@ -294,7 +294,7 @@ export function ExperimentsCanvas() {
       </div>
       <section className="q-cv" tabIndex={0} aria-label="Experiments canvas. Arrow keys move around, Enter opens the card in the middle." ref={cvRef}>
         <ul className="q-sr">
-          {EXPERIMENTS.map((xp) => (
+          {LISTED.map((xp) => (
             <li key={xp.id}>
               <a href={experimentHref(xp)} tabIndex={-1}>{xp.title}</a>
             </li>

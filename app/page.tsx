@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CopyEmail } from "@/components/copy-email";
 import { Experience } from "@/components/experience";
 import { ExperimentWall } from "@/components/experiment-wall";
-import { EXPERIMENTS } from "@/content/experiments";
+import { LISTED } from "@/content/experiments";
 import { PostList } from "@/components/post-list";
 import { ScrambleText } from "@/components/scramble";
 import { WorkCarousel } from "@/components/work-carousel";
@@ -59,7 +59,7 @@ export default function Home() {
       </section>
 
       <section className="q-sec q-sec--wall" {...enter(4)} aria-label="Experiments">
-        <ExperimentWall items={EXPERIMENTS} />
+        <ExperimentWall items={LISTED} />
       </section>
     </main>
   );
