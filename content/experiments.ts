@@ -6,33 +6,6 @@
    page is still built, so the link works for anyone you send it to: a place for drafts and things not ready to show. */
 export const EXPERIMENTS = [
   {
-    id: "morphing-button",
-    title: "Morphing Button",
-    blurb: "A button that resizes smoothly as its label and icon change",
-    about: [
-      "A button that resizes smoothly as its label and icon change. A hidden copy of the next state is measured, the width animates to it, and the icon and label slide through clipped cells while the old ones pop out of the layout.",
-      "Click it to step through the states.",
-    ],
-  },
-  {
-    id: "scrambled-text",
-    title: "Scrambled Text",
-    blurb: "Type that resolves out of random glyphs, one letter at a time",
-    about: [
-      "Type that resolves out of random glyphs, one letter at a time. The unresolved letters keep flickering in a faded monospace, and a hidden copy of the final text holds the width so the line never jumps.",
-      "It's the same effect as the name at the top of the home page.",
-    ],
-  },
-  {
-    id: "theme-switch",
-    title: "Theme Switch",
-    blurb: "A light and dark toggle whose icon spins and unblurs into place",
-    about: [
-      "A light and dark toggle whose icon spins and unblurs into place while the page eases between palettes. The whole preview is drawn in em, so a single font-size scales it.",
-      "Click the page to switch it.",
-    ],
-  },
-  {
     id: "koi-and-birds",
     title: "Koi and Birds",
     blurb: "Koi, a flock and a single bird, drawn in a grid of characters",
