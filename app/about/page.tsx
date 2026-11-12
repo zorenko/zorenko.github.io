@@ -13,11 +13,12 @@ export default function About() {
         <p className="q-plead">Based in Oslo. I design and build clear, calm interfaces for products with a lot going on, from first sketch to shipped code.</p>
       </header>
 
-      <section className="q-sec" {...enter(2)} aria-labelledby="q-exp">
+      {/* No visible section titles here; aria-label names them for screen readers */}
+      <section className="q-sec" {...enter(2)} aria-label="Experience">
         <Experience />
       </section>
 
-      <section className="q-sec" {...enter(3)} aria-labelledby="q-proj">
+      <section className="q-sec" {...enter(3)} aria-label="Projects">
         <Projects />
       </section>
     </main>
