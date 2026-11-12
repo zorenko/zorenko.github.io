@@ -2,6 +2,7 @@ export const SITE_URL = "https://zorenko.github.io";
 export const NAME = "Anastasia Zorenko";
 export const EMAIL = "zorenkoa@gmail.com";
 export const LINKEDIN = "https://www.linkedin.com/in/anastasiazorenko/";
+export const GITHUB = "https://github.com/zorenko";
 export const OG_IMAGE = "/assets/img/work/celsia-slide-01.jpg";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

@@ -155,15 +155,14 @@ body.v-quiet {
 
 /* Sections */
 .q-sec { margin-top: var(--q-gap); }
+.q-sec--work { scroll-margin-top: 48px; } /* "All projects" on a case study lands here, with room above */
 @media (max-width: 640px) { :root { --q-gap: 72px; } }
 .q-title { margin-bottom: 24px !important; font-size: 14px; font-weight: 400; line-height: 1.4; color: var(--q-title); }
 .q-list { display: flex; flex-direction: column; gap: 12px; list-style: none; }
 .q-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; line-height: 20px; }
 .q-meta { flex: none; color: var(--q-date); font-variant-numeric: tabular-nums; }
 /* Writing: post rows (rendered from /blog/posts.json by /assets/blog/blog.js) */
-.q-title-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 24px; }
-.q-title-row .q-title { margin-bottom: 0 !important; }
-.v-quiet .q-more { color: var(--q-muted); text-decoration: none; transition: color 200ms var(--q-ease); }
+.v-quiet .q-more { display: inline-block; margin-top: 24px; color: var(--q-muted); text-decoration: none; transition: color 200ms var(--q-ease); }
 .v-quiet .q-more:hover { color: var(--q-title); }
 .q-posts { min-height: calc(3 * 20px + 2 * 12px); }
 .q-posts[data-posts=""] { min-height: 0; }

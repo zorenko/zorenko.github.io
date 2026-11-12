@@ -25,7 +25,7 @@ export function Project({ title, lead, role, intro, shots, next, children }: {
       <Shots shots={shots} enter={shotsAt} />
       {children}
       <nav className="q-pnav" {...enter(shotsAt + 1)} aria-label="More projects">
-        <Link href="/#q-proj">All projects</Link>
+        <Link href="/#q-work">All projects</Link>
         <Link href={next.href}>Next: {next.title} →</Link>
       </nav>
     </main>

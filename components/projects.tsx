@@ -1,4 +1,5 @@
-/* Projects: the case studies and the previous portfolio (About page) */
+/* Projects: the case studies and the previous portfolio (About page).
+   No visible title; the About page labels the section for screen readers. */
 
 import Link from "next/link";
 
@@ -10,22 +11,19 @@ const PROJECTS = [
 
 export function Projects() {
   return (
-    <>
-      <h2 className="q-title" id="q-proj">Projects</h2>
-      <div className="q-grid">
-        {PROJECTS.map((p) => (
-          <Link className="q-card" href={p.href} key={p.href}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <span className="q-thumb"><img src={p.img} alt="" loading="lazy" decoding="async" /></span>
-            <span className="q-card-text"><span>{p.title}</span><span className="q-muted">{p.blurb}</span></span>
-          </Link>
-        ))}
-        {/* The previous portfolio is a separate site, so a plain link */}
-        <a className="q-card" href="/portfolio-2021/">
-          <span className="q-thumb q-thumb--archive"><span className="q-archive-word">2016–2021</span></span>
-          <span className="q-card-text"><span>Archive</span><span className="q-muted">The previous portfolio</span></span>
-        </a>
-      </div>
-    </>
+    <div className="q-grid">
+      {PROJECTS.map((p) => (
+        <Link className="q-card" href={p.href} key={p.href}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <span className="q-thumb"><img src={p.img} alt="" loading="lazy" decoding="async" /></span>
+          <span className="q-card-text"><span>{p.title}</span><span className="q-muted">{p.blurb}</span></span>
+        </Link>
+      ))}
+      {/* The previous portfolio is a separate site, so a plain link */}
+      <a className="q-card" href="/portfolio-2021/">
+        <span className="q-thumb q-thumb--archive"><span className="q-archive-word">2016–2021</span></span>
+        <span className="q-card-text"><span>Archive</span><span className="q-muted">The previous portfolio</span></span>
+      </a>
+    </div>
   );
 }

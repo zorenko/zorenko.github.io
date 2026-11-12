@@ -10,18 +10,16 @@ const EXPERIENCE = [
   { role: "Product Designer", company: "Kaspersky", year: 2015 },
 ];
 
+/* No visible title; each page labels the section for screen readers */
 export function Experience() {
   return (
-    <>
-      <h2 className="q-title" id="q-exp">Experience</h2>
-      <ul className="q-list" role="list">
-        {EXPERIENCE.map((e) => (
-          <li className="q-row" key={e.company}>
-            <span>{e.role} · <b>{e.company}</b></span>
-            <span className="q-meta">{e.year}</span>
-          </li>
-        ))}
-      </ul>
-    </>
+    <ul className="q-list" role="list">
+      {EXPERIENCE.map((e) => (
+        <li className="q-row" key={e.company}>
+          <span>{e.role} · <b>{e.company}</b></span>
+          <span className="q-meta">{e.year}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
