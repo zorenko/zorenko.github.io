@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   openGraph: { type: "website", title: `${NAME} | Design Engineer`, description: "Design engineer in Oslo." },
 };
 
+// The experiments wall at the bottom of the page. Hidden for now; true brings it back. /experiments/ is unaffected.
+const SHOW_EXPERIMENTS_WALL = false;
+
 export default function Home() {
   return (
     <main className="q" id="q-main">
@@ -58,9 +61,11 @@ export default function Home() {
         <PostList posts={posts.slice(0, 3)} />
       </section>
 
-      <section className="q-sec q-sec--wall" {...enter(4)} aria-label="Experiments">
-        <ExperimentWall items={LISTED} />
-      </section>
+      {SHOW_EXPERIMENTS_WALL && (
+        <section className="q-sec q-sec--wall" {...enter(4)} aria-label="Experiments">
+          <ExperimentWall items={LISTED} />
+        </section>
+      )}
     </main>
   );
 }
