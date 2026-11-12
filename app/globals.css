@@ -9,7 +9,6 @@
 @import "../components/experiments/theme-switch.css" layer(base);
 @import "../components/experiments/koi-and-birds.css" layer(base);
 @import "../components/experiments/stamp-folder.css" layer(base);
-@import "../components/experiments/montage.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
