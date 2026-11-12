@@ -1,0 +1,98 @@
+/* Tailwind (for shadcn components) without its preflight reset, so the hand-written site styles look exactly as before.
+   site.css sits in the base layer: its q-* classes style the site, and Tailwind utilities on shadcn components still win over it. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "./site.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Dark mode is the q-dark class on <html> (set by the theme switch in the dock) */
+@custom-variant dark (&:is(.q-dark *));
+
+/* shadcn tokens, mapped onto the site's own --q-* palette (which already switches with q-dark) */
+:root {
+  --background: var(--q-bg);
+  --foreground: var(--q-text);
+  --card: var(--q-card);
+  --card-foreground: var(--q-text);
+  --popover: var(--q-card);
+  --popover-foreground: var(--q-text);
+  --primary: var(--q-cta);
+  --primary-foreground: var(--q-cta-text);
+  --secondary: var(--q-soft);
+  --secondary-foreground: var(--q-title);
+  --muted: var(--q-soft);
+  --muted-foreground: var(--q-muted);
+  --accent: var(--q-frame);
+  --accent-foreground: var(--q-title);
+  --destructive: #e5484d;
+  --border: var(--q-card-line);
+  --input: var(--q-card-line);
+  --ring: var(--q-muted);
+  --chart-1: #c2c2c2;
+  --chart-2: #8f8f8f;
+  --chart-3: #6f6f6f;
+  --chart-4: #4a4a4a;
+  --chart-5: #242424;
+  --sidebar: var(--q-tray);
+  --sidebar-foreground: var(--q-text);
+  --sidebar-primary: var(--q-cta);
+  --sidebar-primary-foreground: var(--q-cta-text);
+  --sidebar-accent: var(--q-frame);
+  --sidebar-accent-foreground: var(--q-title);
+  --sidebar-border: var(--q-tray-line);
+  --sidebar-ring: var(--q-muted);
+  --radius: 0.625rem;
+}
+html.q-dark {
+  --destructive: #ec5d5e;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist), "Geist", Inter, system-ui, -apple-system, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-serif: var(--font-faculty), "Faculty Glyphic", Georgia, serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  *, ::before, ::after { border-color: var(--border); outline-color: color-mix(in srgb, var(--ring) 50%, transparent); }
+}
