@@ -1,6 +1,9 @@
 /* The experiments, in the order they're listed on /experiments/ and tiled on its canvas. Each one has its own page
    at /experiments/<id>/ (app/experiments/[id]/page.tsx) with the live demo, the paragraphs in `about` and, if there's
-   one, a link to what it was based on. Each id needs a preview and a demo in components/experiments.tsx. */
+   one, a link to what it was based on. Each id needs its own file in components/experiments/ (see index.tsx there).
+
+   hidden: true keeps an experiment off the home page wall, the list and the canvas, and out of search engines. Its
+   page is still built, so the link works for anyone you send it to: a place for drafts and things not ready to show. */
 export const EXPERIMENTS = [
   {
     id: "morphing-button",
@@ -57,7 +60,13 @@ export const EXPERIMENTS = [
   blurb: string;
   about: readonly string[];
   basedOn?: { label: string; href: string };
+  hidden?: boolean;
 }[];
 export type Experiment = (typeof EXPERIMENTS)[number];
+
+/** Whether an experiment shows on the home page wall, the list and the canvas */
+export const isListed = (xp: Experiment) => !("hidden" in xp && xp.hidden);
+/** The experiments that show on the site, in order */
+export const LISTED: readonly Experiment[] = EXPERIMENTS.filter(isListed);
 
 export const experimentHref = (xp: Experiment) => `/experiments/${xp.id}/`;

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ExperimentsCanvas } from "@/components/experiments-canvas";
 import { ExperimentDemo } from "@/components/experiments";
-import { EXPERIMENTS, experimentHref } from "@/content/experiments";
+import { LISTED, experimentHref } from "@/content/experiments";
 import { enter } from "@/lib/dom";
 import { pageMeta } from "@/lib/site";
 
@@ -17,7 +17,7 @@ export default function Experiments() {
         </header>
 
         <div className="q-tray q-tray--stack q-xp-list" {...enter(2)}>
-          {EXPERIMENTS.map((xp) => (
+          {LISTED.map((xp) => (
             <article className="q-xp" id={xp.id} key={xp.id} aria-labelledby={`xp-${xp.id}`}>
               <ExperimentDemo xp={xp} />
               <div className="q-xp-text">
