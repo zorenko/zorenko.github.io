@@ -54,16 +54,6 @@ export const EXPERIMENTS = [
     ],
     basedOn: { label: "a folder animation by @AdityaSur11 on X", href: "https://x.com/AdityaSur11/status/2116088350071558294" },
   },
-  {
-    id: "montage",
-    title: "Montage",
-    blurb: "A video editor in the browser that turns screenshots into a captioned montage",
-    about: [
-      "A small video editor that runs entirely in the browser. Drop in screenshots and it sets them on a solid or gradient background, zooms slowly towards a point you pick on each one, fades or slides between them and puts a caption over each. Music can go underneath.",
-      "Export draws every frame onto a canvas and encodes an MP4 with the browser's own video encoder, through Mediabunny, so nothing is uploaded anywhere. A project can also be opened from a JSON file, which is how this montage of Muster's screenshots was put together.",
-      "Press play, pick a slide in the timeline and change anything in the panel on the right, then export it. On a narrow screen there's no room for the editor, so the montage just plays.",
-    ],
-  },
 ] as const satisfies readonly {
   id: string;
   title: string;
