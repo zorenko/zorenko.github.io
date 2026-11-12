@@ -1,0 +1,18 @@
+/* Montage. Its component is montage.tsx; this file is imported into the base layer by app/globals.css. */
+
+/* The demo is the whole editor. On its own page its tray leaves the text column for a wider one, tall enough to use;
+   elsewhere (the list, phones) the well is the shape of a laptop screen and the editor is scaled down into it. */
+.q-xp-solo:has(.q-well--editor) { width: min(1120px, 96vw); margin-left: calc(50% - min(560px, 48vw)); }
+.q-xp-solo .q-xp:has(> .q-well--editor) { min-height: 0; }
+.q-well--editor { height: auto; aspect-ratio: 16 / 10; }
+@media (min-width: 1000px) { .q-xp-solo .q-well--editor { height: min(640px, 80vh); aspect-ratio: auto; } }
+
+/* The iframe fills its well (or the preview tile) on the editor's own dark ground */
+.q-stage:has(> .q-montage) { width: 100%; height: 100%; }
+.q-montage { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; background: #0a0a0a; }
+.q-well > .q-montage { position: absolute; inset: 0; }
+/* Out of the flow, so a scaled-down iframe (laid out taller than its box) can't stretch the box it was measured from */
+.q-montage iframe { position: absolute; top: 0; left: 0; display: block; width: 100%; height: 100%; border: 0; transform-origin: 0 0; }
+.q-montage--preview iframe { pointer-events: none; }
+.q-wall-well .q-stage:has(> .q-montage) { transform: scale(1.02); }
+@media (hover: hover) and (pointer: fine) { .q-wall-tile:hover .q-stage:has(> .q-montage) { transform: scale(1.035); } }

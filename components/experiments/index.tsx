@@ -10,6 +10,7 @@
 import type { Experiment } from "@/content/experiments";
 import type { ExperimentUI } from "./types";
 import { ui as koiAndBirds } from "./koi-and-birds";
+import { ui as montage } from "./montage";
 import { ui as morphingButton } from "./morphing-button";
 import { ui as scrambledText } from "./scrambled-text";
 import { ui as stampFolder } from "./stamp-folder";
@@ -21,6 +22,7 @@ const UI: Record<Experiment["id"], ExperimentUI> = {
   "theme-switch": themeSwitch,
   "koi-and-birds": koiAndBirds,
   "stamp-folder": stampFolder,
+  montage,
 };
 
 /** The interactive demo in its well (the /experiments/ list and each experiment's page) */

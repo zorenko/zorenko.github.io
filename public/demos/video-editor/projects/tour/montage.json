@@ -1,0 +1,60 @@
+{
+  "composition": {
+    "aspectRatio": "16:9",
+    "cropMode": "fit",
+    "scale": 0.8
+  },
+  "animation": {
+    "speed": 3000,
+    "zoom": 10,
+    "transition": "fade",
+    "transitionDuration": 500
+  },
+  "background": {
+    "type": "gradient",
+    "color": "#f3f76f",
+    "gradientTo": "#e0e709"
+  },
+  "caption": {
+    "position": "top",
+    "color": "#1c1c1a"
+  },
+  "slides": [
+    {
+      "image": "01-templates-overview--with-most-used.png",
+      "caption": "All your skills in one place"
+    },
+    {
+      "image": "02-templates-health--health.png",
+      "caption": "Muster checks them for clashes",
+      "focus": {
+        "x": 0.58,
+        "y": 0.55
+      }
+    },
+    {
+      "image": "03-templates-health--compare-duplicate.png",
+      "caption": "Compare two skills side by side",
+      "focus": {
+        "x": 0.4,
+        "y": 0.5
+      }
+    },
+    {
+      "image": "04-templates-skill--open.png",
+      "caption": "See what each skill does",
+      "focus": {
+        "x": 0.6,
+        "y": 0.4
+      }
+    },
+    {
+      "image": "05-templates-discover--discover.png",
+      "caption": "Find new skills to add",
+      "focus": {
+        "x": 0.6,
+        "y": 0.6
+      }
+    }
+  ]
+}

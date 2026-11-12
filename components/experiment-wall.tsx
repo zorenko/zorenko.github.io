@@ -29,26 +29,57 @@ type Tile = { xp: Experiment; height: number; first: boolean; phase: string };
 function layout(items: readonly Experiment[], width: number, inner: number, height: number) {
   const cols = columnsFor(width);
   const colW = inner / cols;
-  const count = new Map<string, number>(); // how many times each experiment has been placed so far
-  return Array.from({ length: cols }, (_, c) => {
-    const tiles: Tile[] = [];
+  // Enough tiles in each column for every experiment to get one (a few wide columns already have plenty)
+  const need = Math.ceil(items.length / cols);
+  // Which experiment goes where, as indexes into items, column by column
+  const grid = Array.from({ length: cols }, (_, c) => {
+    const slots: { i: number; height: number }[] = [];
     let left = height;
     for (let k = 0; ; k++) {
       // The last tile takes what's left, once that's no more than a tall tile; none ends up thin
-      const last = left <= colW * 1.45;
+      const last = k >= need - 1 && left <= colW * 1.45;
       // Narrow columns skip the flattest shapes: the previews shrink less than the tiles, and would be cut off
       const ratio = Math.max(RATIOS[(c * 3 + k * 5) % RATIOS.length], colW < 300 ? 0.8 : 0.62);
-      const h = last ? left : Math.min((colW - PAD * 2) * ratio + PAD * 2, left - colW * 0.55);
-      const xp = items[(c + k * 2) % items.length]; // neighbours across and below always differ
-      // Each repeat of an experiment starts its loop at a different point (golden-ratio steps), so they don't move in step
-      const n = count.get(xp.id) ?? 0;
-      count.set(xp.id, n + 1);
-      tiles.push({ xp, height: h, first: n === 0, phase: ((n * 0.618034) % 1).toFixed(2) });
+      // Until the column has its share of tiles, each leaves room for the ones still to come
+      const share = k < need - 1 ? left / (need - k) : Infinity;
+      const h = last ? left : Math.min((colW - PAD * 2) * ratio + PAD * 2, left - colW * 0.55, share);
+      slots.push({ i: (c + k * 2) % items.length, height: h }); // neighbours across and below always differ
       left -= h;
       if (last) break;
     }
-    return tiles;
+    return slots;
   });
+
+  // A small wall (phones, narrow windows) has fewer tiles than that pattern needs to reach every experiment.
+  // Each one left out takes the place of a repeat whose neighbours (above, below, either side) aren't it.
+  const placed = new Map<number, number>();
+  grid.flat().forEach(({ i }) => placed.set(i, (placed.get(i) ?? 0) + 1));
+  const at = (c: number, k: number) => grid[c]?.[k]?.i;
+  items.forEach((_, missing) => {
+    if (placed.has(missing)) return;
+    for (let c = 0; c < cols; c++) {
+      const k = grid[c].findIndex(
+        ({ i }, k) =>
+          placed.get(i)! > 1 && ![at(c, k - 1), at(c, k + 1), at(c - 1, k), at(c + 1, k)].includes(missing),
+      );
+      if (k < 0) continue;
+      placed.set(grid[c][k].i, placed.get(grid[c][k].i)! - 1);
+      placed.set(missing, 1);
+      grid[c][k].i = missing;
+      return;
+    }
+  });
+
+  const count = new Map<string, number>(); // how many times each experiment has been placed so far
+  return grid.map((slots) =>
+    slots.map(({ i, height }): Tile => {
+      const xp = items[i];
+      // Each repeat of an experiment starts its loop at a different point (golden-ratio steps), so they don't move in step
+      const n = count.get(xp.id) ?? 0;
+      count.set(xp.id, n + 1);
+      return { xp, height, first: n === 0, phase: ((n * 0.618034) % 1).toFixed(2) };
+    }),
+  );
 }
 
 export function ExperimentWall({ items }: { items: readonly Experiment[] }) {
