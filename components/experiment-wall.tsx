@@ -11,7 +11,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Experiment } from "@/content/experiments";
+import { experimentHref, type Experiment } from "@/content/experiments";
 import { cssVars, prefersReducedMotion } from "@/lib/dom";
 import { ExperimentPreview } from "./experiments";
 
@@ -101,7 +101,7 @@ export function ExperimentWall({ items }: { items: readonly Experiment[] }) {
             <Link
               key={k}
               className="q-wall-tile"
-              href={`/experiments/#${t.xp.id}`}
+              href={experimentHref(t.xp)}
               style={{ height: t.height }}
               data-phase={t.phase}
               aria-label={t.first ? t.xp.title : undefined}

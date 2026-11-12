@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Koi and birds drawn in a grid of characters: the "Koi and Birds" experiment on zorenko.github.io.
+     Opened on its own it shows the test panel. In the site's previews it's opened with
+     ?embed (no panel or note), &scene=koi|birds|side, and &panel to keep the settings panel (the large demo on /experiments/).
+     The page around it can post 'pause' and 'play' to stop the loop while it's off screen. -->
+<title>Koi and Birds</title>
+<script>
+  const Q = new URLSearchParams(location.search), EMBED = Q.has('embed');
+  if (EMBED) document.documentElement.classList.add('is-embed');
+  if (EMBED && Q.has('panel')) document.documentElement.classList.add('has-panel');
+</script>
+<style>
+  :root { --bg: #1a1921; --fg: #cfc8bf; --muted: #7d7884; --panel: #22212b; --line: #34323e; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); overflow: hidden;
+    font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  .note { position: fixed; left: 28px; bottom: 28px; max-width: 320px; color: var(--muted); pointer-events: none; }
+  .note b { color: var(--fg); font-weight: 500; }
+  .panel { position: fixed; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 4px;
+    padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; user-select: none; }
+  .panel label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+  .panel .row { display: flex; gap: 6px; margin-top: 4px; }
+  .panel button { font: inherit; color: var(--fg); background: transparent; border: 1px solid var(--line);
+    border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  .panel button:hover { border-color: var(--muted); }
+  .panel button:disabled { opacity: 0.4; cursor: default; border-color: var(--line); }
+  .panel input[type=range] { width: 90px; }
+  .seg { display: flex; gap: 2px; padding: 2px; margin-bottom: 6px; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 7px; }
+  .panel .seg button { flex: 1; border: 0; border-radius: 5px; padding: 3px 10px; color: var(--muted); }
+  .panel .seg button[aria-selected="true"] { background: var(--line); color: var(--fg); }
+  /* ?embed: no panel or note; ?embed&panel: the panel, a little tighter, in the corner */
+  .is-embed .note, .is-embed .panel { display: none; }
+  .is-embed.has-panel .panel { display: flex; top: 10px; right: 10px; gap: 2px; padding: 8px 10px; font-size: 11px; }
+</style>
+</head>
+<body>
+<canvas id="pond"></canvas>
+
+<div class="note" id="note" data-koi-avoid></div>
+
+<div class="panel" data-koi-avoid data-koi-ignore>
+  <div class="seg" role="tablist" aria-label="Scene">
+    <button role="tab" data-scene="koi" aria-selected="true">koi</button>
+    <button role="tab" data-scene="birds" aria-selected="false">birds</button>
+    <button role="tab" data-scene="side" aria-selected="false">side</button>
+  </div>
+  <label><input type="checkbox" id="optSkeleton"> skeleton</label>
+  <label><input type="checkbox" id="optTiles" checked> tiles</label>
+  <label><input type="checkbox" id="optGlyphs" checked> glyphs</label>
+  <label><input type="checkbox" id="optWater" checked> trails + rings</label>
+  <label>cell <input type="range" id="optCell" min="6" max="16" value="9"> <span id="cellVal">9</span>px</label>
+  <div class="row">
+    <button id="add">+ add</button>
+    <button id="reset">reset</button>
+  </div>
+  <div id="stats" style="color: var(--muted)"></div>
+</div>
+
+<script>
+// ---------- math helpers ----------
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+const rand = (a, b) => a + Math.random() * (b - a);
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const wrap = (a) => { a = (a + Math.PI) % TAU; if (a < 0) a += TAU; return a - Math.PI; };
+
+// Integer hash -> [0,1). Stable per input, so markings and glyph choice stick to a body.
+function hash(a, b, c) {
+  let h = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263) ^ Math.imul(c | 0, 1442695041);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+// Bilinear value noise: roughens the koi markings and draws the clouds.
+function noise(x, y, seed) {
+  const ix = Math.floor(x), iy = Math.floor(y), fx = smooth(0, 1, x - ix), fy = smooth(0, 1, y - iy);
+  const a = hash(ix, iy, seed), b = hash(ix + 1, iy, seed), c = hash(ix, iy + 1, seed), d = hash(ix + 1, iy + 1, seed);
+  return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
+}
+const mix = (a, b, t) => [(a[0] + (b[0] - a[0]) * t) | 0, (a[1] + (b[1] - a[1]) * t) | 0, (a[2] + (b[2] - a[2]) * t) | 0];
+const scale = (a, k) => [Math.min(255, a[0] * k) | 0, Math.min(255, a[1] * k) | 0, Math.min(255, a[2] * k) | 0];
+const packRGB = (c) => (c[0] << 16) | (c[1] << 8) | c[2];
+
+// ---------- shared palette bits ----------
+const P = {
+  bg: [26, 25, 33], white: [236, 228, 218], black: [92, 90, 108], fin: [214, 206, 198],
+  eye: [20, 20, 26], water: [255, 247, 240], shadow: [0, 0, 0], pellet: [236, 170, 92],
+  red: [[112, 22, 24], [168, 34, 28], [214, 58, 30], [240, 96, 34], [250, 138, 52], [255, 178, 96]],
+  ink: 0.42, alpha: 0.8, depthFloor: 0.4, shadowAlpha: 0.55,
+};
+const RAMP = 't%SX8@#'; // bright -> dark
+const NONE = 0, BODY = 1, FIN = 2, EYE = 3, TAIL = 4, BEAK = 5, WING = 6;
+
+// ---------- shared view, input and grid ----------
+const view = { width: 0, height: 0 };
+const pointer = { x: 0, y: 0, speed: 0, active: false, t: 0 };
+let avoid = [];
+const opts = { skeleton: false, tiles: true, glyphs: true, water: true };
+const LO = EMBED ? 0.55 : 1; // lets the creatures shrink further in the small embedded frames
+const FEW = EMBED && !Q.has('panel'); // the small previews: fewer creatures, so each shape reads
+
+const canvas = document.getElementById('pond');
+const ctx = canvas.getContext('2d');
+const G = { dpr: 1, cw: 9, ch: 11, cols: 0, rows: 0 };
+let glyph, color, alpha, tile, tileA, dim, shadow, energy, energyTmp;
+let wCount, wC, wT, wUnder, wFeather; // per-cell accumulators for splatting the side-view wings
+
+function allocate() {
+  const n = G.cols * G.rows;
+  wCount = new Uint16Array(n); wC = new Float32Array(n); wT = new Float32Array(n);
+  wUnder = new Uint16Array(n); wFeather = new Uint16Array(n);
+  glyph = new Uint16Array(n); color = new Uint32Array(n); alpha = new Float32Array(n);
+  tile = new Uint32Array(n); tileA = new Float32Array(n); dim = new Float32Array(n).fill(1);
+  shadow = new Uint8Array(n); energy = new Float32Array(n); energyTmp = new Float32Array(n);
+}
+function cellIndex(x, y) {
+  const c = Math.floor(x / G.cw), r = Math.floor(y / G.ch);
+  return c < 0 || r < 0 || c >= G.cols || r >= G.rows ? -1 : r * G.cols + c;
+}
+function put(idx, g, gc, ga, tc, ta) {
+  tile[idx] = tc ? packRGB(tc) : 0; tileA[idx] = ta;
+  glyph[idx] = g.charCodeAt(0); color[idx] = gc ? packRGB(gc) : 0; alpha[idx] = ga;
+}
+
+// Trails: sources deposit energy; it blurs into neighbours and decays each frame.
+function deposit(x, y, amount) {
+  const idx = cellIndex(x, y);
+  if (idx >= 0) energy[idx] = Math.min(1.5, energy[idx] + amount);
+}
+function diffuse(dt) {
+  const { cols, rows } = G, decay = Math.exp(-1.1 * dt);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const i = r * cols + c, e = energy[i];
+    const l = c > 0 ? energy[i - 1] : e, rt = c < cols - 1 ? energy[i + 1] : e;
+    const u = r > 0 ? energy[i - cols] : e, d = r < rows - 1 ? energy[i + cols] : e;
+    energyTmp[i] = (4 * e + l + rt + u + d) * 0.125 * decay;
+  }
+  [energy, energyTmp] = [energyTmp, energy];
+}
+
+function setDimBoxes(boxes) {
+  const { cols, rows, cw, ch } = G, feather = 4 * cw;
+  dim.fill(1);
+  for (const b of boxes) {
+    const c0 = Math.max(0, Math.floor((b.left - feather) / cw)), c1 = Math.min(cols - 1, Math.floor((b.right + feather) / cw));
+    const r0 = Math.max(0, Math.floor((b.top - feather) / ch)), r1 = Math.min(rows - 1, Math.floor((b.bottom + feather) / ch));
+    for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
+      const x = c * cw + cw / 2, y = r * ch + ch / 2;
+      const d = Math.hypot(Math.max(b.left - x, 0, x - b.right), Math.max(b.top - y, 0, y - b.bottom));
+      const i = r * cols + c;
+      dim[i] = Math.min(dim[i], 0.15 + 0.85 * smooth(0, feather, d));
+    }
+  }
+}
+
+const styleCache = new Map();
+const style = (rgb) => {
+  let s = styleCache.get(rgb);
+  if (!s) { s = `rgb(${rgb >>> 16},${(rgb >>> 8) & 255},${rgb & 255})`; styleCache.set(rgb, s); }
+  return s;
+};
+function glyphAt(i, ch, rgb, a) {
+  ctx.globalAlpha = a; ctx.fillStyle = style(packRGB(rgb));
+  ctx.fillText(ch, (i % G.cols) * G.cw + G.cw / 2, ((i / G.cols) | 0) * G.ch + G.ch / 2);
+}
+// A slash that follows a direction: used for ripple rings and for feather lines.
+const dirGlyph = (x, y) => {
+  const m = Math.hypot(x, y) || 1;
+  return Math.abs(y) < 0.38 * m ? '-' : Math.abs(x) < 0.38 * m ? '|' : x * y > 0 ? '\\' : '/';
+};
+
+function drawShadows(rgb, a) {
+  for (let i = 0; i < shadow.length; i++) if (shadow[i] && !glyph[i]) glyphAt(i, ':', rgb, a * dim[i]);
+}
+function drawEnergy(rgb) {
+  for (let i = 0; i < energy.length; i++) {
+    const e = energy[i];
+    if (e < 0.22 || glyph[i] || shadow[i]) continue;
+    glyphAt(i, e > 0.5 ? '-' : '.', rgb, 0.35 * Math.min(1, (e - 0.22) * 1.4) * dim[i]);
+  }
+}
+function drawRings(rings, time, life, speed, delay, rgb) {
+  const { cw, ch, cols, rows } = G;
+  for (const rp of rings) {
+    const age = time - rp.born, fade = Math.pow(Math.max(0, 1 - age / life(rp)), 1.5) * rp.strength;
+    for (let ring = 0; ring < 2; ring++) {
+      const rad = speed * Math.max(0, age - delay * ring) * (0.7 + 0.5 * rp.strength);
+      if (rad < 2) continue;
+      const c0 = Math.max(0, Math.floor((rp.x - rad - cw) / cw)), c1 = Math.min(cols - 1, Math.floor((rp.x + rad + cw) / cw));
+      const r0 = Math.max(0, Math.floor((rp.y - rad - ch) / ch)), r1 = Math.min(rows - 1, Math.floor((rp.y + rad + ch) / ch));
+      const a = fade * (ring === 0 ? 0.55 : 0.3);
+      for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
+        const i = r * cols + c;
+        if (glyph[i]) continue;
+        const x = c * cw + cw / 2 - rp.x, y = r * ch + ch / 2 - rp.y;
+        if (Math.abs(Math.hypot(x, y) - rad) > 0.6 * cw) continue;
+        glyphAt(i, ring === 1 ? '.' : dirGlyph(-y, x), rgb, a);
+      }
+    }
+  }
+}
+// The bodies: inset tile (the 1px gap draws the grid), glyph on top.
+function drawCells() {
+  const { cw, ch, cols } = G;
+  for (let i = 0; i < glyph.length; i++) {
+    const g = glyph[i];
+    if (!g) continue;
+    const x = (i % cols) * cw, y = ((i / cols) | 0) * ch;
+    if (opts.tiles && tileA[i] > 0) {
+      ctx.globalAlpha = tileA[i] * dim[i]; ctx.fillStyle = style(tile[i]);
+      ctx.fillRect(x + 1, y + 1, cw - 1, ch - 1);
+    }
+    if (opts.glyphs && g !== 32) {
+      ctx.globalAlpha = alpha[i] * dim[i]; ctx.fillStyle = style(color[i]);
+      ctx.fillText(String.fromCharCode(g), x + cw / 2, y + ch / 2 + 1);
+    }
+  }
+}
+const SUB = [0.25, 0.25, 0.75, 0.25, 0.25, 0.75, 0.75, 0.75];
+
+// =====================================================================
+// KOI POND
+// =====================================================================
+const redAt = (t) => {
+  const x = clamp(t, 0, 1) * (P.red.length - 1), i = Math.min(P.red.length - 2, Math.floor(x));
+  return mix(P.red[i], P.red[i + 1], x - i);
+};
+
+// Half-width along the spine: blunt head, widest near 0.3, tapers into the tail stalk at 0.74.
+function halfWidth(s) {
+  if (s < 0.12) return 0.11 * Math.pow(Math.sin((s / 0.12) * Math.PI / 2), 0.55);
+  if (s < 0.3) return 0.11 + 0.025 * smooth(0.12, 0.3, s);
+  return 0.033 + 0.102 * (1 - smooth(0.3, 0.74, s));
+}
+// A fin is an ellipse hanging off the body edge, swept back by `angle`.
+function inFin(s, d, at, angle, len, wid) {
+  const u = s - at, w = d - 0.85 * halfWidth(at), c = Math.cos(angle), sn = Math.sin(angle);
+  const along = u * c + w * sn - len, across = -u * sn + w * c;
+  return (along / len) ** 2 + (across / wid) ** 2 <= 1;
+}
+const H = { dist: 0, s: 0, side: 1, tx: 1, ty: 0, part: NONE, across: 1 };
+function classify(s, d, flare) {
+  const hw = halfWidth(s);
+  if (s <= 0.74 && d <= hw) {
+    H.across = d / hw;
+    H.part = s > 0.055 && s < 0.1 && H.across > 0.5 && H.across < 0.85 ? EYE : BODY;
+    return;
+  }
+  if (s > 0.68) { // forked tail: the centre stops at 0.86, the edges reach the end
+    const tw = (0.03 + 0.15 * Math.pow(smooth(0.7, 1, s), 0.8)) * flare;
+    if (d <= tw && s <= 0.86 + (d / tw) * 0.14) { H.part = FIN; return; }
+  }
+  if (inFin(s, d, 0.19, 0.85 + 0.5 * (flare - 1), 0.066 * flare, 0.04) ||
+      inFin(s, d, 0.47, 0.75, 0.036, 0.018)) { H.part = FIN; return; }
+  H.part = NONE;
+}
+
+const W = { time: 0, koi: [], pellets: [], ripples: [], bites: [], lastFeed: -Infinity };
+const VARIETIES = [['kohaku', 3], ['sanke', 2], ['tancho', 1]];
+
+function makeMarks(id, variety) {
+  const r = (k) => hash(id, k, 41);
+  if (variety === 'tancho') return { red: [{ s: 0.11, v: 0, rs: 0.05, rv: 0.055 }], black: [] };
+  const red = [];
+  if (r(0) < 0.75) red.push({ s: 0.1, v: (r(1) - 0.5) * 0.03, rs: 0.055 + 0.03 * r(2), rv: 0.11 });
+  const n = 2 + Math.floor(r(3) * 2), span = 0.42 / n;
+  for (let i = 0; i < n; i++) red.push({
+    s: 0.25 + span * (i + 0.5) + (r(10 + i) - 0.5) * span * 0.3, v: (r(20 + i) - 0.5) * 0.05,
+    rs: span * (0.32 + 0.12 * r(30 + i)), rv: 0.09 + 0.05 * r(40 + i),
+  });
+  const black = [];
+  if (variety === 'sanke') {
+    const m = 4 + Math.floor(r(50) * 3);
+    for (let i = 0; i < m; i++) black.push({ s: 0.24 + 0.44 * r(60 + i), v: (r(70 + i) - 0.5) * 0.16, rs: 0.022, rv: 0.026 });
+  }
+  return { red, black };
+}
+
+function makeKoi(id, small) {
+  const { width: w, height: h } = view;
+  const L = clamp(0.5 * Math.min(w, h), 170 * LO, 420) * (small ? rand(0.32, 0.45) : rand(0.6, 1));
+  const heading = rand(0, TAU), x = rand(0.15 * w, 0.85 * w), y = rand(0.15 * h, 0.85 * h);
+  const nodes = new Float32Array(40), seg = L / 19;
+  for (let i = 0; i < 20; i++) { nodes[2 * i] = x - Math.cos(heading) * seg * i; nodes[2 * i + 1] = y - Math.sin(heading) * seg * i; }
+  let pick = Math.random() * 6, variety = 'kohaku';
+  for (const [v, wgt] of VARIETIES) if ((pick -= wgt) <= 0) { variety = v; break; }
+  const depthMax = small ? 0.72 : 1;
+  return {
+    id, L, nodes, heading, variety, marks: makeMarks(id, variety),
+    speed: 20, phase: rand(0, TAU), finPhase: rand(0, TAU), turn: 0, wander: 0, curiosity: rand(0.35, 1),
+    depth: rand(0.5, depthMax), depthTarget: rand(0.5, depthMax), depthMax, nextDive: rand(6, 18),
+    nextSurface: rand(3, 14), nextWake: rand(0, 2), beat: 0, rush: 0, food: null,
+    burstUntil: 0, nextBurst: rand(0, 3), startle: 0, fleeX: 0, fleeY: 0, gulp: 0,
+  };
+}
+
+function feed(x, y) {
+  W.lastFeed = W.time;
+  W.ripples.push({ x, y, born: W.time, strength: 0.35 });
+  const count = Math.min(5 + Math.floor(Math.random() * 3), 24 - W.pellets.length);
+  for (let i = 0; i < count; i++) {
+    const a = rand(0, TAU), r = 34 * Math.sqrt(Math.random()), v = rand(2, 6);
+    W.pellets.push({ x: x + Math.cos(a) * r * 1.3, y: y + Math.sin(a) * r, born: W.time,
+      landAt: rand(0.15, 0.45), landed: false, vx: Math.cos(a) * v, vy: Math.sin(a) * v });
+  }
+}
+function nearestPellet(x, y, range) {
+  let best = null, bd = range * range;
+  for (const p of W.pellets) {
+    if (!p.landed) continue;
+    const d = (p.x - x) ** 2 + (p.y - y) ** 2;
+    if (d < bd) { bd = d; best = p; }
+  }
+  return best;
+}
+function pickFood(k, x, y, range) {
+  if (k.food && !W.pellets.includes(k.food)) k.food = null;
+  const near = nearestPellet(x, y, range);
+  if (!k.food) return (k.food = near);
+  const d = Math.hypot(k.food.x - x, k.food.y - y);
+  if (d > 1.3 * range) k.food = near;
+  else if (near && Math.hypot(near.x - x, near.y - y) < 0.5 * d) k.food = near;
+  return k.food;
+}
+const rippleLife = (r) => 2.2 + 1.6 * r.strength;
+
+function stepPond(dt) {
+  W.time += dt;
+  for (const k of W.koi) stepKoi(k, dt);
+  const t = W.time;
+  W.pellets = W.pellets.filter((p) => t - p.born < 14);
+  for (const p of W.pellets) {
+    if (!p.landed) {
+      if (t - p.born < p.landAt) continue;
+      p.landed = true;
+      W.ripples.push({ x: p.x, y: p.y, born: t, strength: 0.1 });
+      for (const k of W.koi) if (Math.hypot(k.nodes[0] - p.x, k.nodes[1] - p.y) < 650) k.rush = 1;
+      continue;
+    }
+    const f = Math.exp(-0.2 * dt);
+    p.vx *= f; p.vy *= f; p.x += p.vx * dt; p.y += p.vy * dt;
+  }
+  W.ripples = W.ripples.filter((r) => t - r.born < rippleLife(r));
+  W.bites = W.bites.filter((b) => t - b.born < 0.45);
+}
+
+function stepKoi(k, dt) {
+  const { width: w, height: h } = view, ptr = pointer, t = W.time, L = k.L, n = k.nodes;
+  const hx = n[0], hy = n[1];
+
+  // Steering: every behaviour adds a vector, the sum becomes the wanted heading.
+  let dx = Math.cos(k.heading), dy = Math.sin(k.heading);
+  k.wander = clamp(k.wander + (Math.random() - 0.5) * dt * 2.4, -0.9, 0.9);
+  dx += 0.6 * Math.cos(k.heading + k.wander); dy += 0.6 * Math.sin(k.heading + k.wander);
+
+  const food = pickFood(k, hx, hy, Math.max(1.6 * L + 220, k.rush > 0 ? 650 : 0));
+  const pd = Math.hypot(ptr.x - hx, ptr.y - hy);
+  if (!food && t - W.lastFeed > 2 && ptr.active && ptr.speed > 1100 && pd < 0.9 * L) {
+    k.startle = 1; k.fleeX = ptr.x; k.fleeY = ptr.y;
+  }
+  k.startle = Math.max(0, k.startle - 0.6 * dt);
+  const fleeing = k.startle > 0.3 && !food;
+  let seeking = false, curious = false, close = 0;
+  if (fleeing) {
+    const ax = hx - k.fleeX, ay = hy - k.fleeY, d = Math.hypot(ax, ay) || 1;
+    dx += (ax / d) * 4 * k.startle; dy += (ay / d) * 4 * k.startle;
+  } else if (food) {
+    const ax = food.x - hx, ay = food.y - hy, d = Math.hypot(ax, ay) || 1;
+    dx += (ax / d) * 3; dy += (ay / d) * 3;
+    seeking = true; close = clamp(1 - d / (1.2 * L), 0, 1);
+  } else if (ptr.active && pd < 300) {
+    // Far away: swim at the cursor. Close up: swing sideways and circle it.
+    const ax = (ptr.x - hx) / (pd || 1), ay = (ptr.y - hy) / (pd || 1);
+    const pull = k.curiosity * (1 - pd / 300) * 2.2, toward = clamp(pd / (0.6 * L), 0, 1);
+    dx += (ax * toward - ay * (1 - toward)) * pull;
+    dy += (ay * toward + ax * (1 - toward)) * pull;
+    curious = true;
+  }
+
+  for (const o of W.koi) { // separation from bodies, loose alignment with neighbours
+    if (o === k) continue;
+    const ox = o.nodes[0], oy = o.nodes[1];
+    if (Math.abs(ox - hx) > 2 * L || Math.abs(oy - hy) > 2 * L) continue;
+    for (let i = 0; i < 20; i += 3) {
+      const ax = hx - o.nodes[2 * i], ay = hy - o.nodes[2 * i + 1], d = Math.hypot(ax, ay);
+      const r = (L + o.L) * (food ? 0.12 : 0.28);
+      if (d < r && d > 0.001) { const f = (1 - d / r) * 2.4; dx += (ax / d) * f; dy += (ay / d) * f; }
+    }
+    if (!seeking && Math.hypot(ox - hx, oy - hy) < 1.6 * L) { dx += 0.18 * Math.cos(o.heading); dy += 0.18 * Math.sin(o.heading); }
+  }
+
+  const reach = 0.4 * L, push = seeking || curious ? 0.5 : 1.8;
+  for (const b of avoid) { // steer around text
+    let ax = hx - clamp(hx, b.left, b.right), ay = hy - clamp(hy, b.top, b.bottom), d = Math.hypot(ax, ay);
+    if (d > reach) continue;
+    if (d < 0.001) { ax = hx - (b.left + b.right) / 2; ay = hy - (b.top + b.bottom) / 2; d = 0; }
+    const m = Math.hypot(ax, ay) || 1;
+    dx += (ax / m) * (1 - d / reach) * push; dy += (ay / m) * (1 - d / reach) * push;
+  }
+
+  const out = Math.max(-hx, hx - w, -hy, hy - h);
+  if (out > -0.25 * L) { // soft walls: turn back toward the centre
+    const f = 3.5 * clamp((out + 0.25 * L) / (0.5 * L), 0, 1), ax = w / 2 - hx, ay = h / 2 - hy, d = Math.hypot(ax, ay) || 1;
+    dx += (ax / d) * f; dy += (ay / d) * f;
+  }
+
+  // Turn toward the wanted heading, but never faster than the state allows.
+  const want = Math.atan2(dy, dx);
+  const rate = (1 + 0.6 * k.rush) * Math.min(fleeing ? 3 : seeking ? 1.9 + close : curious ? 1.2 : 0.7, (k.speed / L) * 4) * dt;
+  const turn = clamp(wrap(want - k.heading), -rate, rate);
+  k.heading += turn;
+  k.turn += (turn / dt - k.turn) * Math.min(1, 3 * dt);
+
+  // Kick-and-glide: short bursts of tail beating with glides in between.
+  if (t > k.nextBurst && t > k.burstUntil) { k.burstUntil = t + rand(0.7, 1.6); k.nextBurst = k.burstUntil + rand(1.2, 4); }
+  const kicking = fleeing || seeking || t < k.burstUntil;
+  k.beat += ((kicking ? 1 : 0) - k.beat) * Math.min(1, 3 * dt);
+  if (k.beat > 0.6 && k.depth > 0.65 && t > k.nextWake) {
+    W.ripples.push({ x: n[34], y: n[35], born: t, strength: 0.25 + 0.2 * k.depth });
+    k.nextWake = t + rand(0.8, 1.6) / k.beat;
+  }
+  k.rush = Math.max(0, k.rush - 0.7 * dt);
+
+  const cruise = 12 + 0.05 * L;
+  const target = (1 + 0.8 * k.rush) * (fleeing ? 3.2 * cruise : seeking ? cruise * (1.9 + close)
+    : kicking ? cruise * (curious ? 1.6 : 1.35) : 0.45 * cruise);
+  k.speed += (target - k.speed) * Math.min(1, dt * (kicking ? 1.6 + 3 * k.rush : 0.35));
+  k.phase += dt * (0.6 + k.beat * (2.2 + k.speed / 11));
+  k.finPhase += 2.4 * dt;
+  k.gulp += ((seeking && close > 0.55 ? 1 : 0) - k.gulp) * Math.min(1, 6 * dt);
+  if (t > k.nextDive) { k.depthTarget = rand(0.5, k.depthMax); k.nextDive = t + rand(8, 20); }
+  k.depth += ((seeking ? 1 : k.depthTarget) - k.depth) * Math.min(1, dt * (seeking ? 0.8 : 0.15));
+
+  // Move the head, then drag the chain: each node keeps its distance and bends at most 0.16 rad.
+  n[0] += Math.cos(k.heading) * k.speed * dt;
+  n[1] += Math.sin(k.heading) * k.speed * dt;
+  const seg = L / 19;
+  let back = k.heading + Math.PI;
+  for (let i = 1; i < 20; i++) {
+    const px = n[2 * i - 2], py = n[2 * i - 1];
+    let a = Math.atan2(n[2 * i + 1] - py, n[2 * i] - px);
+    a = back + clamp(wrap(a - back), -0.16, 0.16);
+    n[2 * i] = px + Math.cos(a) * seg; n[2 * i + 1] = py + Math.sin(a) * seg;
+    back = a;
+  }
+
+  const mouth = 0.08 * L + 6, before = W.pellets.length;
+  W.pellets = W.pellets.filter((p) => !p.landed || (p.x - n[0]) ** 2 + (p.y - n[1]) ** 2 > mouth * mouth);
+  if (W.pellets.length < before) {
+    W.ripples.push({ x: n[0], y: n[1], born: t, strength: 0.6 });
+    W.bites.push({ x: n[0], y: n[1], born: t });
+    k.nextSurface = t + rand(6, 16);
+  } else if (t > k.nextSurface) {
+    W.ripples.push({ x: n[0], y: n[1], born: t, strength: 0.3 });
+    k.nextSurface = t + rand(8, 20);
+  }
+}
+
+const sp = new Float32Array(40), arc = new Float32Array(20);
+let arcTotal = 1;
+
+// Nearest point on the displaced spine -> body-space coordinates of (x, y).
+function sampleSpine(x, y) {
+  let best = Infinity;
+  for (let i = 0; i < 19; i++) {
+    const ax = sp[2 * i], ay = sp[2 * i + 1], ux = sp[2 * i + 2] - ax, uy = sp[2 * i + 3] - ay, ll = ux * ux + uy * uy || 1;
+    const t = clamp(((x - ax) * ux + (y - ay) * uy) / ll, 0, 1);
+    const ex = x - ax - ux * t, ey = y - ay - uy * t, d = ex * ex + ey * ey;
+    if (d < best) {
+      best = d;
+      const len = Math.sqrt(ll);
+      H.s = (arc[i] + t * len) / arcTotal;
+      H.side = ux * (y - ay) - uy * (x - ax) >= 0 ? 1 : -1;
+      H.tx = ux / len; H.ty = uy / len;
+    }
+  }
+  H.dist = Math.sqrt(best);
+}
+
+const WHITE = 0, RED = 1, BLACK = 2;
+function skin(k, s, vn, across) {
+  if (across > 0.9 || s > 0.74) return WHITE;
+  const wobble = (noise(14 * s + k.id, 30 * vn, k.id + 3) - 0.5) * 0.6;
+  const inside = (m) => ((s - m.s) / m.rs) ** 2 + ((vn - m.v) / m.rv) ** 2 < 1 + wobble;
+  for (const m of k.marks.black) if (inside(m)) return BLACK;
+  for (const m of k.marks.red) if (inside(m)) return RED;
+  return WHITE;
+}
+
+// Swimming wave: push each node sideways; amplitude grows ~ s^2.2 so the head stays steady.
+function waveSpine(k) {
+  const L = k.L, n = k.nodes, amp = 0.2 + 1.1 * k.beat;
+  for (let i = 0; i < 20; i++) {
+    const s = i / 19, a = Math.max(0, i - 1), b = Math.min(19, i + 1);
+    let tx = n[2 * a] - n[2 * b], ty = n[2 * a + 1] - n[2 * b + 1];
+    const m = Math.hypot(tx, ty) || 1; tx /= m; ty /= m;
+    const off = 0.04 * L * (0.05 + 0.95 * Math.pow(s, 2.2)) * amp * Math.sin(k.phase - 4.6 * s);
+    sp[2 * i] = n[2 * i] - ty * off; sp[2 * i + 1] = n[2 * i + 1] + tx * off;
+  }
+}
+
+function rasterizeKoi(k, time) {
+  const L = k.L;
+  waveSpine(k);
+  arc[0] = 0;
+  for (let i = 1; i < 20; i++) arc[i] = arc[i - 1] + Math.hypot(sp[2 * i] - sp[2 * i - 2], sp[2 * i + 1] - sp[2 * i - 1]);
+  arcTotal = arc[19] || 1;
+
+  // Fins fold in while kicking, paddle while gliding, and the inside fin tucks on a turn.
+  const base = 1 - 0.25 * k.beat, osc = 0.18 * (1 - k.beat) * Math.sin(k.finPhase), tw = clamp(0.6 * k.turn, -0.35, 0.35);
+  const flareL = base + osc - tw, flareR = base - osc + tw;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (let i = 0; i < 20; i++) {
+    minX = Math.min(minX, sp[2 * i]); maxX = Math.max(maxX, sp[2 * i]);
+    minY = Math.min(minY, sp[2 * i + 1]); maxY = Math.max(maxY, sp[2 * i + 1]);
+  }
+  const { cw, ch, cols, rows } = G, pad = 0.35 * L, diag = Math.hypot(cw, ch);
+  const c0 = Math.max(0, Math.floor((minX - pad) / cw)), c1 = Math.min(cols - 1, Math.floor((maxX + pad) / cw));
+  const r0 = Math.max(0, Math.floor((minY - pad) / ch)), r1 = Math.min(rows - 1, Math.floor((maxY + pad) / ch));
+  const R = P.alpha * (P.depthFloor + (1 - P.depthFloor) * k.depth);
+  const shX = Math.round((0.07 * L * k.depth) / cw) + 1, shY = Math.round((0.05 * L * k.depth) / ch) + 1;
+
+  const probe = (x, y) => {
+    sampleSpine(x, y);
+    if (H.dist > pad + diag) { H.part = NONE; return; }
+    classify(H.s, H.dist / L, H.side > 0 ? flareL : flareR);
+  };
+
+  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
+    const x0 = c * cw, y0 = r * ch;
+    probe(x0 + cw / 2, y0 + ch / 2);
+    let { part, s, across, side, tx, ty, dist } = H;
+    // Interior body cells are "solid"; everything else gets 4 sub-samples for coverage.
+    const solid = part === BODY && s > 0.04 && s < 0.72 && halfWidth(s) * L - dist > 0.35 * diag;
+    let hits = part ? 1 : 0, offX = 0, offY = 0;
+    if (!solid) {
+      for (let i = 0; i < 8; i += 2) {
+        probe(x0 + SUB[i] * cw, y0 + SUB[i + 1] * ch);
+        if (!H.part) continue;
+        offX += (SUB[i] - 0.5) * cw; offY += (SUB[i + 1] - 0.5) * ch;
+        if (!hits) ({ part, s, across, side, tx, ty, dist } = H);
+        hits++;
+      }
+    } else hits = 5;
+    if (!hits) continue;
+
+    const cover = hits / 5, idx = r * cols + c, v = dist * side;
+    // Hash on body position, not screen position: the texture rides along with the fish.
+    const cellHash = (hash(Math.round(90 * s), Math.round(v / (0.8 * cw)), k.id) * 4294967295) >>> 0;
+    let g = ' ', gc = P.fin, ga = R, tc = null, ta = 0;
+
+    if (part === EYE && cover >= 0.6) {
+      tc = mix(P.bg, P.eye, 0.85); ta = R; g = 'o'; gc = mix(P.bg, P.white, 0.9);
+    } else if (part === FIN) {
+      tc = mix(P.bg, P.fin, 0.55); ta = 0.45 * R * cover;
+      if (cellHash % 2 === 0) { g = '.'; ga = R * 0.6 * cover; }
+    } else {
+      const sk = skin(k, s, v / L, across);
+      // Fake a lit cylinder: brightest down the middle, a little extra on the side facing the light.
+      const light = side * (0.6 * ty - 0.8 * tx) * across;
+      const hgt = clamp(0.22 + 0.5 * Math.sqrt(Math.max(0, 1 - across * across)) + 0.18 * light, 0, 1);
+      if (sk === RED) {
+        const jitter = (hash(k.id, 5, 17) - 0.5) * 0.3;
+        const blotch = (noise(9 * s + k.id, (v / L) * 18, k.id + 21) - 0.5) * 0.25;
+        const glint = Math.max(0, Math.sin(11 * s - 1.8 * time + k.id) - 0.7) / 0.3; // highlight sliding down the body
+        tc = redAt(0.15 + 0.8 * hgt + jitter + blotch + 0.35 * glint);
+      } else tc = mix(P.bg, sk === BLACK ? P.black : P.white, 0.68 + 0.3 * hgt);
+
+      if (solid) {
+        const sc = c + shX, sr = r + shY;
+        if (sc < cols && sr < rows) shadow[sr * cols + sc] = 1;
+        ta = R;
+        if (s < 0.035 && across < 0.6 && k.gulp > 0.5) { g = 'o'; gc = P.eye; }
+        else {
+          g = RAMP[clamp(Math.round((1 - hgt) * 4) + ((cellHash >>> 4) % 3), 0, RAMP.length - 1)];
+          gc = scale(tc, P.ink);
+          if (sk === WHITE) ga *= 0.6;
+          const bucket = Math.floor(1.4 * time + (cellHash % 997) / 97);
+          if (hash(cellHash, bucket, 7) < 0.03) tc = mix(tc, P.bg, 0.45); // sparkle
+        }
+      } else {
+        ta = R * cover * 0.55;
+        if (Math.hypot(offX, offY) > 0.2 * cw && cellHash % 3 === 0) { g = '.'; gc = scale(tc, P.ink); }
+      }
+    }
+    if (g === ' ' && ta === 0) continue;
+    put(idx, g, gc, ga, tc, ta);
+  }
+}
+
+const pond = {
+  note: '<b>koi pond</b><br>click to feed. move the cursor slowly and they get curious; flick it fast and they scatter. ' +
+        'this text is an avoid-box: fish steer around it and fade underneath it.',
+  shadowColor: P.shadow, shadowAlpha: P.shadowAlpha,
+  seed() {
+    W.koi = []; W.pellets = []; W.ripples = []; W.bites = [];
+    for (let i = 0; i < (FEW ? 2 : 3); i++) W.koi.push(makeKoi(i + 1, i >= 2));
+  },
+  add() { if (W.koi.length < 8) W.koi.push(makeKoi(W.koi.length + 1, Math.random() < 0.4)); },
+  step: stepPond,
+  click: feed,
+  rasterize() { for (const k of [...W.koi].sort((a, b) => a.depth - b.depth)) rasterizeKoi(k, W.time); }, // deeper first
+  deposit() {
+    for (const k of W.koi) for (let i = 16; i < 20; i++) deposit(k.nodes[2 * i], k.nodes[2 * i + 1], 0.035 + 0.0012 * k.speed);
+  },
+  drawUnder() {
+    if (opts.water) {
+      drawEnergy(P.water);
+      drawRings(W.ripples, W.time, rippleLife, 52, 0.45, P.water);
+    }
+    for (const p of W.pellets) {
+      const age = W.time - p.born;
+      if (!p.landed) {
+        const f = age / p.landAt, i = cellIndex(p.x, p.y - (1 - f) * G.ch * 1.5);
+        if (i >= 0 && !glyph[i]) glyphAt(i, f < 0.5 ? "'" : '.', P.pellet, P.alpha * (0.5 + 0.4 * f));
+        continue;
+      }
+      const i = cellIndex(p.x, p.y);
+      if (i < 0 || glyph[i]) continue;
+      const old = smooth(9, 14, age), bob = 0.8 + 0.2 * Math.sin(3 * age + p.x);
+      glyphAt(i, old > 0.55 ? '.' : 'o', P.pellet, P.alpha * bob * (1 - 0.85 * old));
+    }
+  },
+  drawOver() {
+    for (const b of W.bites) {
+      const i = cellIndex(b.x, b.y);
+      if (i < 0) continue;
+      const f = (W.time - b.born) / 0.45;
+      glyphAt(i, f < 0.35 ? '*' : f < 0.7 ? '+' : '.', P.pellet, Math.min(1, 1.6 * P.alpha) * (1 - f * f));
+    }
+  },
+  // The raw chain (white) vs the waved spine that actually gets drawn (orange).
+  drawDebug() {
+    ctx.lineWidth = 1;
+    for (const k of W.koi) {
+      waveSpine(k);
+      ctx.globalAlpha = 0.5; ctx.strokeStyle = '#ffffff'; ctx.beginPath();
+      for (let i = 0; i < 20; i++) ctx[i ? 'lineTo' : 'moveTo'](k.nodes[2 * i], k.nodes[2 * i + 1]);
+      ctx.stroke();
+      ctx.globalAlpha = 0.9; ctx.strokeStyle = '#ff8a34'; ctx.beginPath();
+      for (let i = 0; i < 20; i++) ctx[i ? 'lineTo' : 'moveTo'](sp[2 * i], sp[2 * i + 1]);
+      ctx.stroke();
+      ctx.fillStyle = '#ff8a34';
+      for (let i = 0; i < 20; i++) { ctx.beginPath(); ctx.arc(sp[2 * i], sp[2 * i + 1], i ? 1.6 : 3, 0, TAU); ctx.fill(); }
+    }
+  },
+  stats: () => `${W.koi.length} koi · ${W.pellets.length} pellets`,
+};
+
+// =====================================================================
+// BIRDS — same grid, same shading trick, seen from above.
+// A bird is a rigid frame (position + heading) with the body, tail and wings defined in body space:
+// s runs beak (0) -> tail tip (1), v is sideways distance, both in units of body length.
+// =====================================================================
+const SKY = {
+  shadow: [0, 0, 0], shadowAlpha: 0.42, air: [220, 228, 255], cloud: [196, 202, 224], alpha: 0.86, ink: 0.42,
+  gull: {
+    body: [236, 228, 218], wing: [162, 162, 178], tip: [84, 82, 98], beak: [236, 170, 92], throat: null,
+    span: 1.1, chord: 0.34, wrist: 0.1, sweep: 0.7, taper: 0.55, tip0: 0.74, fork: false, hz: 2.2, size: [0.9, 1.1],
+  },
+  swallow: {
+    body: [126, 140, 186], wing: [100, 114, 160], tip: [78, 86, 120], beak: [70, 66, 82], throat: [214, 96, 52],
+    span: 0.95, chord: 0.28, wrist: 0.03, sweep: 1.1, taper: 0.8, tip0: 0.82, fork: true, hz: 4, size: [0.7, 0.85],
+  },
+};
+const SK = { time: 0, birds: [], rings: [], feathers: [] };
+
+// Body half-width, top-down: thin beak, round head, slight neck, broad chest, taper to the tail.
+const BIRD_BODY = [[0, 0.012], [0.075, 0.03], [0.11, 0.08], [0.18, 0.095], [0.24, 0.088], [0.38, 0.135], [0.5, 0.128], [0.66, 0.07]];
+// Smoothly interpolate a [[s, value], ...] profile; 0 outside it.
+function fromTable(tbl, s) {
+  if (s < tbl[0][0] || s > tbl[tbl.length - 1][0]) return 0;
+  for (let i = 1; i < tbl.length; i++) {
+    const [s1, w1] = tbl[i];
+    if (s <= s1) { const [s0, w0] = tbl[i - 1]; return w0 + (w1 - w0) * smooth(s0, s1, s); }
+  }
+  return 0;
+}
+const birdHalfWidth = (s) => fromTable(BIRD_BODY, s);
+
+const HB = { part: NONE, across: 0, t: 0, c: 0 };
+// Which part of the bird a body-space point falls in. `span` is this wing's projected length.
+function classifyBird(k, s, av, span, sweep) {
+  const hw = birdHalfWidth(s);
+  if (hw > 0 && av <= hw) { HB.part = s < 0.075 ? BEAK : BODY; HB.across = av / hw; return; }
+  if (s > 0.6) {
+    if (k.fork) { // swallow: long forked streamers
+      const tw = 0.05 + 0.1 * smooth(0.62, 1, s);
+      if (av <= tw && s <= 0.8 + 0.2 * (av / tw)) { HB.part = TAIL; HB.across = av / tw; return; }
+    } else { // gull: short rounded fan
+      const tw = 0.055 + 0.06 * smooth(0.62, 0.9, s);
+      if (av <= tw && s <= 0.93 - 0.03 * (av / tw) ** 2) { HB.part = TAIL; HB.across = av / tw; return; }
+    }
+  }
+  const y = av - 0.05;
+  if (y >= 0 && y <= span) {
+    const t = y / span; // 0 at the shoulder, 1 at the wingtip
+    // Leading edge pushes forward to the wrist, then sweeps back to the tip.
+    const le = 0.24 - k.wrist * Math.sin(Math.min(t / 0.45, 1) * Math.PI / 2) + sweep * Math.pow(Math.max(0, t - 0.4), 1.3) * span;
+    let chord = k.chord * (1 - k.taper * Math.pow(t, 1.6));
+    if (t > 0.85) chord *= Math.sqrt(Math.max(0, 1 - ((t - 0.85) / 0.15) ** 2));
+    const c = (s - le) / chord;
+    if (c >= 0 && c <= 1) {
+      if (!k.fork && t > 0.8 && c > 0.55 && (t * 30) % 1 < 0.3) { HB.part = NONE; return; } // gaps between gull primaries
+      HB.part = WING; HB.t = t; HB.c = c; return;
+    }
+  }
+  HB.part = NONE;
+}
+
+function makeBird(id) {
+  const variety = Math.random() < 0.6 ? 'gull' : 'swallow', k = SKY[variety];
+  const L = clamp(0.17 * Math.min(view.width, view.height), 80 * LO, 150) * rand(k.size[0], k.size[1]);
+  return {
+    id, variety, kind: k, L, x: rand(0.2, 0.8) * view.width, y: rand(0.2, 0.8) * view.height,
+    heading: rand(0, TAU), speed: 60, turn: 0, bank: 0, alt: rand(0.35, 0.9), phase: rand(0, TAU), beat: 1,
+    flapping: true, flapUntil: rand(0.5, 2), glideUntil: 0, wander: 0, curiosity: rand(0.4, 1),
+    startle: 0, fleeX: 0, fleeY: 0, pose: null,
+  };
+}
+
+function stepBird(b, dt) {
+  const t = SK.time, L = b.L, k = b.kind;
+  let dx = Math.cos(b.heading), dy = Math.sin(b.heading);
+  b.wander = clamp(b.wander + (Math.random() - 0.5) * dt * 2, -0.7, 0.7);
+  dx += 0.5 * Math.cos(b.heading + b.wander); dy += 0.5 * Math.sin(b.heading + b.wander);
+
+  const pd = Math.hypot(pointer.x - b.x, pointer.y - b.y);
+  if (pointer.active && pointer.speed > 900 && pd < 1.6 * L) { b.startle = 1; b.fleeX = pointer.x; b.fleeY = pointer.y; }
+  b.startle = Math.max(0, b.startle - 0.5 * dt);
+  const fleeing = b.startle > 0.3;
+  let curious = false;
+  if (fleeing) {
+    const ax = b.x - b.fleeX, ay = b.y - b.fleeY, d = Math.hypot(ax, ay) || 1;
+    dx += (ax / d) * 4 * b.startle; dy += (ay / d) * 4 * b.startle;
+  } else if (pointer.active && pd < 280) {
+    // Circle the cursor like a thermal: mostly sideways, with a pull toward a 120px orbit.
+    const ux = (pointer.x - b.x) / (pd || 1), uy = (pointer.y - b.y) / (pd || 1), dir = b.id % 2 ? 1 : -1;
+    const pull = b.curiosity * (1 - pd / 280) * 2.4, radial = clamp((pd - 120) / 120, -1, 1);
+    dx += (ux * radial - uy * dir * 1.4) * pull; dy += (uy * radial + ux * dir * 1.4) * pull;
+    curious = true;
+  }
+
+  // Flocking: keep apart, match heading, drift toward the group.
+  let n = 0, hx = 0, hy = 0, cx = 0, cy = 0;
+  for (const o of SK.birds) {
+    if (o === b) continue;
+    // keep a wingspan apart, so wings don't overlap
+    const ox = o.x - b.x, oy = o.y - b.y, d = Math.hypot(ox, oy), r = 1.3 * (L + o.L);
+    if (d < r && d > 0.001) { const f = (1 - d / r) * 3; dx -= (ox / d) * f; dy -= (oy / d) * f; }
+    if (d < 6 * L) { hx += Math.cos(o.heading); hy += Math.sin(o.heading); cx += o.x; cy += o.y; n++; }
+  }
+  if (n && !fleeing) {
+    const hm = Math.hypot(hx, hy) || 1;
+    dx += (hx / hm) * 0.45; dy += (hy / hm) * 0.45;
+    const gx = cx / n - b.x, gy = cy / n - b.y, gd = Math.hypot(gx, gy) || 1, gw = 0.3 * smooth(2.5 * L, 5 * L, gd);
+    dx += (gx / gd) * gw; dy += (gy / gd) * gw;
+  }
+
+  const out = Math.max(-b.x, b.x - view.width, -b.y, b.y - view.height);
+  if (out > -0.6 * L) { // soft walls; birds may swing a little past the edge
+    const f = 3 * clamp((out + 0.6 * L) / L, 0, 1), gx = view.width / 2 - b.x, gy = view.height / 2 - b.y, gd = Math.hypot(gx, gy) || 1;
+    dx += (gx / gd) * f; dy += (gy / gd) * f;
+  }
+
+  const want = Math.atan2(dy, dx), rate = (fleeing ? 3.2 : curious ? 2.2 : 1.5) * dt;
+  const turn = clamp(wrap(want - b.heading), -rate, rate);
+  b.heading += turn;
+  b.turn += (turn / dt - b.turn) * Math.min(1, 3 * dt);
+  b.bank += (clamp(b.turn * 0.6, -0.8, 0.8) - b.bank) * Math.min(1, 4 * dt); // lean into the turn
+
+  // Flap-and-glide: bursts of flapping that climb, then glides that slowly sink.
+  if (b.flapping ? t > b.flapUntil : t > b.glideUntil) {
+    b.flapping = !b.flapping;
+    if (b.flapping) b.flapUntil = t + rand(0.8, 2); else b.glideUntil = t + rand(1.5, 4);
+  }
+  const flapping = b.flapping || fleeing || b.alt < 0.25;
+  b.beat += ((flapping ? 1 : 0) - b.beat) * Math.min(1, 4 * dt);
+  b.phase += dt * TAU * k.hz * (fleeing ? 1.5 : 1) * (0.3 + 0.7 * b.beat);
+  b.alt = clamp(b.alt + (flapping ? (fleeing ? 0.22 : 0.1) : -0.045) * dt, 0.15, 1);
+
+  const cruise = (70 + 0.6 * L) * (k.fork ? 1.25 : 1);
+  b.speed += (cruise * (fleeing ? 2 : flapping ? 1.15 : 0.9) - b.speed) * Math.min(1, 1.2 * dt);
+  b.x += Math.cos(b.heading) * b.speed * dt;
+  b.y += Math.sin(b.heading) * b.speed * dt;
+}
+
+function stepSky(dt) {
+  SK.time += dt;
+  for (const b of SK.birds) stepBird(b, dt);
+  const t = SK.time;
+  SK.rings = SK.rings.filter((r) => t - r.born < 1.2);
+  for (const f of SK.feathers) { // feathers spin and see-saw down to the ground
+    f.alt = Math.max(0, f.alt - 0.16 * dt);
+    const k = Math.exp(-0.6 * dt);
+    f.vx *= k; f.vy *= k;
+    f.x += (f.vx + Math.sin((t - f.born) * 2.6 + f.spin) * 22 * f.alt) * dt;
+    f.y += f.vy * dt;
+  }
+  SK.feathers = SK.feathers.filter((f) => t - f.born < 9);
+}
+
+// The wing pose for this frame. Seen from above, a raised or lowered wing looks shorter (cos of its angle),
+// the upstroke folds it in and sweeps it back, and the wing on the inside of a turn dips and shortens.
+function birdPose(b) {
+  const k = b.kind, sc = 0.8 + 0.35 * b.alt; // higher = closer to the camera = bigger
+  const a = b.beat * Math.sin(b.phase) + (1 - b.beat) * 0.1;
+  const fold = 0.3 * b.beat * Math.max(0, Math.cos(b.phase));
+  const base = k.span * Math.cos(0.95 * a) * (1 - fold);
+  const fx = Math.cos(b.heading), fy = Math.sin(b.heading);
+  return (b.pose = {
+    Ls: b.L * sc, a, fx, fy, rx: -fy, ry: fx,
+    spanR: base * (1 - 0.18 * b.bank), spanL: base * (1 + 0.18 * b.bank),
+    sweep: k.sweep * (1 + 1.2 * fold), curve: clamp(b.turn, -2.5, 2.5) * 0.1,
+  });
+}
+function wingtip(b, side) {
+  const p = b.pose, span = side > 0 ? p.spanR : p.spanL;
+  const along = 0.24 + p.sweep * Math.pow(0.6, 1.3) * span - 0.3, lat = side * (0.05 + span);
+  return [b.x - p.fx * along * p.Ls + p.rx * lat * p.Ls, b.y - p.fy * along * p.Ls + p.ry * lat * p.Ls];
+}
+
+function rasterizeBird(b) {
+  const k = b.kind, { Ls, a, fx, fy, rx, ry, spanR, spanL, sweep, curve } = birdPose(b);
+  const { cw, ch, cols, rows } = G;
+  const reach = (Math.max(spanR, spanL) + 0.8) * Ls;
+  const c0 = Math.max(0, Math.floor((b.x - reach) / cw)), c1 = Math.min(cols - 1, Math.floor((b.x + reach) / cw));
+  const r0 = Math.max(0, Math.floor((b.y - reach) / ch)), r1 = Math.min(rows - 1, Math.floor((b.y + reach) / ch));
+  const R = SKY.alpha * (0.55 + 0.45 * b.alt);
+  const sd = (0.25 + 1.1 * b.alt) * Ls, shX = Math.round((sd * 0.8) / cw), shY = Math.round((sd * 0.6) / ch);
+  const lightR = rx * -0.6 + ry * -0.8; // how much the bird's right side faces the light (upper left)
+
+  let s = 0, side = 1;
+  const probe = (x, y) => {
+    const dx = x - b.x, dy = y - b.y;
+    const along = -(dx * fx + dy * fy) / Ls; // + toward the tail, 0 at the shoulder
+    let lat = (dx * rx + dy * ry) / Ls;
+    if (along > 0) lat -= curve * along * along; // the tail trails round the curve of the turn
+    s = along + 0.3; side = lat >= 0 ? 1 : -1;
+    classifyBird(k, s, Math.abs(lat), side > 0 ? spanR : spanL, sweep);
+  };
+
+  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
+    const x0 = c * cw, y0 = r * ch;
+    probe(x0 + cw / 2, y0 + ch / 2);
+    let part = HB.part, across = HB.across, t = HB.t, cc = HB.c, sdn = side, ss = s;
+    let hits = part ? 1 : 0;
+    for (let i = 0; i < 8; i += 2) {
+      probe(x0 + SUB[i] * cw, y0 + SUB[i + 1] * ch);
+      if (!HB.part) continue;
+      if (!hits) { part = HB.part; across = HB.across; t = HB.t; cc = HB.c; sdn = side; ss = s; }
+      hits++;
+    }
+    if (!hits) continue;
+
+    const solid = hits === 5, cover = hits / 5, idx = r * cols + c, light = sdn * lightR;
+    const cellHash = (hash(Math.round(ss * 60), Math.round((part === WING ? t * 40 : across * 6) * sdn), b.id) * 4294967295) >>> 0;
+    let g = ' ', gc = null, ga = R, tc, ta;
+
+    if (part === WING) {
+      // Lowered wing (inside of a bank) and steep flap angles read darker; the leading edge catches light.
+      const hgt = clamp(0.5 + 0.25 * (1 - cc) - 0.22 * b.bank * sdn - 0.18 * Math.abs(a) + 0.12 * light, 0, 1);
+      tc = mix(P.bg, t > k.tip0 ? k.tip : k.wing, 0.62 + 0.36 * hgt);
+      ta = R * (solid ? 1 : cover * 0.6);
+      if (solid) {
+        if (cc > 0.45) { // flight feathers: a slash along the feather, back and out
+          const out = 0.35 + sweep * t;
+          g = dirGlyph(-fx + sdn * rx * out, -fy + sdn * ry * out);
+        } else g = RAMP[clamp(Math.round((1 - hgt) * 4) + ((cellHash >>> 4) % 3), 0, RAMP.length - 1)];
+        gc = scale(tc, SKY.ink + 0.08);
+      }
+    } else {
+      let col = part === BEAK ? k.beak : part === TAIL && k.fork ? k.wing : k.body;
+      if (part === BODY && k.throat && ss > 0.07 && ss < 0.17) col = k.throat;
+      const hgt = clamp(0.25 + 0.5 * Math.sqrt(Math.max(0, 1 - across * across)) + 0.15 * light * across, 0, 1);
+      tc = mix(P.bg, col, 0.68 + 0.3 * hgt);
+      ta = R * (solid ? 1 : cover * 0.55);
+      if (solid) {
+        g = RAMP[clamp(Math.round((1 - hgt) * 4) + ((cellHash >>> 4) % 3), 0, RAMP.length - 1)];
+        gc = scale(tc, SKY.ink);
+        if (col === SKY.gull.body) ga *= 0.6;
+      }
+    }
+    if (solid) {
+      const sc = c + shX, sr = r + shY;
+      if (sc >= 0 && sr >= 0 && sc < cols && sr < rows) shadow[sr * cols + sc] = 1;
+    }
+    put(idx, g, gc, ga, tc, ta);
+  }
+
+  // Eyes: one cell each side of the head, only where the head is solid.
+  for (const sdn of [-1, 1]) {
+    const along = 0.13 - 0.3, lat = sdn * 0.05;
+    const i = cellIndex(b.x - fx * along * Ls + rx * lat * Ls, b.y - fy * along * Ls + ry * lat * Ls);
+    if (i >= 0 && glyph[i] && glyph[i] !== 32) put(i, 'o', mix(P.bg, P.white, 0.9), R, mix(P.bg, P.eye, 0.85), R);
+  }
+}
+
+function drawClouds() {
+  const { cw, ch, cols } = G, t = SK.time;
+  for (let i = 0; i < glyph.length; i++) {
+    if (glyph[i]) continue;
+    const x = (i % cols) * cw - t * 14, y = ((i / cols) | 0) * ch - t * 5;
+    const n = 0.65 * noise(x * 0.006, y * 0.006, 7) + 0.35 * noise(x * 0.014, y * 0.014, 8);
+    if (n < 0.6) continue;
+    const d = clamp((n - 0.6) / 0.28, 0, 1);
+    glyphAt(i, d > 0.6 ? '~' : d > 0.3 ? '-' : '.', SKY.cloud, (0.04 + 0.12 * d) * dim[i]);
+  }
+}
+
+const sky = {
+  note: '<b>birds</b><br>click to clap and scatter the flock. move the cursor slowly and they circle it like a thermal; ' +
+        'flick it fast and they bolt. this text is an avoid-box: birds fade as they pass over it.',
+  shadowColor: SKY.shadow, shadowAlpha: SKY.shadowAlpha,
+  seed() {
+    SK.birds = []; SK.rings = []; SK.feathers = [];
+    for (let i = 0; i < (FEW ? 3 : 4); i++) SK.birds.push(makeBird(i + 1));
+  },
+  add() { if (SK.birds.length < 12) SK.birds.push(makeBird(SK.birds.length + 1)); },
+  step: stepSky,
+  click(x, y) {
+    SK.rings.push({ x, y, born: SK.time, strength: 0.6 });
+    let dropped = 0;
+    for (const b of SK.birds) {
+      if (Math.hypot(b.x - x, b.y - y) > 380) continue;
+      b.startle = 1; b.fleeX = x; b.fleeY = y;
+      if (dropped < 2 && Math.random() < 0.6) {
+        SK.feathers.push({ x: b.x, y: b.y, born: SK.time, alt: b.alt, spin: rand(1.5, 3), vx: Math.cos(b.heading) * 40, vy: Math.sin(b.heading) * 40 });
+        dropped++;
+      }
+    }
+  },
+  rasterize() { for (const b of [...SK.birds].sort((p, q) => p.alt - q.alt)) rasterizeBird(b); }, // lower first
+  deposit() {
+    for (const b of SK.birds) {
+      if (!b.pose) continue;
+      for (const side of [-1, 1]) { const [x, y] = wingtip(b, side); deposit(x, y, 0.05 + 0.0006 * b.speed); }
+    }
+  },
+  drawUnder() {
+    drawClouds();
+    const t = SK.time;
+    for (const f of SK.feathers) {
+      const age = t - f.born, fade = 1 - smooth(6, 9, age), sd = (0.1 + 1.1 * f.alt) * 90;
+      const si = cellIndex(f.x + sd * 0.8, f.y + sd * 0.6);
+      if (si >= 0 && !glyph[si]) glyphAt(si, ':', SKY.shadow, 0.45 * fade);
+      const i = cellIndex(f.x, f.y);
+      if (i < 0 || glyph[i]) continue;
+      glyphAt(i, f.alt > 0 ? '|/-\\'[Math.floor(age * f.spin * 2) % 4] : '-', P.white, 0.85 * fade * dim[i]);
+    }
+    if (opts.water) {
+      drawEnergy(SKY.air);
+      drawRings(SK.rings, t, () => 1.2, 150, 0.12, SKY.air);
+    }
+  },
+  drawOver() {},
+  // Body axis, the shoulder (circle grows with altitude) and each wing's leading line to its tip.
+  drawDebug() {
+    ctx.lineWidth = 1;
+    for (const b of SK.birds) {
+      const p = b.pose;
+      if (!p) continue;
+      ctx.globalAlpha = 0.6; ctx.strokeStyle = '#ffffff'; ctx.beginPath();
+      ctx.moveTo(b.x + p.fx * 0.3 * p.Ls, b.y + p.fy * 0.3 * p.Ls);
+      ctx.lineTo(b.x - p.fx * 0.7 * p.Ls, b.y - p.fy * 0.7 * p.Ls);
+      ctx.stroke();
+      ctx.globalAlpha = 0.9; ctx.strokeStyle = '#ff8a34'; ctx.fillStyle = '#ff8a34';
+      for (const side of [-1, 1]) {
+        const [x, y] = wingtip(b, side);
+        ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(x, y); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y, 2, 0, TAU); ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(b.x, b.y, 2 + 4 * b.alt, 0, TAU); ctx.stroke();
+    }
+  },
+  stats: () => `${SK.birds.length} birds · ${SK.birds.filter((b) => b.beat > 0.5).length} flapping`,
+};
+
+// =====================================================================
+// ONE BIRD, SIDE VIEW
+// Body: inverse-mapped like the koi (cell -> body space -> shape + shade).
+// Wings: a small 3D model. Each wing is a grid of (span t, chord c) points, flapped about the body axis
+// in two segments (arm, and a hand that lags behind it), seen by a camera a little above the bird, then
+// splatted into cells. Painted far wing first, then the body, then the near wing.
+// Body space: fwd / up in units of body length, origin at the shoulder, beak at fwd 0.32.
+// =====================================================================
+const SIDE = {
+  body: [236, 228, 218], mantle: [162, 162, 178], under: [206, 204, 212], tip: [84, 82, 98], beak: [236, 170, 92],
+  hill: [150, 154, 176], alpha: 0.9, elev: 0.12, hz: 2.4,
+  span: 1.15, chord: 0.36, wrist: 0.09, sweep: 0.55, taper: 0.55,
+};
+// Half-height along the body (s: beak 0 -> tail 1) and the centre line (head held a little high, tail lifts).
+const SIDE_BODY = [[0, 0.004], [0.075, 0.016], [0.1, 0.055], [0.15, 0.072], [0.22, 0.058], [0.32, 0.105],
+  [0.46, 0.112], [0.6, 0.075], [0.68, 0.04], [0.94, 0.018], [1, 0.004]];
+const sideCentre = (s) => 0.03 * (1 - smooth(0.12, 0.32, s)) + 0.015 * smooth(0.7, 1, s);
+
+const SV = {
+  time: 0, x: 0, y: 0, vy: 0, pitch: 0, phase: 0, beat: 1, flapping: true, flapUntil: 1.5, glideUntil: 0,
+  boost: 0, speed: 170, scroll: 0, lastTrail: 0, trails: [], puffs: [], feathers: [], pose: null,
+};
+
+function stepSide(dt) {
+  SV.time += dt;
+  const t = SV.time, w = view.width, h = view.height;
+  const pd = Math.hypot(pointer.x - SV.x, pointer.y - SV.y);
+  if (pointer.active && pointer.speed > 900 && pd < 200) SV.boost = 1.2;
+  SV.boost = Math.max(0, SV.boost - dt);
+
+  // Follow the cursor's height (and loosely its x); otherwise drift around the middle.
+  const ty = pointer.active ? clamp(pointer.y, 0.18 * h, 0.72 * h) : h * (0.42 + 0.06 * Math.sin(t * 0.4));
+  const tx = pointer.active ? clamp(pointer.x, 0.25 * w, 0.7 * w) : w * 0.45;
+  SV.x += (tx - SV.x) * Math.min(1, 0.6 * dt);
+
+  // Flap-and-glide, but it has to flap whenever it needs to climb.
+  if (SV.flapping ? t > SV.flapUntil : t > SV.glideUntil) {
+    SV.flapping = !SV.flapping;
+    if (SV.flapping) SV.flapUntil = t + rand(1.2, 2.6); else SV.glideUntil = t + rand(1.2, 3);
+  }
+  const flapping = SV.flapping || ty - SV.y < -30 || SV.boost > 0;
+  SV.beat += ((flapping ? 1 : 0) - SV.beat) * Math.min(1, 4 * dt);
+  SV.phase += dt * TAU * SIDE.hz * (SV.boost > 0 ? 1.7 : 1) * (0.25 + 0.75 * SV.beat);
+
+  let vyT = clamp((ty - SV.y) * 1.4, -170, 130);
+  if (!flapping) vyT = Math.max(vyT, 22); // a glide can only sink
+  if (SV.boost > 0) vyT = Math.min(vyT, -90);
+  SV.vy += (vyT - SV.vy) * Math.min(1, 1.8 * dt);
+  SV.y += SV.vy * dt;
+  SV.pitch += (clamp(-SV.vy / 280, -0.3, 0.35) - SV.pitch) * Math.min(1, 3 * dt); // nose up when climbing
+  SV.speed += ((SV.boost > 0 ? 280 : flapping ? 190 : 150) - SV.speed) * Math.min(1, dt);
+  SV.scroll += SV.speed * dt;
+
+  // The bird holds still on screen; the air and everything in it streams left.
+  for (const p of SV.trails) p.x -= SV.speed * dt;
+  for (const p of SV.puffs) p.x -= SV.speed * 0.9 * dt;
+  for (const f of SV.feathers) { f.x -= SV.speed * 0.8 * dt; f.y += (35 + 20 * Math.sin((t - f.born) * 3 + f.spin)) * dt; }
+  SV.trails = SV.trails.filter((p) => t - p.born < 0.9);
+  SV.puffs = SV.puffs.filter((p) => t - p.born < 1.2);
+  SV.feathers = SV.feathers.filter((f) => t - f.born < 4 && f.x > -20);
+}
+
+function sidePose() {
+  const b = SV, k = SIDE, Ls = clamp((EMBED ? 0.4 : 0.3) * Math.min(view.width, view.height), 130 * LO, 280);
+  // Arm and hand angles (up is positive). The hand lags the arm, so the wing whips instead of hinging.
+  const a1 = b.beat * (0.2 + 0.9 * Math.sin(b.phase)) + (1 - b.beat) * 0.1;
+  const a2 = b.beat * (0.2 + 1.05 * Math.sin(b.phase - 0.55)) + (1 - b.beat) * 0.04;
+  const fold = b.beat * Math.max(0, Math.cos(b.phase)); // upstroke: tuck in and sweep back
+  const bob = -b.beat * 0.03 * Math.cos(b.phase);       // the body lifts on the downstroke
+  return (b.pose = {
+    Ls, a1, a2, span: k.span * (1 - 0.3 * fold), sweep: k.sweep * (1 + 1.4 * fold),
+    ox: b.x, oy: b.y - bob * Ls, cp: Math.cos(b.pitch), sp: Math.sin(b.pitch),
+  });
+}
+const SCR = { x: 0, y: 0 };
+function toScreen(p, fwd, up) {
+  const f = fwd * p.cp - up * p.sp, u = fwd * p.sp + up * p.cp;
+  SCR.x = p.ox + f * p.Ls; SCR.y = p.oy - u * p.Ls;
+}
+
+// One point on a wing -> body space, plus whether we're looking at its underside.
+const WP = { fwd: 0, up: 0, under: false, slope: 0 };
+function wingPoint(p, side, t, c) {
+  const k = SIDE, e = k.elev, d = t * p.span, dw = 0.45 * p.span;
+  const le = 0.26 - k.wrist * Math.sin(Math.min(t / 0.45, 1) * Math.PI / 2) + p.sweep * Math.pow(Math.max(0, t - 0.4), 1.3) * p.span;
+  let ch = k.chord * (1 - k.taper * Math.pow(t, 1.6));
+  if (t > 0.85) ch *= Math.sqrt(Math.max(0, 1 - ((t - 0.85) / 0.15) ** 2));
+  const arm = Math.min(d, dw), hand = Math.max(0, d - dw), a = d <= dw ? p.a1 : p.a2;
+  const y = arm * Math.sin(p.a1) + hand * Math.sin(p.a2);
+  const z = side * (0.04 + arm * Math.cos(p.a1) + hand * Math.cos(p.a2)); // +z toward the camera
+  WP.fwd = 0.32 - (le + c * ch);
+  WP.up = y * Math.cos(e) - z * Math.sin(e); // camera slightly above: nearer points sit lower
+  WP.slope = Math.sin(a) * Math.cos(e) - side * Math.cos(a) * Math.sin(e);
+  WP.under = side > 0 ? Math.sin(e - a) < 0 : Math.sin(e + a) < 0;
+}
+
+function splatWing(p, side) {
+  const touched = [], NT = 56, NC = 12, R = SIDE.alpha;
+  for (let i = 0; i <= NT; i++) for (let j = 0; j <= NC; j++) {
+    const t = i / NT, c = j / NC;
+    wingPoint(p, side, t, c);
+    toScreen(p, WP.fwd, WP.up);
+    const idx = cellIndex(SCR.x, SCR.y);
+    if (idx < 0) continue;
+    if (!wCount[idx]) touched.push(idx);
+    wCount[idx]++; wC[idx] += c; wT[idx] += t;
+    if (WP.under) wUnder[idx]++;
+    if (c > 0.5) { // flight feathers trail back, tilted a little by the wing's angle
+      const fu = (0.35 + p.sweep * t) * WP.slope * 0.4;
+      wFeather[idx] = dirGlyph(-p.cp - fu * p.sp, -(-p.sp + fu * p.cp)).charCodeAt(0);
+    }
+  }
+  for (const idx of touched) {
+    const n = wCount[idx], cc = wC[idx] / n, t = wT[idx] / n, under = wUnder[idx] * 2 > n;
+    const solid = n >= 4, cover = Math.min(1, n / 4);
+    const hgt = clamp(0.4 + 0.35 * (1 - cc) + (under ? -0.12 : 0.1), 0, 1);
+    let tc = mix(P.bg, t > 0.76 ? SIDE.tip : under ? SIDE.under : SIDE.mantle, 0.62 + 0.36 * hgt);
+    if (side < 0) tc = mix(P.bg, tc, 0.55); // far wing sits back
+    let g = ' ', gc = null;
+    if (solid) {
+      const jitter = (hash(Math.round(t * 30), Math.round(cc * 6), 5) * 3) | 0;
+      g = cc > 0.5 && wFeather[idx] ? String.fromCharCode(wFeather[idx]) : RAMP[clamp(Math.round((1 - hgt) * 4) + jitter, 0, RAMP.length - 1)];
+      gc = scale(tc, SKY.ink + 0.08);
+    }
+    put(idx, g, gc, R, tc, R * (solid ? 1 : cover * 0.6));
+    wCount[idx] = 0; wC[idx] = 0; wT[idx] = 0; wUnder[idx] = 0; wFeather[idx] = 0;
+  }
+}
+
+function rasterizeSideBody(p) {
+  const { cw, ch, cols, rows } = G, { Ls, ox, oy, cp, sp: sn } = p, R = SIDE.alpha;
+  const reach = 0.75 * Ls;
+  const c0 = Math.max(0, Math.floor((ox - reach) / cw)), c1 = Math.min(cols - 1, Math.floor((ox + reach) / cw));
+  const r0 = Math.max(0, Math.floor((oy - reach) / ch)), r1 = Math.min(rows - 1, Math.floor((oy + reach) / ch));
+  let s = 0, across = 0, part = NONE;
+  const probe = (x, y) => {
+    const f = (x - ox) / Ls, u = (oy - y) / Ls;
+    const fwd = f * cp + u * sn, up = -f * sn + u * cp; // undo the pitch
+    s = 0.32 - fwd; part = NONE;
+    let hh = fromTable(SIDE_BODY, s);
+    if (!hh) return;
+    const yc = sideCentre(s);
+    if (up < yc && s > 0.25 && s < 0.62) hh *= 1.12; // rounder belly
+    across = (up - yc) / hh;
+    if (Math.abs(across) <= 1) part = s < 0.075 ? BEAK : s > 0.62 ? TAIL : BODY;
+  };
+  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
+    const x0 = c * cw, y0 = r * ch;
+    probe(x0 + cw / 2, y0 + ch / 2);
+    let hp = part, hs = s, ha = across, hits = part ? 1 : 0;
+    for (let i = 0; i < 8; i += 2) {
+      probe(x0 + SUB[i] * cw, y0 + SUB[i + 1] * ch);
+      if (!part) continue;
+      if (!hits) { hp = part; hs = s; ha = across; }
+      hits++;
+    }
+    if (!hits) continue;
+    const solid = hits === 5, idx = r * cols + c;
+    const col = hp === BEAK ? SIDE.beak : hp === BODY && ha > 0.4 && hs > 0.3 ? SIDE.mantle : SIDE.body;
+    const hgt = clamp(0.3 + 0.45 * Math.sqrt(Math.max(0, 1 - ha * ha)) + 0.2 * ha, 0, 1); // lit from above
+    const tc = mix(P.bg, col, 0.68 + 0.3 * hgt);
+    let g = ' ', gc = null, ga = R;
+    if (solid) {
+      const jitter = (hash(Math.round(hs * 60), Math.round(ha * 5), 99) * 3) | 0;
+      g = RAMP[clamp(Math.round((1 - hgt) * 4) + jitter, 0, RAMP.length - 1)];
+      gc = scale(tc, SKY.ink);
+      if (col === SIDE.body) ga *= 0.6;
+    }
+    put(idx, g, gc, ga, tc, R * (solid ? 1 : (hits / 5) * 0.55));
+  }
+  // Eye
+  const es = 0.115;
+  toScreen(p, 0.32 - es, sideCentre(es) + 0.3 * fromTable(SIDE_BODY, es));
+  const i = cellIndex(SCR.x, SCR.y);
+  if (i >= 0 && glyph[i]) put(i, 'o', mix(P.bg, P.white, 0.9), R, mix(P.bg, P.eye, 0.85), R);
+}
+
+function drawHills() {
+  const { cw, ch, cols, rows } = G, base = view.height * 0.9;
+  const heightAt = (c) => {
+    const x = c * cw + SV.scroll * 0.15; // far away, so it scrolls slowly
+    return (0.6 * noise(x * 0.004, 0.5, 11) + 0.4 * noise(x * 0.012, 0.5, 12)) * view.height * 0.16;
+  };
+  for (let c = 0; c < cols; c++) {
+    const hgt = heightAt(c), slope = heightAt(c + 1) - hgt;
+    const top = Math.max(0, Math.floor((base - hgt) / ch));
+    const edge = slope > 3 ? '/' : slope < -3 ? '\\' : '_';
+    for (let r = top; r < rows; r++) {
+      const i = r * cols + c;
+      if (glyph[i]) continue;
+      glyphAt(i, r === top ? edge : '.', SIDE.hill, (r === top ? 0.22 : 0.06) * dim[i]);
+    }
+  }
+}
+function drawSideClouds() {
+  const { cw, ch, cols } = G;
+  for (let i = 0; i < glyph.length; i++) {
+    if (glyph[i]) continue;
+    const x = (i % cols) * cw + SV.scroll * 0.4, y = ((i / cols) | 0) * ch;
+    if (y > view.height * 0.75) continue;
+    const n = 0.65 * noise(x * 0.004, y * 0.011, 7) + 0.35 * noise(x * 0.01, y * 0.03, 8); // stretched sideways
+    if (n < 0.6) continue;
+    const d = clamp((n - 0.6) / 0.28, 0, 1);
+    glyphAt(i, d > 0.6 ? '~' : d > 0.3 ? '-' : '.', SKY.cloud, (0.04 + 0.12 * d) * dim[i]);
+  }
+}
+
+const sideScene = {
+  note: '<b>one bird, side view</b><br>it follows your cursor up and down: to climb it has to flap, and below it, it glides down. ' +
+        'click (or flick the cursor at it) for a burst of hard flapping.',
+  shadowColor: SKY.shadow, shadowAlpha: 0,
+  seed() {
+    Object.assign(SV, { x: view.width * 0.45, y: view.height * 0.42, vy: 0, pitch: 0, boost: 0, trails: [], puffs: [], feathers: [] });
+  },
+  step: stepSide,
+  click() {
+    SV.boost = 1.4;
+    SV.puffs.push({ x: SV.x, y: SV.y, born: SV.time, strength: 0.6 });
+    if (Math.random() < 0.7) SV.feathers.push({ x: SV.x - 0.2 * (SV.pose ? SV.pose.Ls : 200), y: SV.y, born: SV.time, spin: rand(1.5, 3) });
+  },
+  rasterize() {
+    const p = sidePose();
+    splatWing(p, -1);
+    rasterizeSideBody(p);
+    splatWing(p, 1);
+  },
+  deposit() { // wingtip vortices, left behind in the moving air
+    const p = SV.pose;
+    if (!p || SV.time - SV.lastTrail < 0.025) return;
+    SV.lastTrail = SV.time;
+    for (const side of [-1, 1]) {
+      wingPoint(p, side, 1, 0.3);
+      toScreen(p, WP.fwd, WP.up);
+      SV.trails.push({ x: SCR.x, y: SCR.y, born: SV.time });
+    }
+  },
+  drawUnder() {
+    drawHills();
+    drawSideClouds();
+    const t = SV.time;
+    if (opts.water) {
+      for (const p of SV.trails) {
+        const i = cellIndex(p.x, p.y), age = t - p.born;
+        if (i >= 0 && !glyph[i]) glyphAt(i, age < 0.35 ? '-' : '.', SKY.air, 0.4 * (1 - age / 0.9) * dim[i]);
+      }
+      drawRings(SV.puffs, t, () => 1.2, 150, 0.12, SKY.air);
+    }
+    for (const f of SV.feathers) {
+      const i = cellIndex(f.x, f.y), age = t - f.born;
+      if (i >= 0 && !glyph[i]) glyphAt(i, '|/-\\'[Math.floor(age * f.spin * 2) % 4], P.white, 0.85 * (1 - smooth(3, 4, age)) * dim[i]);
+    }
+  },
+  drawOver() {},
+  // Body axis, and each wing's leading edge with the wrist joint marked.
+  drawDebug() {
+    const p = SV.pose;
+    if (!p) return;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.6; ctx.strokeStyle = '#ffffff'; ctx.beginPath();
+    toScreen(p, 0.32, 0); ctx.moveTo(SCR.x, SCR.y);
+    toScreen(p, -0.68, 0); ctx.lineTo(SCR.x, SCR.y);
+    ctx.stroke();
+    for (const side of [-1, 1]) {
+      ctx.globalAlpha = side > 0 ? 0.95 : 0.5; ctx.strokeStyle = ctx.fillStyle = '#ff8a34';
+      ctx.beginPath();
+      for (let i = 0; i <= 20; i++) {
+        wingPoint(p, side, i / 20, 0); toScreen(p, WP.fwd, WP.up);
+        ctx[i ? 'lineTo' : 'moveTo'](SCR.x, SCR.y);
+      }
+      ctx.stroke();
+      for (const t of [0.45, 1]) {
+        wingPoint(p, side, t, 0); toScreen(p, WP.fwd, WP.up);
+        ctx.beginPath(); ctx.arc(SCR.x, SCR.y, t < 1 ? 3 : 2, 0, TAU); ctx.fill();
+      }
+    }
+  },
+  stats: () => `${SV.beat > 0.5 ? 'flapping' : 'gliding'} · pitch ${Math.round(SV.pitch * 57)}°`,
+};
+
+// =====================================================================
+// wiring
+// =====================================================================
+const scenes = { koi: pond, birds: sky, side: sideScene };
+let scene = null;
+
+function render(dt) {
+  if (!G.cols) return;
+  glyph.fill(0); tileA.fill(0); shadow.fill(0);
+  scene.rasterize();
+  scene.deposit();
+  if (pointer.active) deposit(pointer.x, pointer.y, 0.12);
+  diffuse(dt);
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
+  ctx.font = `600 ${Math.round(0.72 * G.ch)}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  drawShadows(scene.shadowColor, scene.shadowAlpha);
+  scene.drawUnder();
+  drawCells();
+  scene.drawOver();
+  if (opts.skeleton) scene.drawDebug();
+  ctx.globalAlpha = 1;
+}
+
+function measureAvoid() {
+  avoid = [...document.querySelectorAll('[data-koi-avoid]')].map((el) => {
+    const r = el.getBoundingClientRect();
+    return { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+  });
+  setDimBoxes(avoid);
+}
+
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  G.dpr = Math.min(devicePixelRatio || 1, 2);
+  // Embedded, the cells scale with the frame (about 44 rows), so small previews still show a readable shape
+  if (EMBED && !Q.has('panel')) G.cw = clamp(Math.round(Math.min(w, h) / 44), 4, 8);
+  G.ch = Math.round(G.cw * 1.22);
+  G.cols = Math.ceil(w / G.cw); G.rows = Math.ceil(h / G.ch);
+  canvas.width = Math.round(w * G.dpr); canvas.height = Math.round(h * G.dpr);
+  view.width = w; view.height = h;
+  allocate(); measureAvoid();
+}
+
+const note = document.getElementById('note'), stats = document.getElementById('stats'), addBtn = document.getElementById('add');
+const tabs = [...document.querySelectorAll('.seg button')];
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+function setScene(name) {
+  scene = scenes[name];
+  if (!scene.seeded) { scene.seed(); scene.seeded = true; }
+  energy.fill(0);
+  note.innerHTML = scene.note;
+  for (const t of tabs) t.setAttribute('aria-selected', String(t.dataset.scene === name));
+  addBtn.disabled = !scene.add;
+  if (!EMBED) try { history.replaceState(null, '', '#' + name); } catch {}
+  measureAvoid();
+  if (reduced.matches) drawStill();
+}
+
+const DT = 1 / 60;
+let last = performance.now(), acc = 0, frames = 0, paused = false, running = false;
+function tick(dt) { pointer.speed *= Math.exp(-8 * dt); scene.step(dt); }
+function start() {
+  if (running || paused || reduced.matches) return;
+  running = true; last = performance.now();
+  requestAnimationFrame(frame);
+}
+function frame(now) {
+  if (paused) { running = false; return; }
+  const dt = Math.min(0.1, (now - last) / 1000);
+  last = now; acc += dt;
+  let steps = 0;
+  while (acc >= DT && steps < 4) { tick(DT); acc -= DT; steps++; }
+  if (steps === 4) acc = 0;
+  if (++frames % 30 === 0) measureAvoid();
+  render(dt);
+  stats.textContent = `${scene.stats()} · ${G.cols}×${G.rows}`;
+  requestAnimationFrame(frame);
+}
+function drawStill() { for (let i = 0; i < 240; i++) tick(DT); render(DT); stats.textContent = scene.stats(); }
+
+addEventListener('resize', resize);
+addEventListener('pointermove', (e) => {
+  const dt = Math.max(1, e.timeStamp - pointer.t) / 1000;
+  const v = Math.hypot(e.clientX - pointer.x, e.clientY - pointer.y) / dt;
+  pointer.speed += (Math.min(v, 5000) - pointer.speed) * 0.5;
+  pointer.t = e.timeStamp; pointer.x = e.clientX; pointer.y = e.clientY; pointer.active = e.pointerType !== 'touch';
+}, { passive: true });
+document.documentElement.addEventListener('pointerleave', () => { pointer.active = false; pointer.speed = 0; });
+addEventListener('click', (e) => {
+  if (e.composedPath().some((el) => el instanceof Element && el.matches('a, button, input, label, [data-koi-ignore]'))) return;
+  scene.click(e.clientX, e.clientY);
+});
+
+for (const t of tabs) t.addEventListener('click', () => setScene(t.dataset.scene));
+// The page around an embedded copy pauses it while it's off screen
+addEventListener('message', (e) => {
+  if (e.origin !== location.origin) return;
+  if (e.data === 'pause') paused = true;
+  else if (e.data === 'play') { paused = false; start(); }
+});
+for (const key of Object.keys(opts)) {
+  const el = document.getElementById('opt' + key[0].toUpperCase() + key.slice(1));
+  el.addEventListener('change', () => (opts[key] = el.checked));
+}
+const cellInput = document.getElementById('optCell'), cellVal = document.getElementById('cellVal');
+cellInput.addEventListener('input', () => { G.cw = +cellInput.value; cellVal.textContent = G.cw; resize(); });
+addBtn.addEventListener('click', () => scene.add && scene.add());
+document.getElementById('reset').addEventListener('click', () => scene.seed());
+
+if (EMBED) cellInput.value = 8;
+G.cw = +cellInput.value;
+cellVal.textContent = G.cw;
+resize();
+const first = Q.get('scene') || location.hash.slice(1);
+setScene(scenes[first] ? first : 'koi');
+start();
+</script>
+</body>
+</html>
