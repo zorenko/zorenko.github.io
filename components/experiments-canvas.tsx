@@ -7,8 +7,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { useRouter } from "next/navigation";
 import { prefersReducedMotion } from "@/lib/dom";
-import { EXPERIMENTS } from "@/content/experiments";
+import { EXPERIMENTS, experimentHref } from "@/content/experiments";
 import { ExperimentCardBody } from "./experiments";
 
 const KEY = "q-xp-view";
@@ -35,6 +36,7 @@ export function ExperimentsCanvas() {
   const btnRefs = useRef<Record<View, HTMLButtonElement | null>>({ list: null, canvas: null });
   const [grid, setGrid] = useState({ cols: 0, rows: 0 });
   const [view, setViewState] = useState<View>("list");
+  const router = useRouter();
 
   useEffect(() => {
     const cv = cvRef.current!;
@@ -167,23 +169,14 @@ export function ExperimentsCanvas() {
     const KEYS: Record<string, [number, number]> = { ArrowLeft: [STEP, 0], ArrowRight: [-STEP, 0], ArrowUp: [0, STEP], ArrowDown: [0, -STEP] };
     const onKeyDown = (e: KeyboardEvent) => {
       if (KEYS[e.key]) { e.preventDefault(); nudge(...KEYS[e.key]); }
-      else if (e.key === "Enter" && centre) { e.preventDefault(); open(centre.getAttribute("href")!); }
+      else if (e.key === "Enter" && centre) { e.preventDefault(); router.push(centre.getAttribute("href")!); }
     };
 
-    // Opening a card switches to the list and scrolls to that experiment
-    const open = (hash: string) => {
-      const target = document.querySelector<HTMLElement>(hash);
-      setView("list");
-      if (!target) return;
-      history.replaceState(history.state, "", hash);
-      target.setAttribute("tabindex", "-1");
-      target.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
-      target.focus({ preventScroll: true });
-    };
+    // Cards open the experiment's own page; a click that ends a drag opens nothing
     const onClick = (e: MouseEvent) => {
-      const link = (e.target as Element).closest("a[href^='#']");
+      const link = (e.target as Element).closest("a");
       if (dragged) { e.preventDefault(); e.stopPropagation(); return; }
-      if (link) { e.preventDefault(); open(link.getAttribute("href")!); }
+      if (link && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { e.preventDefault(); router.push(link.getAttribute("href")!); }
     };
 
     const refit = () => {
@@ -243,7 +236,7 @@ export function ExperimentsCanvas() {
       delete root.dataset.xpView; // other pages scroll normally
       ctl.current = null;
     };
-  }, []);
+  }, [router]);
 
   const n = EXPERIMENTS.length;
   const step = n > 2 ? 2 : 1; // neighbours, including the staggered ones, never repeat a card
@@ -256,7 +249,7 @@ export function ExperimentsCanvas() {
         <a
           key={`${i}-${j}`}
           className="q-cv-tile"
-          href={`#${xp.id}`}
+          href={experimentHref(xp)}
           tabIndex={-1}
           data-phase={(((i * 7 + j * 3) % 10) / 10).toFixed(1)}
           ref={(el) => { tileEls.current[idx] = el; }}
@@ -303,7 +296,7 @@ export function ExperimentsCanvas() {
         <ul className="q-sr">
           {EXPERIMENTS.map((xp) => (
             <li key={xp.id}>
-              <a href={`#${xp.id}`} tabIndex={-1}>{xp.title}</a>
+              <a href={experimentHref(xp)} tabIndex={-1}>{xp.title}</a>
             </li>
           ))}
         </ul>

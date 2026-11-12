@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#ffffff" };
 
 // Runs before first paint: the saved theme (or the device's), and on /experiments/ the remembered canvas view.
-const HEAD_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem("q-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("q-dark");if(location.pathname.indexOf("/experiments")===0&&!location.hash&&localStorage.getItem("q-xp-view")==="canvas")d.dataset.xpView="canvas"}catch(e){}`;
+const HEAD_SCRIPT = `try{var d=document.documentElement,t=localStorage.getItem("q-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("q-dark");if((location.pathname==="/experiments/"||location.pathname==="/experiments")&&!location.hash&&localStorage.getItem("q-xp-view")==="canvas")d.dataset.xpView="canvas"}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
