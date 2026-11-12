@@ -15,6 +15,8 @@
 .q-fold[data-color="black"] { --c: #222; --ink: #fff; }
 .v-quiet .q-fold--md { font-size: 5.5px; }
 .v-quiet .q-fold--lg { font-size: 8.5px; }
+/* The square thumbnail in the /experiments/ list: small enough for the stamps to fan out inside it */
+.v-quiet .q-xp-thumb .q-fold { font-size: 3px; }
 .v-quiet .q-fold-folder {
   all: unset;
   position: relative;
