@@ -5,15 +5,19 @@
      and scaled to fit the card, so lay it out for that size (the Muster demo's ?embed mode shows only its desk).
    - image: a still, cropped to the card's shape (1180 × 696) from the top.
    - video: muted and looping; plays only while it's on screen.
+   - slides: stills that fade one into the next while the card is on screen, middle or side. In the middle they hold
+     still while the cursor is on them, where arrows step back and forward; with reduced motion they only move with
+     the arrows. Each picture loads just before its turn. With `browser`, they show in a Safari window on that
+     background, its address bar showing each slide's `url`; without, they fill the card, cropped like an image.
    A demo can set `background`, shown while it loads, and `glass`: the demo's page is see-through where it wants the
    glass (Visuals' sidebar), so `background` stays under it as a tint that the side cards show through faintly.
-   `href` links the title (and, for images and videos, the picture in the middle). Links starting with http open
-   in a new tab. */
+   `href` links the title (only the title: the picture doesn't link). Links starting with http open in a new tab. */
 
 export type WorkMedia =
   | { type: "demo"; src: string; width: number; height: number; title: string; background?: string; glass?: boolean }
   | { type: "image"; src: string; alt: string }
-  | { type: "video"; src: string; poster?: string };
+  | { type: "video"; src: string; poster?: string }
+  | { type: "slides"; slides: { src: string; url?: string }[]; alt: string; browser?: { background: string } };
 
 export type WorkItem = {
   id: string;
@@ -76,6 +80,27 @@ export const WORK: WorkItem[] = [
     title: "Yandex, Kaspersky, Cognite",
     description: "Cloud, security and industrial data products.",
     href: "/work/earlier-work/",
-    media: { type: "image", src: "/assets/img/work/other-slide-07.jpg", alt: "Screens from earlier work" },
+    // The screens of the "portfolio – cv" Figma file's Section 3 (node 453:10709), in its order, exported at 2x
+    // and scaled to 2000 px wide. Each `url` is what the address bar shows with it.
+    media: {
+      type: "slides",
+      slides: [
+        "console.cloud.yandex.ru",
+        "fusion.cognite.com",
+        "yt.yandex-team.ru",
+        "fusion.cognite.com",
+        "logbroker.yandex-team.ru",
+        "fusion.cognite.com",
+        "cloud.yandex.ru/marketplace",
+        "fusion.cognite.com",
+        "status.cloud.yandex.ru",
+      ].map((url, i) => ({ src: `/assets/img/work/earlier-screen-${String(i + 1).padStart(2, "0")}.jpg`, url })),
+      alt: "Screens from earlier work at Yandex, Kaspersky and Cognite",
+      browser: {
+        // A pale, warm sunset wallpaper: apricot at the top left, rose at the top right, deep coral at the bottom right
+        background:
+          "radial-gradient(70% 90% at 0% 0%, #fff1de 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #fad5de 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #f3a493 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #f9c6a2 0%, transparent 70%), linear-gradient(135deg, #fde7cd, #f6c0b0)",
+      },
+    },
   },
 ];
