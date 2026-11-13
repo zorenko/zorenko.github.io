@@ -6,15 +6,17 @@
 
    Sideways trackpad swipes, shift + wheel, dragging and flicking move it, springing to the nearest card. Clicking a
    side card brings it to the middle; the arrow keys move one card while it's on screen; tabbing to a card's title brings it to the middle.
+   Only the title links to the project: clicking the middle picture does nothing.
    Hovering the middle picture tilts it toward the cursor. The first time it scrolls into view, the cards turn over
    to face you, from the middle out.
 
    Every card is placed with a transform each frame. A card sliding off one end comes back round the other, so the
    row never ends; short lists are repeated to fill it (repeats are hidden from screen readers). A live demo (an
-   iframe) can only be used in the middle: elsewhere it's inert, so clicks land on the card instead. */
+   iframe) can only be used in the middle: elsewhere it's inert, so clicks land on the card instead. A slideshow
+   plays wherever its card is on screen, and its arrows work only in the middle. */
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { WorkItem } from "@/content/work";
 import { cssVars, prefersReducedMotion } from "@/lib/dom";
 
@@ -29,6 +31,10 @@ const DRAG_THRESHOLD = 6; // px before a press counts as a drag
 const LEAN = 0.15; // degrees per px/frame
 const LEAN_MAX = 10;
 const LEAN_EASE = 0.15;
+// Slideshow (media type "slides"): how long each picture holds in the middle card (the fade to the next one, in
+// app/site.css, takes 450ms more), and how often that's checked
+const SLIDE_HOLD_MS = 1600;
+const SLIDE_TICK_MS = 100;
 // Hover tilt on the middle picture
 const TILT_DEG = 3;
 const TILT_PERSPECTIVE = 1600;
@@ -72,31 +78,137 @@ function flipEase(p: number) {
 
 const isExternal = (href: string) => /^https?:/.test(href);
 
+type SlidesMedia = Extract<WorkItem["media"], { type: "slides" }>;
+
+/** A slideshow (media type "slides"): each picture holds, then the next fades in over it. It plays while its card
+    is on screen, middle or side, and holds still under the cursor in the middle, where arrows step back and
+    forward. Pictures load one ahead of the one showing.
+    With `browser` it plays in a Safari window on a wallpaper (app/site.css sizes it in 1180ths of the card). */
+function Slides({ media: { slides, browser }, alt, copy }: { media: SlidesMedia; alt: string; copy: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [{ at, prev }, setShown] = useState({ at: 0, prev: -1 });
+  const [loaded, setLoaded] = useState(0); // pictures up to this one have their src
+  const atRef = useRef(0);
+  const heldRef = useRef(0); // how long the picture showing has been in the middle card, unhovered
+  const n = slides.length;
+
+  function show(i: number) {
+    setLoaded((l) => Math.max(l, i));
+    setShown({ at: i, prev: atRef.current });
+    atRef.current = i;
+    heldRef.current = 0;
+  }
+
+  useEffect(() => {
+    const el = ref.current!;
+    const card = el.closest(".q-car-card");
+    if (n < 2 || !card || prefersReducedMotion()) return;
+    let onScreen = false;
+    let hovered = false;
+    let last = performance.now();
+    const seen = new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting));
+    seen.observe(el);
+    const enter = () => (hovered = true);
+    const leave = () => (hovered = false);
+    const area = el.closest(".q-car-media") ?? el; // the whole card, window and wallpaper
+    area.addEventListener("pointerenter", enter);
+    area.addEventListener("pointerleave", leave);
+    const timer = window.setInterval(() => {
+      const now = performance.now();
+      const dt = now - last;
+      last = now;
+      // Back in the middle, the picture showing gets its full time again
+      // Off screen, or a side card turned too far to show (the carousel hides it)
+      if (!onScreen || (card as HTMLElement).style.visibility === "hidden") return;
+      const next = (atRef.current + 1) % n;
+      setLoaded((l) => Math.max(l, next));
+      if ((hovered && card.classList.contains("is-active")) || document.hidden) return;
+      heldRef.current += dt;
+      const img = el.querySelector<HTMLImageElement>(`img[data-i="${next}"]`);
+      if (heldRef.current < SLIDE_HOLD_MS || !img?.complete) return;
+      show(next);
+    }, SLIDE_TICK_MS);
+    return () => {
+      clearInterval(timer);
+      seen.disconnect();
+      area.removeEventListener("pointerenter", enter);
+      area.removeEventListener("pointerleave", leave);
+    };
+  }, [n]);
+
+  const arrows = n > 1 && (
+    <>
+      <button type="button" className="q-car-arrow q-car-arrow--prev" aria-label="Previous screen" tabIndex={copy ? -1 : undefined} onClick={() => show((atRef.current + n - 1) % n)} />
+      <button type="button" className="q-car-arrow q-car-arrow--next" aria-label="Next screen" tabIndex={copy ? -1 : undefined} onClick={() => show((atRef.current + 1) % n)} />
+    </>
+  );
+  // Without the browser the arrows sit on the pictures; with it, on the wallpaper either side of the window
+  const pictures = (
+    <div className="q-car-slides" ref={ref}>
+      {slides.map(({ src }, i) =>
+        i <= loaded ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={src}
+            data-i={i}
+            src={src}
+            alt={i ? "" : alt}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            className={i === at ? "is-shown" : i === prev ? "was-shown" : undefined}
+          />
+        ) : null,
+      )}
+      {!browser && arrows}
+    </div>
+  );
+  if (!browser) return pictures;
+  const url = slides[at].url ?? "";
+  const slash = url.indexOf("/");
+  return (
+    <div className="q-car-desk" style={{ background: browser.background }}>
+      <div className="q-car-win">
+        <div className="q-car-sbar" aria-hidden="true">
+          <span className="q-car-lights"><i /><i /><i /></span>
+          <i className="q-car-ico q-car-ico--side" />
+          <span className="q-car-nav"><i /><i /></span>
+          <span className="q-car-url">
+            {slash < 0 ? url : url.slice(0, slash)}
+            {slash >= 0 && <span>{url.slice(slash)}</span>}
+            <i className="q-car-ico q-car-ico--reload" />
+          </span>
+          <span className="q-car-tools"><i className="q-car-ico q-car-ico--share" /><i className="q-car-ico q-car-ico--plus" /><i className="q-car-ico q-car-ico--tabs" /></span>
+        </div>
+        {pictures}
+      </div>
+      {arrows}
+    </div>
+  );
+}
+
 function Media({ item, copy }: { item: WorkItem; copy: boolean }) {
-  const { media, href } = item;
-  const hide = copy ? -1 : undefined;
+  const { media } = item;
   if (media.type === "demo")
     return (
       <div className="q-car-media" data-demo="" data-glass={media.glass ? "" : undefined} style={media.background ? { background: media.background } : undefined}>
         {/* Inert until it's in the middle (components/work-carousel.tsx sets it) */}
         <div className="q-car-frame" inert style={cssVars({ "--dw": media.width })}>
-          <iframe src={media.src} width={media.width} height={media.height} title={media.title} loading="lazy" tabIndex={hide} />
+          <iframe src={media.src} width={media.width} height={media.height} title={media.title} loading="lazy" tabIndex={copy ? -1 : undefined} />
         </div>
       </div>
     );
-  const picture =
-    media.type === "image" ? (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={media.src} alt={href ? "" : media.alt} loading="lazy" decoding="async" draggable={false} />
-    ) : (
-      <video muted loop playsInline preload="none" poster={media.poster} src={media.src} />
-    );
-  if (!href) return <div className="q-car-media">{picture}</div>;
-  const props = { className: "q-car-media", "aria-label": item.title, tabIndex: hide, draggable: false };
-  return isExternal(href) ? (
-    <a {...props} href={href} target="_blank" rel="noopener">{picture}</a>
-  ) : (
-    <Link {...props} href={href}>{picture}</Link>
+  return (
+    <div className="q-car-media">
+      {media.type === "image" ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={media.src} alt={media.alt} loading="lazy" decoding="async" draggable={false} />
+      ) : media.type === "slides" ? (
+        <Slides media={media} alt={media.alt} copy={copy} />
+      ) : (
+        <video muted loop playsInline preload="none" poster={media.poster} src={media.src} />
+      )}
+    </div>
   );
 }
 
@@ -479,15 +591,10 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       if (!step || !onThumb(e)) return;
       const card = (e.target as Element).closest<HTMLElement>(".q-car-card")!;
       const i = els.indexOf(card);
-      const side = Math.abs(st[i].offset) >= 0.5;
-      const media = card.querySelector(".q-car-media")!;
-      if (!side && media.hasAttribute("href")) return;
+      if (Math.abs(st[i].offset) < 0.5) return; // the middle picture: only its own controls (slideshow arrows) act
       e.preventDefault();
       e.stopPropagation();
-      if (busy) return;
-      if (side) return goTo(i);
-      const r = media.getBoundingClientRect();
-      next(e.clientX < r.left + r.width / 2 ? -1 : 1);
+      if (!busy) goTo(i);
     };
     const onDragStart = (e: DragEvent) => {
       if (onThumb(e)) e.preventDefault();
