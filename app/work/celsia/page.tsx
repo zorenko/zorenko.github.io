@@ -13,7 +13,7 @@ export default function Celsia() {
     <Project
       title="Celsia"
       lead="Reporting module from zero to one, acquired 2024"
-      role="Lead Designer · 2022–2024"
+      role="Lead Designer · 2022–2026"
       demo={demo?.type === "demo" ? demo : undefined}
       intro={
         <>

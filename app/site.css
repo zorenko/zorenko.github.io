@@ -389,6 +389,7 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .v-quiet .q-car-title { margin: 0; font-size: 14px; font-weight: 400; line-height: inherit; color: var(--q-title); }
 .v-quiet .q-car-title a { color: inherit; text-decoration: underline; text-decoration-color: var(--q-underline); text-underline-offset: 4px; transition: text-decoration-color 200ms var(--q-ease); }
 .v-quiet .q-car-title a:hover { text-decoration-color: currentColor; }
+.v-quiet .q-car-year { color: var(--q-muted); font-variant-numeric: tabular-nums; }
 .v-quiet .q-car-desc { margin: 0; color: var(--q-muted); text-wrap: pretty; }
 @media (max-width: 767px) {
   .q-car { --car-w: 74vw; --car-gap: 8px; }

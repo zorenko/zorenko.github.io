@@ -11,7 +11,8 @@
      background, its address bar showing each slide's `url`; without, they fill the card, cropped like an image.
    A demo can set `background`, shown while it loads, and `glass`: the demo's page is see-through where it wants the
    glass (Visuals' sidebar), so `background` stays under it as a tint that the side cards show through faintly.
-   `href` links the title (only the title: the picture doesn't link). Links starting with http open in a new tab. */
+   `href` links the title (only the title: the picture doesn't link). Links starting with http open in a new tab.
+   `year` shows after the title, after a middle dot: the same years as the project's page, where it has one. */
 
 export type WorkMedia =
   | { type: "demo"; src: string; width: number; height: number; title: string; background?: string; glass?: boolean }
@@ -22,6 +23,8 @@ export type WorkMedia =
 export type WorkItem = {
   id: string;
   title: string;
+  /** When it was made: a year or a range, such as "2022–2026" */
+  year: string;
   description: string;
   href?: string;
   media: WorkMedia;
@@ -32,6 +35,7 @@ export const WORK: WorkItem[] = [
     // Only the app's window (?app). Without ?app the page is a Mac desktop with the window, Safari and the Dock.
     id: "visuals",
     title: "Visuals",
+    year: "2026",
     description: "Saves pictures from X, Pinterest and any page. Your own Claude tags them, and writes a brand project's brief from its pictures.",
     media: {
       type: "demo",
@@ -46,8 +50,27 @@ export const WORK: WorkItem[] = [
     },
   },
   {
+    id: "celsia",
+    title: "Celsia",
+    year: "2022–2026",
+    description: "An ESG reporting module, from zero to one. Celsia was acquired in 2024.",
+    href: "/work/celsia/",
+    media: {
+      type: "demo",
+      src: "/demos/celsia/index.html?glass",
+      width: 1180,
+      height: 696,
+      title: "Celsia demo: the reporting module, with data input, insights and targets",
+      // The app's off-white as frosted glass: the page is see-through around its white panel, and this tint, a little
+      // see-through, is blurred over whatever is behind the card
+      glass: true,
+      background: "linear-gradient(135deg, rgb(252 251 250 / 0.78), rgb(244 244 245 / 0.72))",
+    },
+  },
+  {
     id: "muster",
     title: "Muster",
+    year: "2026",
     description: "Finds every skill across Claude Code, Codex, plugins and projects, flags clashes and duplicates, and sorts them into folders.",
     href: "https://musteryourskills.com/",
     media: {
@@ -62,40 +85,9 @@ export const WORK: WorkItem[] = [
     },
   },
   {
-    id: "sanna",
-    title: "Sanna",
-    description: "Two app redesigns and more than 140 merged pull requests in ten weeks.",
-    href: "/work/sanna/",
-    media: {
-      // A Mac desktop with Sanna's client app in Safari. With ?app it's only the app.
-      type: "demo",
-      src: "/demos/sanna/index.html",
-      width: 1180,
-      height: 696,
-      title: "Sanna demo: a Mac desktop with Sanna's client app in Safari, on an annual financial statement",
-      // The demo's wallpaper, showing while it loads
-      background:
-        "radial-gradient(120% 90% at 0% 0%, #f6e3cc 0%, transparent 60%), radial-gradient(100% 100% at 100% 100%, #d3dcc4 0%, transparent 60%), linear-gradient(135deg, #f3e9dc, #e4e2d2)",
-    },
-  },
-  {
-    id: "celsia",
-    title: "Celsia",
-    description: "An ESG reporting module, from zero to one. Celsia was acquired in 2024.",
-    href: "/work/celsia/",
-    media: {
-      type: "demo",
-      src: "/demos/celsia/index.html",
-      width: 1180,
-      height: 696,
-      title: "Celsia demo: the reporting module, with data input, insights and targets",
-      // The app's light grey, showing while the demo loads
-      background: "#f1f1f3",
-    },
-  },
-  {
     id: "earlier-work",
     title: "Yandex, Kaspersky, Cognite",
+    year: "2015–2021",
     description: "Cloud, security and industrial data products.",
     href: "/work/earlier-work/",
     // The screens of the "portfolio – cv" Figma file's Section 3 (node 453:10709), in its order, exported at 2x
@@ -119,6 +111,24 @@ export const WORK: WorkItem[] = [
         background:
           "radial-gradient(70% 90% at 0% 0%, #fff1de 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #fad5de 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #f3a493 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #f9c6a2 0%, transparent 70%), linear-gradient(135deg, #fde7cd, #f6c0b0)",
       },
+    },
+  },
+  {
+    id: "sanna",
+    title: "Sanna",
+    year: "2026",
+    description: "Two app redesigns and more than 140 merged pull requests in ten weeks.",
+    href: "/work/sanna/",
+    media: {
+      // A Mac desktop with Sanna's client app in Safari. With ?app it's only the app.
+      type: "demo",
+      src: "/demos/sanna/index.html",
+      width: 1180,
+      height: 696,
+      title: "Sanna demo: a Mac desktop with Sanna's client app in Safari, on an annual financial statement",
+      // The demo's wallpaper, showing while it loads
+      background:
+        "radial-gradient(120% 90% at 0% 0%, #f6e3cc 0%, transparent 60%), radial-gradient(100% 100% at 100% 100%, #d3dcc4 0%, transparent 60%), linear-gradient(135deg, #f3e9dc, #e4e2d2)",
     },
   },
 ];

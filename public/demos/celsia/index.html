@@ -2,23 +2,37 @@
 <html lang="en">
 <head>
   <!-- The Celsia demo on the portfolio home page (content/work.ts): the reporting module's Preview report, only the app's
-       window. docs/demos.md says how demos like this are made. Made by hand from the Figma file "Celsia app – Concepts 24-25"
-       (the Metrics / Info frame, 2002:41951) in the later look of the portfolio's screenshots (public/assets/img/work/
-       celsia-slide-01.jpg): the light grey app sidebar, the report's table of contents, the report, and the
-       data point sidebar. Data points sit in the report's text: click one, or its paragraph, to open it. ESRS E1's four
-       disclosure requirements have text; the rest of the table of contents shows but isn't in the demo.
-       The other pages follow the Figma file "portfolio - cv" (section 453:10707, screens celsia01–10): Home, the Help center,
-       Data input with its onboarding guide, a metric's chart (Insights), the Pollution topic with its roles, and a target.
-       The app's sidebar moves between them. Everything is in memory: a reload starts over. -->
+       window. docs/demos.md says how demos like this are made. Celsia's work is under NDA, so the demo is rebranded away
+       from the production app: shadcn/ui's look in black and white with one orange
+       accent (styles.css), Geist, Lucide's line icons (icons.js) and
+       skeuomorphic icons drawn for the sidebar and Home (skeu.js); its screenshots are of the demo itself. The screens
+       began as Figma frames ("Celsia app – Concepts 24-25" and "portfolio - cv", 453:10707), some of them only concepts.
+       Data points sit in the report's text: click one, or its paragraph, to open it in the data point sidebar. ESRS E1's
+       four disclosure requirements have text; the rest of the table of contents shows but isn't in the demo. The app's
+       sidebar moves between Home, the Help center, Data input with its guide, a metric's chart (Insights), the Pollution
+       topic with its roles, a target and the report. Everything is in memory: a reload starts over. -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Celsia demo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <!-- ?glass: the page is see-through around the white panel, so the card it sits on shows through (the site uses it) -->
+  <script>if (new URLSearchParams(location.search).has('glass')) document.documentElement.classList.add('is-glass')</script>
 </head>
 <body>
+<!-- The skeuomorphic icons' gradients (skeu.js, styles.css .sk): top to bottom, at rest, and in orange in the current page -->
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sk-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ececec"/></linearGradient>
+    <linearGradient id="sk-line" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcbcbc"/><stop offset="1" stop-color="#858585"/></linearGradient>
+    <linearGradient id="sk-fill-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7f7f7"/><stop offset="1" stop-color="#e4e4e4"/></linearGradient>
+    <linearGradient id="sk-line-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4d4d4"/><stop offset="1" stop-color="#a8a8a8"/></linearGradient>
+    <linearGradient id="sk-fill-on" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#ffdcc4"/></linearGradient>
+    <linearGradient id="sk-line-on" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffab73"/><stop offset="1" stop-color="#ff6600"/></linearGradient>
+  </defs>
+</svg>
 <div class="app" data-app>
   <nav class="rail" aria-label="Celsia" data-rail></nav>
   <main class="main">
@@ -33,6 +47,7 @@
   <div class="toasts" data-toasts aria-live="polite"></div>
 </div>
 <script src="icons.js"></script>
+<script src="skeu.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

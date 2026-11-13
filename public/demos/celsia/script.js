@@ -4,6 +4,8 @@
   const $ = (s, root = document) => root.querySelector(s)
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
   const icon = (name) => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] ?? ''}</svg>`
+  // the skeuomorphic ones (skeu.js), only in the app's sidebar and on Home
+  const skeu = (name) => `<svg class="sk" viewBox="0 0 24 24" aria-hidden="true">${SKEU[name] ?? ''}</svg>`
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
   const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 40) : ms))
 
@@ -258,10 +260,10 @@
     const here = SECTION[S.page]
     const item = (x) => {
       const [p, ico, tip] = x
-      return `<button type="button" class="rail__item" data-act="go" data-arg="${p}" data-tip="${tip}" aria-label="${tip}" ${here === p ? 'aria-current="page"' : ''}>${icon(ico)}</button>`
+      return `<button type="button" class="rail__item" data-act="go" data-arg="${p}" data-tip="${tip}" aria-label="${tip}" ${here === p ? 'aria-current="page"' : ''}>${skeu(ico)}</button>`
     }
     rail.innerHTML = `
-      <button type="button" class="rail__logo" data-act="go" data-arg="home" aria-label="Celsia, home"><img src="assets/logo.svg" alt="" width="32" height="27" /></button>
+      <button type="button" class="rail__logo" data-act="go" data-arg="home" aria-label="Celsia, home"><img src="assets/logo.svg" alt="" width="24" height="24" /></button>
       ${RAIL.map(item).join('')}
       <span class="rail__gap"></span>
       ${RAIL_END.map(item).join('')}
@@ -375,7 +377,6 @@
     const tabs = [['source', 'Source'], ['about', 'About'], ...(d.kind !== 'narrative' ? [['mdr', MDR[d.kind].code]] : []), ['comments', 'Comments']]
     if (!tabs.some(([k]) => k === S.tab)) S.tab = 'source'
     dpEl.innerHTML = `
-      <img class="dp__art" src="assets/illustration.svg" alt="" width="244" height="146" />
       <div class="dp__head" data-dp-head>
         <span class="dp__kind">${kindLabel(d)}</span>
         <span class="dp__nav">
@@ -398,7 +399,7 @@
             ${d.block ? '' : `<button type="button" class="iconbtn iconbtn--box" data-act="edit" aria-label="Edit the text" title="Edit the text">${icon('pencil')}</button>`}
           </div>
         </div>
-        <div class="tabs" role="tablist">${tabs.map(([k, label]) => `<button type="button" class="tab" role="tab" data-act="tab" data-arg="${k}" aria-selected="${S.tab === k}" data-tab="${k}">${label}${k === 'comments' && st.comments.length ? `<span class="count">${st.comments.length}</span>` : ''}</button>`).join('')}</div>
+        <div class="tabs"><div class="tabs__list" role="tablist">${tabs.map(([k, label]) => `<button type="button" class="tab" role="tab" data-act="tab" data-arg="${k}" aria-selected="${S.tab === k}" data-tab="${k}">${label}${k === 'comments' && st.comments.length ? `<span class="count">${st.comments.length}</span>` : ''}</button>`).join('')}</div></div>
         ${TABS[S.tab](id, d, st)}
       </div>`
     dpEl.scrollTop = keep
@@ -605,9 +606,9 @@
   const SECTION = { home: 'home', help: 'help', report: 'report', input: 'report', topic: 'report', target: 'target', metric: 'metric' }
   const RAIL = [
     ['home', 'home', 'Home'],
-    ['target', 'target-arrow', 'Targets'],
-    ['metric', 'chart-histogram', 'Insights'],
-    ['report', 'chart-donut', 'Sustainability reporting'],
+    ['target', 'target', 'Targets'],
+    ['metric', 'insights', 'Insights'],
+    ['report', 'report', 'Sustainability reporting'],
   ]
   const RAIL_END = [['help', 'help', 'Help center']] // above the avatar
   const spinner = () => '<svg class="ico spin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/></svg>'
@@ -685,11 +686,11 @@
         ${tourCard('Start product tour')}
       </div>
       <h2 class="h2 h2--sect">Quick links</h2>
-      <div class="cards3">${[['input', 'table', 'Data collection', 'Collect data for your reporting'], ['report', 'file-text', 'Reporting', 'Write and preview your report'], ['metric', 'chart-histogram', 'Insights', 'Follow your metrics against targets']]
-        .map(([p, i, t, s]) => `<button type="button" class="qcard" data-act="go" data-arg="${p}">${icon(i)}<b>${t}</b><small>${s}</small></button>`).join('')}</div>
+      <div class="cards3">${[['input', 'table', 'Data collection', 'Collect data for your reporting'], ['report', 'report', 'Reporting', 'Write and preview your report'], ['metric', 'insights', 'Insights', 'Follow your metrics against targets']]
+        .map(([p, i, t, s]) => `<button type="button" class="qcard" data-act="go" data-arg="${p}">${skeu(i)}<b>${t}</b><small>${s}</small></button>`).join('')}</div>
       <h2 class="h2 h2--sect">Sharpen your skills with Celsia</h2>
       <p class="muted h2-sub">Use our resources to stay on top of the regulation</p>
-      <div class="cards3">${SKILLS.map(([t, s, act, arg], i) => `<button type="button" class="skill" data-act="${act}" data-arg="${esc(arg)}"><span class="skill__art" style="--x:${i * 38}%"><img src="assets/skills.webp" alt="" width="420" height="390" /></span><b>${t}</b><small>${s}</small></button>`).join('')}</div>
+      <div class="cards3">${SKILLS.map(([t, s, act, arg], i) => `<button type="button" class="skill" data-act="${act}" data-arg="${esc(arg)}"><span class="skill__art">${skeu(['people', 'sparkles', 'academy'][i])}</span><b>${t}</b><small>${s}</small></button>`).join('')}</div>
     </div>`
 
   /* ════ Help center ════ */
@@ -733,7 +734,7 @@
         <button type="button" class="news" data-act="toast" data-arg="The ESG Portal opens in its own site"><span class="news__icon">${icon('users')}</span><span><b>Join Celsia ESG portal</b><small>Get latest news and updates, participate in discussions, etc</small></span>${icon('arrow-up-right')}</button>
         <div class="rate">
           <h2 class="h2">Do you find the help center useful?</h2>
-          <div class="rate__row">${rate.map((t, i) => `<button type="button" class="emoji" style="--i:${i}" data-act="rate" data-arg="${i}" aria-label="${t}" title="${t}" aria-pressed="${S.help.rated === i}"></button>`).join('')}</div>
+          <div class="rate__row">${rate.map((t, i) => `<button type="button" class="emoji" data-act="rate" data-arg="${i}" aria-label="${t}" title="${t}" aria-pressed="${S.help.rated === i}">${icon(['angry', 'frown', 'meh', 'smile', 'laugh'][i])}</button>`).join('')}</div>
           <p class="muted">Please <button type="button" class="link" data-act="toast" data-arg="Support would open a chat here">contact us</button> if you’re feeling stuck or can’t find information you’re looking for.</p>
         </div>
       </div>
@@ -826,19 +827,30 @@
     </div>
     ${S.guide.min ? `<button type="button" class="guide-chip" data-act="guide-open">${icon('book')}Data input guide<span class="muted">${S.guide.read.size} of ${GUIDE.length} read</span></button>` : ''}`
 
-  /* the onboarding guide over Data input */
+  /* the onboarding guide over Data input. Its pictures follow the Figma concept's ("Celsia app – Concepts 24-25",
+     2004:30632), redrawn from the demo's own screens: each is a crop of a screen (assets/guide-*.webp, made by
+     taking screenshots of the demo) on the orange panel. */
   const GUIDE = [
-    { t: 'Introduction', art: 'input', h: 'Welcome to data input', p: ['This is where you collect the numbers and texts for each disclosure requirement. Everything you enter here flows into your sustainability report.', 'This guide takes two minutes. You can hide it and come back to it from the question mark above the table.'] },
-    { t: 'Disclosure requirements', art: 'input', h: 'Disclosure requirements', p: ['Each ESRS topic is split into disclosure requirements, like E1-6 Gross Scopes 1, 2, 3 and Total GHG emissions.', 'Each one has its own page here, with every data point it asks for, in the order of the standard.'] },
-    { t: 'Data points', art: 'input', h: 'Data points', p: ['Data points are the single values a disclosure requirement asks for, such as gross Scope 1 emissions.', 'Some are calculated from the rows under them, some come from your subsidiaries, some are linked from a document, and some you type in. The icon next to each value says which.'] },
+    { t: 'Introduction', art: 'report', h: 'Welcome to data input', p: ['This is where you collect the numbers and texts for each disclosure requirement. Everything you enter here flows into your sustainability report.', 'This guide takes two minutes. You can hide it and come back to it from the question mark above the table.'] },
+    { t: 'Disclosure requirements', art: 'toc', h: 'Disclosure requirements', p: ['Each topic’s disclosure requirements are grouped into three sections, as in the standard:'],
+      items: [['compass', 'Strategy', 'How the topic shapes your strategy, such as E1-1’s transition plan'], ['target-arrow', 'Impact, risk and opportunity management', 'Your policies and actions for the topic’s impacts, risks and opportunities'], ['chart-histogram', 'Metrics and targets', 'The numbers, such as E1-6’s gross emissions, and the targets for them']],
+      note: 'If a topic is missing a section, none of its disclosure requirements are material, or none are collected from your company.' },
+    { t: 'Data points', art: 'table', h: 'Data points', p: ['Data points are the single values a disclosure requirement asks for. There are four kinds, and the icon next to each value says which:'],
+      items: ['manual', 'calc', 'sub', 'link'].map((k) => [SRC[k][0], SRC[k][1], { manual: 'Values you type in yourself', calc: 'Added up from the rows under it, such as gross Scope 1 emissions', sub: 'Reported by one of your subsidiaries in its own workspace', link: 'Taken from a document or another system, and kept in sync' }[k]]),
+      note: 'Hover over a value to see where it comes from. Click a manual value to change it.' },
     { t: 'Narrative data points', art: 'both', h: 'Narrative data points', p: ['Narrative data points are qualitative data points that you need to disclose in your sustainability report.', 'Do not think about them as a questionnaire with short answers. Together they will be aggregated into one cohesive text. That’s why it is important to try to see how answers go together when switching from one data point to another.'] },
-    { t: 'Data points details', art: 'report', h: 'Data points details', p: ['Open a data point to see where its value comes from, who owns it, its documentation and its comments.', 'The same details open from the report, when you click a data point in its text.'] },
+    { t: 'Data points details', art: 'details', h: 'Data points details', p: ['Open a data point to see where its value comes from, who owns it, its documentation and its comments.', 'The same details open from the report, when you click a data point in its text.'] },
   ]
-  const guideArt = (a) => `<div class="gart gart--${a}">
-    ${a !== 'report' ? '<span class="gart__shot gart__shot--input"><img src="assets/guide-input.webp" alt="" width="411" height="250" /><span class="chip-label">Data input</span></span>' : ''}
-    ${a !== 'input' ? '<span class="gart__shot gart__shot--report"><img src="assets/guide-report.webp" alt="" width="600" height="429" /><span class="chip-label">Report preview</span></span>' : ''}
-    ${a === 'both' ? '<svg class="gart__arrow" viewBox="0 0 90 40" aria-hidden="true"><path d="M2 6c8 26 34 34 52 20S70 2 58 10s4 26 28 22"/><path d="M80 26l6 6-8 3"/></svg>' : ''}
-  </div>`
+  const shot = (name, w, h, cls = '', label = '') => `<span class="gart__shot ${cls}"><img src="assets/guide-${name}.webp" alt="" width="${w}" height="${h}" />${label ? `<span class="chip-label">${label}</span>` : ''}</span>`
+  const ARTS = {
+    report: () => shot('report', 720, 425),
+    toc: () => shot('toc', 1200, 800),
+    table: () => shot('table', 1160, 600),
+    both: () => shot('input', 720, 425, 'gart__shot--a', 'Data input') + shot('report', 720, 425, 'gart__shot--b', 'Report preview') +
+      '<svg class="gart__arrow" viewBox="0 0 90 40" aria-hidden="true"><path d="M2 6c8 26 34 34 52 20S70 2 58 10s4 26 28 22"/><path d="M80 26l6 6-8 3"/></svg>',
+    details: () => shot('input', 720, 425, 'gart__shot--a') + shot('dp', 320, 560, 'gart__shot--b'),
+  }
+  const guideArt = (a) => `<div class="gart gart--${a}">${ARTS[a]()}</div>`
   function guideHTML() {
     const g = S.guide, step = GUIDE[g.step], last = g.step === GUIDE.length - 1
     return `<div class="dialog dialog--guide" role="dialog" aria-modal="true" aria-label="Data input guide">
@@ -849,6 +861,8 @@
           ${guideArt(step.art)}
           <h3 class="guide__title">${step.h}</h3>
           ${step.p.map((t) => `<p>${t}</p>`).join('')}
+          ${step.items ? `<ul class="gitems">${step.items.map(([i, t, d]) => `<li><span class="gitems__ico">${icon(i)}</span><span><b>${t}</b>${d}</span></li>`).join('')}</ul>` : ''}
+          ${step.note ? `<p>${step.note}</p>` : ''}
           <label class="checkline"><input type="checkbox" data-guide-read ${g.read.has(g.step) ? 'checked' : ''} />Mark as read</label>
         </div>
         <div class="guide__foot">
@@ -860,7 +874,7 @@
   }
 
   /* ════ Insights: a metric's chart against its target, by country ════ */
-  const MET_C = [['no', 'Norway', '#f7a27f'], ['dk', 'Denmark', '#58c7d4'], ['se', 'Sweden', '#727cff']]
+  const MET_C = [['no', 'Norway', '#ff6600'], ['dk', 'Denmark', '#ffab73'], ['se', 'Sweden', '#a3a3a3']]
   const Q24 = { no: [1450, 1300, 1180, 1420], dk: [620, 560, 520, 610], se: [1180, 1060, 990, 1150] } // 2024, Q4 is the forecast
   const Q23 = { no: [1500, 1350, 1250, 1480], dk: [660, 590, 540, 640], se: [1200, 1100, 1020, 1150] } // adds up to 2023's 12,480
   const YEARS = [[2020, 13900], [2021, 14100], [2022, 13280], [2023, 12480], [2024, 12040]]
@@ -948,7 +962,7 @@
           <span class="met__title" title="${esc(DPS[S.metric].name)}">${esc(DPS[S.metric].name)}<small>${esc(DPS[S.metric].unit)}, 2024</small></span>
           ${dropdown('ctype', `${icon(S.met.type === 'waterfall' && yearly() ? 'chart-histogram' : 'chart-line')}${S.met.type === 'waterfall' && yearly() ? 'Waterfall' : 'Stacked bars'}`, [['waterfall', 'Waterfall'], ['stacked', 'Stacked bars']], yearly() ? S.met.type : 'stacked', 'dd--box dd--right')}
         </div>
-        <div class="met__chart">${metChart(852, 300)}</div>
+        <div class="met__chart">${metChart(828, 300)}</div>
         ${metAlert()}
         <table class="mtab">
           <thead><tr><th><button type="button" class="cbox ${allOn ? 'is-on' : ''}" role="checkbox" aria-checked="${allOn}" data-act="met-all" aria-label="All countries">${icon('check')}</button>Name</th><th>min</th><th>max</th><th>avg</th><th>sum</th><th>last</th></tr></thead>
@@ -968,14 +982,14 @@
 
   /* ════ Pollution: the topic's progress, its roles, and a to-do list ════ */
   const COMPANIES = [
-    { id: 'parent', name: 'Hydrosafe ASA', logo: ['H', '#f05a28'], people: [
+    { id: 'parent', name: 'Hydrosafe ASA', logo: ['H', '#171717'], people: [
       { id: 'p-hh', who: 'hh', roles: ['Responsible', 'Reviewer'], tasks: [['Policies', 'Responsible'], ['Targets', 'Reviewer']] },
       { id: 'p-ll', who: 'll', roles: ['Responsible'], tasks: [['Actions', 'Responsible'], ['Metrics', 'Responsible']] },
       { id: 'p-ib', who: 'ib', roles: ['Contributor'], tasks: [['Policies', 'Contributor']] },
     ] },
-    { id: 'no', name: 'Hydrosafe Norge AS', logo: ['N', '#3d3dd6'], people: [{ id: 'n-lm', who: 'lm', roles: ['Responsible'], tasks: [['Metrics', 'Responsible'], ['Actions', 'Responsible']] }] },
-    { id: 'se', name: 'Hydrosafe Sverige AB', logo: ['S', '#0b7a75'], people: [{ id: 's-ib', who: 'ib', roles: ['Responsible'], tasks: [['Metrics', 'Responsible']] }, { id: 's-sd', who: 'sd', roles: ['Reviewer'], tasks: [['Metrics', 'Reviewer']] }] },
-    { id: 'dk', name: 'Hydrosafe Danmark A/S', logo: ['D', '#a2431d'], people: [{ id: 'd-sd', who: 'sd', roles: ['Responsible'], tasks: [['Metrics', 'Responsible']] }] },
+    { id: 'no', name: 'Hydrosafe Norge AS', logo: ['N', '#404040'], people: [{ id: 'n-lm', who: 'lm', roles: ['Responsible'], tasks: [['Metrics', 'Responsible'], ['Actions', 'Responsible']] }] },
+    { id: 'se', name: 'Hydrosafe Sverige AB', logo: ['S', '#5c5c5c'], people: [{ id: 's-ib', who: 'ib', roles: ['Responsible'], tasks: [['Metrics', 'Responsible']] }, { id: 's-sd', who: 'sd', roles: ['Reviewer'], tasks: [['Metrics', 'Reviewer']] }] },
+    { id: 'dk', name: 'Hydrosafe Danmark A/S', logo: ['D', '#737373'], people: [{ id: 'd-sd', who: 'sd', roles: ['Responsible'], tasks: [['Metrics', 'Responsible']] }] },
   ]
   const TASK_START = { 'p-hh:0': 'To do', 'p-hh:1': 'To do', 'p-ll:0': 'In progress', 'p-ll:1': 'Done', 'p-ib:0': 'Done', 'n-lm:0': 'Done', 'n-lm:1': 'Done', 's-ib:0': 'Done', 's-sd:0': 'In progress', 'd-sd:0': 'Done' }
   S.topic.tasks = { ...TASK_START }
@@ -1019,7 +1033,7 @@
         <div class="fact"><span class="fact__k">Main responsible</span><span class="fact__v">${avatar(ME, true)}${PEOPLE[ME].name}</span></div>
         <div class="fact"><span class="fact__k">Main reviewer</span>${dropdown('reviewer', t.reviewer ? `<span class="fact__v">${avatar(t.reviewer, true)}${PEOPLE[t.reviewer].name}</span>` : `<span class="fact__v fact__v--empty"><span class="assign">${icon('user')}</span>Assign role</span>`, Object.entries(PEOPLE).filter(([k]) => k !== ME).map(([k, p]) => [k, `${avatar(k)}${p.name}`]), t.reviewer, 'dd--fact')}</div>
       </div>
-      <div class="ptabs" role="tablist">${[['progress', 'Progress'], ['roles', 'Roles'], ['todo', 'To-do']].map(([k, n]) => `<button type="button" class="tab" role="tab" aria-selected="${t.tab === k}" data-act="topic-tab" data-arg="${k}">${n}${k === 'todo' ? `<span class="count">${mine.filter((m) => t.tasks[m.k] !== 'Done').length}</span>` : ''}</button>`).join('')}</div>
+      <div class="ptabs"><div class="tabs__list" role="tablist">${[['progress', 'Progress'], ['roles', 'Roles'], ['todo', 'To-do']].map(([k, n]) => `<button type="button" class="tab" role="tab" aria-selected="${t.tab === k}" data-act="topic-tab" data-arg="${k}">${n}${k === 'todo' ? `<span class="count">${mine.filter((m) => t.tasks[m.k] !== 'Done').length}</span>` : ''}</button>`).join('')}</div></div>
       ${t.tab === 'roles' ? `
         <div class="toolbar toolbar--roles">
           <input class="input" type="search" data-topic-q value="${esc(t.q)}" placeholder="Filter" aria-label="Filter people" />
@@ -1061,7 +1075,7 @@
     : `<button type="button" class="val val--edit" data-act="tgt-edit" data-arg="${key}" title="Click to edit">${num(v)} tonnes${icon('pencil')}</button>`
   PAGES.target = () => {
     const t = S.tgt, sh = t.show, final = t.miles.at(-1), reach = impactAt(2050)
-    const legend = [['mile', 'Milestones', '#0e0e8f'], ['interp', 'Interpolated values', '#6b6bff'], ['impact', 'Estimated impact from actions', '#3fb68b'], ['bench', 'Benchmark', '#3e3e58']]
+    const legend = [['mile', 'Milestones', '#0a0a0a'], ['interp', 'Interpolated values', '#737373'], ['impact', 'Estimated impact from actions', '#ff6600'], ['bench', 'Benchmark', '#404040']]
     return `
     <div class="wrap">
       <div class="tg-head"><div><h1 class="h1 h1--tight">Reduce emissions of air pollutants</h1><p class="muted">Target related to emissions of air pollutants metric</p></div>
@@ -1081,8 +1095,8 @@
             ${t.miles.map(([yr, v], i) => `<div class="gtable__row gtable__row--4"><span class="gtable__y">${icon('calendar')}${yr}${i === t.miles.length - 1 ? ' <span class="tag tag--info">Final</span>' : ''}</span><span>${tgtCell(`m${i}`, v)}</span><span>${signed(pct(t.base, v))}</span><span class="muted">${icon('arrow-narrow-right')}</span></div>`).join('')}</div>
         </div></li>
         <li class="step"><span class="step__dot ${t.actions.some(Boolean) ? 'is-done' : ''}">${icon('check')}</span><div class="step__body">
-          <h2 class="h2">Actions</h2><p class="muted">Link the actions that will help reach this target. The green line shows their estimated impact.</p>
-          <div class="acts">${TGT_ACTIONS.map(([n, cut, yr], i) => `<button type="button" class="act-row" role="checkbox" aria-checked="${t.actions[i]}" data-act="tgt-action" data-arg="${i}"><span class="cbox ${t.actions[i] ? 'is-on' : ''}" style="--c:#3fb68b">${icon('check')}</span><span class="act-row__n">${n}</span><span class="muted">−${cut} t from ${yr}</span></button>`).join('')}</div>
+          <h2 class="h2">Actions</h2><p class="muted">Link the actions that will help reach this target. The orange dashed line shows their estimated impact.</p>
+          <div class="acts">${TGT_ACTIONS.map(([n, cut, yr], i) => `<button type="button" class="act-row" role="checkbox" aria-checked="${t.actions[i]}" data-act="tgt-action" data-arg="${i}"><span class="cbox ${t.actions[i] ? 'is-on' : ''}" style="--c:var(--brand)">${icon('check')}</span><span class="act-row__n">${n}</span><span class="muted">−${cut} t from ${yr}</span></button>`).join('')}</div>
           <p class="${reach <= final[1] ? 'delta' : 'warn-text'}">${reach <= final[1] ? icon('circle-check') : icon('alert-triangle')}With these actions, emissions reach ${num(reach)} tonnes by 2050: ${reach <= final[1] ? 'the final target is met.' : `${num(reach - final[1])} tonnes short of the final target.`}</p>
         </div></li>
         <li class="step"><span class="step__dot is-done">${icon('check')}</span><div class="step__body">

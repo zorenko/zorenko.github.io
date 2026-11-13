@@ -13,7 +13,8 @@ nearest existing demo: the files are the real reference, this is the map.
 - `glass: true` makes the card glass: the demo's page is see-through where it wants the glass, over the card's
   `background`, which is then a nearly opaque tint. Chrome doesn't blur the side cards behind it from inside the
   carousel's 3D (`backdrop-filter` on the card, the frame or the track: all stay sharp), so the tint does the work.
-  Visuals uses it: its page is transparent in `?app`, and its window only tints it.
+  Visuals uses it: its page is transparent in `?app`, and its window only tints it. So does Celsia: in `?glass`, its
+  off-white frame around the white panel is see-through, over a light grey tint a little see-through itself.
 - The first slide in `content/work.ts` is the cover: the one in the middle when the page loads.
 - A query string picks how the page shows (`?app`, `?embed`), so one page can serve several framings.
 - `components/demo.tsx` draws the iframe and scales it to its box. The carousel uses it, and so can a project page:
@@ -25,7 +26,7 @@ nearest existing demo: the files are the real reference, this is the map.
 | Demo | What it is | Framing |
 | --- | --- | --- |
 | `public/demos/visuals/` | Made by hand: about 1,000 lines of plain HTML, CSS and JS, no build. Follows the real app's screens and words. | `?app`: only the app's window, filling the frame (used on the site). No query: a Mac desktop with the window, Safari and the Dock. |
-| `public/demos/celsia/` | Made by hand, like Visuals, from Figma frames and the newer look in the portfolio's screenshots. The app's sidebar moves between pages: a report whose data points open in a sidebar, Home, the Help center, Data input with its guide, a metric's chart, the Pollution topic and a target. | Only the app's window; no query. |
+| `public/demos/celsia/` | Made by hand, like Visuals, from Figma frames (some only concepts), rebranded away from the production app because the work is under NDA: shadcn/ui's look in black and white with orange as the one brand colour, Geist, Lucide icons, and skeuomorphic icons in the sidebar and on Home. The app's sidebar moves between pages: a report whose data points open in a sidebar, Home, the Help center, Data input with its guide, a metric's chart, the Pollution topic and a target. The guide's pictures follow the Figma concept's onboarding, redrawn as crops of the demo's own screens on an orange panel. | Only the app's window. `?glass`: see-through around its panel, for the glass card (used on the site). |
 | `public/demos/sanna/` | Made by hand like Visuals, from Sanna's screens in Figma (no repo to run): the timeline, a task with Hege's panel, All tasks complete. The flow between the screens is made up. | No query: a Mac desktop with Sanna's web app in Safari (used on the site). `?app`: only the app. |
 | `public/demos/muster/` | A copy of the Muster landing page (its own repo). | `?embed`: only the landing page's Mac desktop. Its head comment says how to copy it again. |
 

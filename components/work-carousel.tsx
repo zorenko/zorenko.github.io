@@ -207,8 +207,10 @@ function Media({ item, copy }: { item: WorkItem; copy: boolean }) {
 }
 
 function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
-  const { href, title } = item;
-  if (!href) return <h3 className="q-car-title">{title}</h3>;
+  const { href, title, year } = item;
+  // The year follows the title, outside its link
+  const when = <span className="q-car-year"> · {year}</span>;
+  if (!href) return <h3 className="q-car-title">{title}{when}</h3>;
   const props = { tabIndex: copy ? -1 : undefined };
   return (
     <h3 className="q-car-title">
@@ -217,6 +219,7 @@ function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
       ) : (
         <Link {...props} href={href}>{title}</Link>
       )}
+      {when}
     </h3>
   );
 }
