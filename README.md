@@ -22,7 +22,7 @@ npm run build    # writes the static site to out/
 | Blog posts | `content/posts.ts` (list) and `content/blog/<slug>.mdx` (text) |
 | How I work steps and tools | `content/stack.ts` |
 | Work carousel on the home page | `content/work.ts` (slides; how to add one is at the top), `components/work-carousel.tsx` |
-| Live demos shown in the carousel | `public/demos/<name>/`; how to make one: `docs/demos.md` (Visuals' is made by hand; Muster's is a copy of the landing page, and its head comment says how to refresh it) |
+| Live demos shown in the carousel | `public/demos/<name>/`; how to make one: `docs/demos.md` (Visuals' and Sanna's are made by hand; Muster's is a copy of the landing page, and its head comment says how to refresh it) |
 | Experiments list | `content/experiments.ts` (title, blurb, write-up, and `hidden: true` to unlist one), the home page wall in `components/experiment-wall.tsx` |
 | Each experiment's code | `components/experiments/<id>.tsx` and `<id>.css` (how to add one is at the top of `index.tsx` there) |
 | Experiment pages | `app/experiments/[id]/page.tsx`, one per entry in `content/experiments.ts` |
