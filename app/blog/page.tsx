@@ -1,11 +1,14 @@
+import { notFound } from "next/navigation";
 import { PostList } from "@/components/post-list";
 import { posts } from "@/content/posts";
 import { enter } from "@/lib/dom";
+import { SHOW } from "@/lib/flags";
 import { pageMeta } from "@/lib/site";
 
 export const metadata = pageMeta("Writing", "Notes from Anastasia Zorenko on designing and building software.");
 
 export default function Blog() {
+  if (!SHOW.writing) notFound(); // switched off in lib/flags.ts
   return (
     <main className="q" id="q-main">
       <header className="q-phead" {...enter(1)}>

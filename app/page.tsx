@@ -9,14 +9,15 @@ import { WorkCarousel } from "@/components/work-carousel";
 import { posts } from "@/content/posts";
 import { WORK } from "@/content/work";
 import { enter } from "@/lib/dom";
+import { SHOW } from "@/lib/flags";
 import { GITHUB, LINKEDIN, NAME } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: { absolute: `${NAME} | Design Engineer` },
-  openGraph: { type: "website", title: `${NAME} | Design Engineer`, description: "Design engineer in Oslo." },
+  title: { absolute: `${NAME} | Digital Designer` },
+  openGraph: { type: "website", title: `${NAME} | Digital Designer`, description: "Independent digital designer with 10 years of experience in product development: product, brand and design engineering." },
 };
 
-// The experiments wall at the bottom of the page. Hidden for now; true brings it back. /experiments/ is unaffected.
+// The experiments wall at the bottom of the page. Hidden for now; true brings it back (with SHOW.experiments on too).
 const SHOW_EXPERIMENTS_WALL = false;
 
 export default function Home() {
@@ -26,7 +27,7 @@ export default function Home() {
         <div className="q-profile">
           <div className="q-who">
             <ScrambleText as="h1" className="q-name" text={NAME} delay={150} />
-            <ScrambleText as="p" className="q-role" text="Design engineer" delay={400} />
+            <ScrambleText as="p" className="q-role" text="Digital designer" delay={400} />
           </div>
         </div>
 
@@ -43,7 +44,7 @@ export default function Home() {
           </CopyEmail>
         </div>
 
-        <p>Based in Oslo. I design and build clear, calm interfaces for products with a lot going on, from first sketch to shipped code.</p>
+        <p>Independent digital designer with 10 years of experience in product development. Helping companies with product, brand and design engineering through the full scope of design work from problem definition to shipping final solutions. Previously, part of Celsia, Cognite, Yandex and <Link href="/about/">other teams</Link>. Based in Oslo.</p>
       </header>
 
       {/* The carousel names itself ("Work") for screen readers, so no visible title */}
@@ -52,12 +53,14 @@ export default function Home() {
       </div>
 
       {/* No visible section title; aria-label names it for screen readers */}
-      <section className="q-sec" {...enter(2)} aria-label="Writing">
-        <PostList posts={posts.slice(0, 3)} />
-        <Link className="q-more" href="/blog/">All posts</Link>
-      </section>
+      {SHOW.writing && (
+        <section className="q-sec" {...enter(2)} aria-label="Writing">
+          <PostList posts={posts.slice(0, 3)} />
+          <Link className="q-more" href="/blog/">All posts</Link>
+        </section>
+      )}
 
-      {SHOW_EXPERIMENTS_WALL && (
+      {SHOW.experiments && SHOW_EXPERIMENTS_WALL && (
         <section className="q-sec q-sec--wall" {...enter(3)} aria-label="Experiments">
           <ExperimentWall items={LISTED} />
         </section>

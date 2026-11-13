@@ -1,9 +1,9 @@
 /* Experience list: on the home page (under the work carousel) and the About page */
 
-const EXPERIENCE = [
+const EXPERIENCE: { role: string; company: string; note?: string; year: number }[] = [
   { role: "Design Engineer", company: "Sanna", year: 2026 },
   { role: "Design Manager, VP", company: "ISS-Corporate", year: 2024 },
-  { role: "Lead Designer", company: "Celsia", year: 2022 },
+  { role: "Lead Designer", company: "Celsia", note: "acquired by ISS-Corporate", year: 2022 },
   { role: "Product Designer", company: "Cognite", year: 2021 },
   { role: "Product Designer", company: "Yandex Cloud", year: 2019 },
   { role: "UX/UI Designer", company: "Nexign", year: 2017 },
@@ -16,7 +16,7 @@ export function Experience() {
     <ul className="q-list" role="list">
       {EXPERIENCE.map((e) => (
         <li className="q-row" key={e.company}>
-          <span>{e.role} · <b>{e.company}</b></span>
+          <span>{e.role} · <b>{e.company}</b>{e.note && <span className="q-note-inline"> ({e.note})</span>}</span>
           <span className="q-meta">{e.year}</span>
         </li>
       ))}

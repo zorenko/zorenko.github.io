@@ -36,7 +36,7 @@ export const WORK: WorkItem[] = [
     id: "visuals",
     title: "Visuals",
     year: "2026",
-    description: "Saves pictures from X, Pinterest and any page. Your own Claude tags them, and writes a brand project's brief from its pictures.",
+    description: "Inspiration gets lost across X, Pinterest and open tabs. Visuals keeps it in one place, tags it with your own Claude and turns it into a brief.",
     media: {
       type: "demo",
       src: "/demos/visuals/index.html?app",
@@ -53,7 +53,7 @@ export const WORK: WorkItem[] = [
     id: "celsia",
     title: "Celsia",
     year: "2022–2026",
-    description: "An ESG reporting module, from zero to one. Celsia was acquired in 2024.",
+    description: "EU sustainability reporting is slow, costly and easy to get wrong. Celsia makes reporting easy, ensures compliance and supports collaboration. Acquired in 2024.",
     href: "/work/celsia/",
     media: {
       type: "demo",
@@ -71,7 +71,7 @@ export const WORK: WorkItem[] = [
     id: "muster",
     title: "Muster",
     year: "2026",
-    description: "Finds every skill across Claude Code, Codex, plugins and projects, flags clashes and duplicates, and sorts them into folders.",
+    description: "AI skills pile up across Claude Code, Codex, plugins and projects, clashing and duplicated. Muster finds every one and sorts them into folders.",
     href: "https://musteryourskills.com/",
     media: {
       type: "demo",
@@ -88,7 +88,7 @@ export const WORK: WorkItem[] = [
     id: "earlier-work",
     title: "Yandex, Kaspersky, Cognite",
     year: "2015–2021",
-    description: "Cloud, security and industrial data products.",
+    description: "Engineers running clouds, security and industrial sites drown in dense, fast-moving data. Interfaces that keep it readable and quick to act on.",
     href: "/work/earlier-work/",
     // The screens of the "portfolio – cv" Figma file's Section 3 (node 453:10709), in its order, exported at 2x
     // and scaled to 2000 px wide. Each `url` is what the address bar shows with it.
@@ -107,9 +107,9 @@ export const WORK: WorkItem[] = [
       ].map((url, i) => ({ src: `/assets/img/work/earlier-screen-${String(i + 1).padStart(2, "0")}.jpg`, url })),
       alt: "Screens from earlier work at Yandex, Kaspersky and Cognite",
       browser: {
-        // A pale, warm sunset wallpaper: apricot at the top left, rose at the top right, deep coral at the bottom right
+        // A gray steel wallpaper: near-white at the top left, pale silver at the top right, soft slate at the bottom right
         background:
-          "radial-gradient(70% 90% at 0% 0%, #fff1de 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #fad5de 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #f3a493 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #f9c6a2 0%, transparent 70%), linear-gradient(135deg, #fde7cd, #f6c0b0)",
+          "radial-gradient(70% 90% at 0% 0%, #fcfcfd 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #f1f3f6 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #d3d9e0 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #e7ebef 0%, transparent 70%), linear-gradient(135deg, #f6f7f9, #e1e5ea)",
       },
     },
   },
@@ -117,7 +117,7 @@ export const WORK: WorkItem[] = [
     id: "sanna",
     title: "Sanna",
     year: "2026",
-    description: "Two app redesigns and more than 140 merged pull requests in ten weeks.",
+    description: "Year-end accounts and tax returns overwhelm small business owners. Sanna's app walks them through it step by step, with an accountant alongside.",
     href: "/work/sanna/",
     media: {
       // A Mac desktop with Sanna's client app in Safari. With ?app it's only the app.
@@ -126,9 +126,9 @@ export const WORK: WorkItem[] = [
       width: 1180,
       height: 696,
       title: "Sanna demo: a Mac desktop with Sanna's client app in Safari, on an annual financial statement",
-      // The demo's wallpaper, showing while it loads
+      // The demo's wallpaper (pastel cream at the top left, clear apricot orange at the bottom right), showing while it loads
       background:
-        "radial-gradient(120% 90% at 0% 0%, #f6e3cc 0%, transparent 60%), radial-gradient(100% 100% at 100% 100%, #d3dcc4 0%, transparent 60%), linear-gradient(135deg, #f3e9dc, #e4e2d2)",
+        "radial-gradient(120% 90% at 0% 0%, #fff4e4 0%, transparent 60%), radial-gradient(100% 100% at 100% 100%, #ffbf8f 0%, transparent 60%), linear-gradient(135deg, #fdf0df, #fcd9bd)",
     },
   },
 ];

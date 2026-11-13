@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isStackVersion, posts } from "@/content/posts";
 import { enter } from "@/lib/dom";
+import { SHOW } from "@/lib/flags";
 import { formatDate, pageMeta } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function BlogPost({ params }: Props) {
+  if (!SHOW.writing) notFound(); // switched off in lib/flags.ts
   const { slug } = await params;
   const k = posts.findIndex((p) => p.slug === slug);
   if (k < 0) notFound();

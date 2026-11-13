@@ -1,7 +1,7 @@
 "use client";
 
 /* Dock: a floating bottom bar (Home, About) whose last button opens a menu upward with the same pages and
-   links to Experiments, Writing and How I work. On an Experiments, Writing or How I work page, that page's
+   links to Experiments, Writing and How I work (less any switched off in lib/flags.ts). On an Experiments, Writing or How I work page, that page's
    icon joins the bar while you're there. Beside it, in the bottom right corner, a matching one-button theme
    switch opens upward into Light, Dark and System. Rendered once in the root layout. */
 
@@ -9,6 +9,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { cssVars, prefersReducedMotion } from "@/lib/dom";
+import { isShown } from "@/lib/flags";
 
 const Glyph = ({ children }: { children: ReactNode }) => (
   <svg className="q-dock-glyph" viewBox="0 0 24 24" aria-hidden="true">
@@ -72,11 +73,13 @@ export function Dock() {
     { label: "Home", href: "/", icon: "home", on: path === "/" },
     { label: "About", href: "/about/", icon: "about", on: path.startsWith("/about/") },
   ];
-  const more: Item[] = [
-    { label: "Experiments", href: "/experiments/", icon: "lab", on: path.startsWith("/experiments/") },
-    { label: "Writing", href: "/blog/", icon: "writing", on: path.startsWith("/blog/") },
-    { label: "How I work", href: "/how-i-work/", icon: "stack", on: path.startsWith("/how-i-work/") },
-  ];
+  const more = (
+    [
+      { label: "Experiments", href: "/experiments/", icon: "lab", on: path.startsWith("/experiments/") },
+      { label: "Writing", href: "/blog/", icon: "writing", on: path.startsWith("/blog/") },
+      { label: "How I work", href: "/how-i-work/", icon: "stack", on: path.startsWith("/how-i-work/") },
+    ] satisfies Item[]
+  ).filter((it) => isShown(it.href)); // sections switched off in lib/flags.ts drop out
   const bar = [...items, ...more.filter((it) => it.on)];
   const current = (it: Item) => (it.on ? ({ "aria-current": "page", "data-active": "" } as const) : {});
 

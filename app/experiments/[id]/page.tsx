@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ExperimentDemo } from "@/components/experiments";
 import { EXPERIMENTS, LISTED, experimentHref, isListed } from "@/content/experiments";
 import { enter } from "@/lib/dom";
+import { SHOW } from "@/lib/flags";
 import { pageMeta } from "@/lib/site";
 
 /* One experiment: the live demo, what it is and how it works, then the next listed one (wrapping round to the first).
@@ -21,6 +22,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function ExperimentPage({ params }: Props) {
+  if (!SHOW.experiments) notFound(); // switched off in lib/flags.ts
   const { id } = await params;
   const xp = EXPERIMENTS.find((x) => x.id === id);
   if (!xp) notFound();
