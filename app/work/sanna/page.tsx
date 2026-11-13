@@ -8,7 +8,7 @@ export default function Sanna() {
     <Project
       title="Sanna"
       lead="Two app redesigns, 140+ merged PRs in ten weeks"
-      role="Design Engineer · 2025"
+      role="Design Engineer · 2026"
       shots={[
         { src: "/assets/img/work/sanna-slide-02.jpg", caption: "Annual financial statement", alt: "Sanna: a guided flow for finalising the annual financial statement." },
         { src: "/assets/img/work/sanna-slide-04.jpg", caption: "Onboarding", alt: "Sanna onboarding with a welcome step and task list." },

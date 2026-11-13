@@ -18,7 +18,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { WorkItem } from "@/content/work";
-import { cssVars, prefersReducedMotion } from "@/lib/dom";
+import { Demo } from "./demo";
+import { prefersReducedMotion } from "@/lib/dom";
 
 // Spring snap: pulled toward where it's heading, overshooting a little and settling
 const SPRING_STIFF = 0.025; // per 60fps frame
@@ -189,15 +190,8 @@ function Slides({ media: { slides, browser }, alt, copy }: { media: SlidesMedia;
 
 function Media({ item, copy }: { item: WorkItem; copy: boolean }) {
   const { media } = item;
-  if (media.type === "demo")
-    return (
-      <div className="q-car-media" data-demo="" data-glass={media.glass ? "" : undefined} style={media.background ? { background: media.background } : undefined}>
-        {/* Inert until it's in the middle (components/work-carousel.tsx sets it) */}
-        <div className="q-car-frame" inert style={cssVars({ "--dw": media.width })}>
-          <iframe src={media.src} width={media.width} height={media.height} title={media.title} loading="lazy" tabIndex={copy ? -1 : undefined} />
-        </div>
-      </div>
-    );
+  // Inert until it's in the middle (setActive below switches it)
+  if (media.type === "demo") return <Demo demo={media} className="q-car-media" inert tabIndex={copy ? -1 : undefined} />;
   return (
     <div className="q-car-media">
       {media.type === "image" ? (
@@ -213,8 +207,10 @@ function Media({ item, copy }: { item: WorkItem; copy: boolean }) {
 }
 
 function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
-  const { href, title } = item;
-  if (!href) return <h3 className="q-car-title">{title}</h3>;
+  const { href, title, year } = item;
+  // The year follows the title, outside its link
+  const when = <span className="q-car-year"> · {year}</span>;
+  if (!href) return <h3 className="q-car-title">{title}{when}</h3>;
   const props = { tabIndex: copy ? -1 : undefined };
   return (
     <h3 className="q-car-title">
@@ -223,6 +219,7 @@ function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
       ) : (
         <Link {...props} href={href}>{title}</Link>
       )}
+      {when}
     </h3>
   );
 }
@@ -243,7 +240,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     if (!els.length) return;
     const st: CardState[] = els.map(() => ({ offset: 0 }));
     const info = els.map((el) => el.querySelector<HTMLElement>(".q-car-info"));
-    const frames = els.map((el) => el.querySelector<HTMLElement>(".q-car-frame"));
+    const frames = els.map((el) => el.querySelector<HTMLElement>(".q-demo-frame"));
     const videos = els.map((el) => el.querySelector("video"));
     const reduce = prefersReducedMotion();
     const n = items.length;
@@ -340,7 +337,6 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       total = els.length * step;
       radius = step / (innerWidth < PHONE ? CURVE_ANGLE_PHONE : CURVE_ANGLE);
       track.style.perspective = `${step * CURVE_PERSPECTIVE}px`;
-      root.style.setProperty("--car-wn", String(width)); // scales the demos
       if (was) {
         current = was.now * step;
         target = was.to * step;

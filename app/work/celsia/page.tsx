@@ -1,15 +1,20 @@
 import { Project } from "@/components/project";
 import { Reveal } from "@/components/reveal";
+import { WORK } from "@/content/work";
 import { pageMeta } from "@/lib/site";
 
 export const metadata = pageMeta("Celsia", "Celsia. Reporting module from zero to one, acquired 2024.", "/assets/img/work/celsia-slide-01.jpg");
+
+// The same demo as the home page's carousel card
+const demo = WORK.find((w) => w.id === "celsia")?.media;
 
 export default function Celsia() {
   return (
     <Project
       title="Celsia"
       lead="Reporting module from zero to one, acquired 2024"
-      role="Lead Designer · 2022–2024"
+      role="Lead Designer · 2022–2026"
+      demo={demo?.type === "demo" ? demo : undefined}
       intro={
         <>
           <p>Celsia is a sustainability reporting platform for the EU frameworks: CSRD and ESRS and the EU taxonomy for companies, and SFDR for investment funds. It fits the workflows of very different user groups and keeps every report compliant with the regulation.</p>

@@ -1,7 +1,7 @@
 /* Experience list: on the home page (under the work carousel) and the About page */
 
 const EXPERIENCE = [
-  { role: "Design Engineer", company: "Sanna", year: 2025 },
+  { role: "Design Engineer", company: "Sanna", year: 2026 },
   { role: "Design Manager, VP", company: "ISS-Corporate", year: 2024 },
   { role: "Lead Designer", company: "Celsia", year: 2022 },
   { role: "Product Designer", company: "Cognite", year: 2021 },
