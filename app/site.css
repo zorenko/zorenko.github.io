@@ -307,6 +307,80 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .q-dark .q-car-media::after { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); }
 .q-car-media img,
 .q-car-media video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; -webkit-user-drag: none; }
+/* Slideshow (media type "slides"): the next picture fades in over the last, which stays put underneath so the card
+   never shows through mid-fade. Arrows step back and forward: shown while the cursor is on the card, always on touch.
+   They sit on the pictures, or with the browser window on the wallpaper beside it */
+.q-car-slides { position: absolute; inset: 0; }
+.q-car-slides img { position: absolute; inset: 0; opacity: 0; }
+.q-car-slides img.was-shown { opacity: 1; z-index: 1; }
+.q-car-slides img.is-shown { opacity: 1; z-index: 2; transition: opacity 450ms cubic-bezier(0.23, 1, 0.32, 1); }
+.q-car-arrow {
+  --a: 36px; /* size */
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: var(--a);
+  height: var(--a);
+  margin-top: calc(var(--a) / -2);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.9);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.12), 0 4px 14px rgb(0 0 0 / 0.14);
+  color: #1d1d1f;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 200ms var(--q-ease), transform 160ms var(--q-ease);
+}
+.q-car-arrow::before { content: ""; width: calc(var(--a) * 0.22); height: calc(var(--a) * 0.22); margin-left: calc(var(--a) * 0.11); border-left: 1.75px solid currentColor; border-bottom: 1.75px solid currentColor; transform: rotate(45deg); }
+.q-car-arrow--prev { left: 12px; }
+.q-car-arrow--next { right: 12px; }
+.q-car-arrow--next::before { margin: 0 calc(var(--a) * 0.11) 0 0; transform: rotate(-135deg); }
+/* On the wallpaper: centred in the 139-wide space either side of the window, scaling with the card */
+.q-car-desk .q-car-arrow { --a: clamp(24px, calc(44 * var(--u)), 40px); }
+.q-car-desk .q-car-arrow--prev { left: calc(69.5 * var(--u) - var(--a) / 2); }
+.q-car-desk .q-car-arrow--next { right: calc(69.5 * var(--u) - var(--a) / 2); }
+.q-car-arrow:active { transform: scale(0.94); }
+.q-car-card.is-active .q-car-media:hover .q-car-arrow,
+.q-car-card.is-active .q-car-arrow:focus-visible { opacity: 1; }
+@media (hover: none) { .q-car-card.is-active .q-car-arrow { opacity: 1; } }
+.q-car-card:not(.is-active) .q-car-arrow { pointer-events: none; }
+/* …in a Safari window (media.browser): its toolbar as in the Muster demo, on the slide's wallpaper. Laid out in
+   --u, a 1180th of the card's width, so it scales with the card like the demos. The window's page is the screens'
+   own shape (1440 × 920: 576 tall under the 44 toolbar, so 902 wide), so they show whole */
+.q-car-desk { position: absolute; inset: 0; container-type: size; --u: calc(100cqw / 1180); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+.q-car-win {
+  position: absolute;
+  inset: calc(38 * var(--u)) 0;
+  width: calc(902 * var(--u));
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: calc(12 * var(--u));
+  background: #fff;
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.25), 0 calc(28 * var(--u)) calc(70 * var(--u)) calc(-18 * var(--u)) rgb(120 50 30 / 0.32);
+}
+.q-car-win .q-car-slides { position: relative; flex: 1; min-height: 0; }
+.q-car-sbar { flex: none; display: flex; align-items: center; gap: calc(14 * var(--u)); height: calc(44 * var(--u)); padding: 0 calc(14 * var(--u)); background: #f6f6f6; border-bottom: 1px solid rgb(0 0 0 / 0.1); color: #6e6e73; }
+.q-car-lights { display: flex; gap: calc(8 * var(--u)); margin-right: calc(4 * var(--u)); }
+.q-car-lights i { width: calc(12 * var(--u)); height: calc(12 * var(--u)); border-radius: 50%; background: #ff5f57; }
+.q-car-lights i:nth-child(2) { background: #febc2e; }
+.q-car-lights i:nth-child(3) { background: #28c840; }
+.q-car-nav { display: flex; gap: calc(16 * var(--u)); padding: 0 calc(4 * var(--u)); }
+.q-car-nav i { width: calc(7 * var(--u)); height: calc(7 * var(--u)); border-left: calc(1.7 * var(--u)) solid #3a3a3c; border-bottom: calc(1.7 * var(--u)) solid #3a3a3c; transform: rotate(45deg); }
+.q-car-nav i + i { border-color: #c7c7cc; transform: rotate(-135deg); }
+.q-car-url { position: relative; flex: 1; min-width: 0; max-width: calc(400 * var(--u)); height: calc(28 * var(--u)); margin: 0 auto; display: flex; align-items: center; justify-content: center; padding: 0 calc(26 * var(--u)); border-radius: calc(8 * var(--u)); background: rgb(0 0 0 / 0.055); font-size: calc(12.5 * var(--u)); line-height: 1; color: #1d1d1f; white-space: nowrap; overflow: hidden; }
+.q-car-url span { color: #8e8e93; }
+.q-car-tools { display: flex; gap: calc(18 * var(--u)); }
+.q-car-ico { flex: none; width: calc(16 * var(--u)); height: calc(16 * var(--u)); background: currentColor; -webkit-mask: var(--i) center / contain no-repeat; mask: var(--i) center / contain no-repeat; }
+.q-car-ico--side { --i: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='3'/%3E%3Cpath d='M9.5 5v14'/%3E%3C/svg%3E"); }
+.q-car-ico--reload { --i: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19.5 12a7.5 7.5 0 1 1-2.2-5.3'/%3E%3Cpath d='M19.5 4.5v4.5H15'/%3E%3C/svg%3E"); position: absolute; right: calc(9 * var(--u)); width: calc(12 * var(--u)); height: calc(12 * var(--u)); }
+.q-car-ico--share { --i: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12M8 7l4-4 4 4'/%3E%3Cpath d='M8 10H6v11h12V10h-2'/%3E%3C/svg%3E"); }
+.q-car-ico--plus { --i: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E"); }
+.q-car-ico--tabs { --i: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='7' y='3' width='14' height='14' rx='2.5'/%3E%3Cpath d='M17 21H5.5A2.5 2.5 0 0 1 3 18.5V7'/%3E%3C/svg%3E"); }
 .q-car-card:not(.is-active) .q-car-media { cursor: pointer; }
 .q-car.is-dragging, .q-car.is-dragging * { cursor: grabbing; user-select: none; }
 .q-car.is-dragging iframe { pointer-events: none; }

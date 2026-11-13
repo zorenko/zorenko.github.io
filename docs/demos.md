@@ -1,13 +1,13 @@
 # Live demos in the work carousel
 
-How to make a clickable demo of a product for the home page carousel, like Visuals', Celsia's and Muster's. Read this, then read the
+How to make a clickable demo of a product for the home page carousel, like Visuals', Celsia's, Sanna's and Muster's. Read this, then read the
 nearest existing demo: the files are the real reference, this is the map.
 
 ## How the carousel shows a demo
 
 - A slide in `content/work.ts` with `media: { type: "demo", src, width, height, title, background }`.
 - `src` is a static page in `public/demos/<name>/`. The carousel loads it in an iframe drawn at `width` × `height`
-  (1180 × 696 for all of them) and scales it to the card. **Design and check the page at exactly that size.**
+  (1180 × 696 for all demos) and scales it to the card. **Design and check the page at exactly that size.**
 - The iframe is `loading="lazy"`, and `inert` until its card is in the middle, so it can't be clicked from the side.
 - `background` shows while the page loads: use the page's own background so there's no flash.
 - `glass: true` makes the card glass: the demo's page is see-through where it wants the glass, over the card's
@@ -26,6 +26,7 @@ nearest existing demo: the files are the real reference, this is the map.
 | --- | --- | --- |
 | `public/demos/visuals/` | Made by hand: about 1,000 lines of plain HTML, CSS and JS, no build. Follows the real app's screens and words. | `?app`: only the app's window, filling the frame (used on the site). No query: a Mac desktop with the window, Safari and the Dock. |
 | `public/demos/celsia/` | Made by hand, like Visuals, from Figma frames and the newer look in the portfolio's screenshots. The app's sidebar moves between pages: a report whose data points open in a sidebar, Home, the Help center, Data input with its guide, a metric's chart, the Pollution topic and a target. | Only the app's window; no query. |
+| `public/demos/sanna/` | Made by hand like Visuals, from Sanna's screens in Figma (no repo to run): the timeline, a task with Hege's panel, All tasks complete. The flow between the screens is made up. | No query: a Mac desktop with Sanna's web app in Safari (used on the site). `?app`: only the app. |
 | `public/demos/muster/` | A copy of the Muster landing page (its own repo). | `?embed`: only the landing page's Mac desktop. Its head comment says how to copy it again. |
 
 Prefer the Visuals approach for a new demo: a product with a landing page can be copied as Muster was, but a hand-made
@@ -33,7 +34,7 @@ page is smaller and shows the app's real screens.
 
 **Framing: only the app's window by default.** It reads best when the app itself is the story (Visuals). Add a Mac
 desktop around it when the demo needs it, such as a story that crosses apps: a browser extension or a menu bar item
-(Muster). The Visuals page has both, so either is a small change.
+(Muster), or a web app, which reads as one in Safari (Sanna). The Visuals and Sanna pages have both, so either is a small change.
 
 ## Making a new one (the Visuals recipe)
 
@@ -69,6 +70,9 @@ desktop around it when the demo needs it, such as a story that crosses apps: a b
      `((id / 1e15) * Math.PI).toString(36).replace(/(0+|\.)/g, '')`. `mediaDetails` lists each picture; a video's
      `media_url_https` is its still. Add `?format=jpg&name=medium` to a picture's URL.
    - Pinterest: the pin's picture on `i.pinimg.com` (the `736x` size), from the pin's page.
+   - From Figma (Sanna): take each screen's design context with the Figma MCP, and download its pictures and
+     illustrations. Big ones (a vectorised illustration can be 4 MB of SVG) go to WebP at twice their drawn size, with the
+     same canvas trick; icons are Lucide's, from `node_modules/lucide-react`.
    - Convert to WebP in headless Chromium (canvas `toDataURL('image/webp', 0.74)`): this Mac's ffmpeg and `sips`
      can't write WebP. Put downloads in their own folder and the scripts elsewhere, outside the repo.
 5. **Add the slide** in `content/work.ts`.
