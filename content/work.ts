@@ -62,7 +62,17 @@ export const WORK: WorkItem[] = [
     title: "Sanna",
     description: "Two app redesigns and more than 140 merged pull requests in ten weeks.",
     href: "/work/sanna/",
-    media: { type: "image", src: "/assets/img/work/sanna-slide-02.jpg", alt: "Sanna app screens" },
+    media: {
+      // A Mac desktop with Sanna's client app in Safari. With ?app it's only the app.
+      type: "demo",
+      src: "/demos/sanna/index.html",
+      width: 1180,
+      height: 696,
+      title: "Sanna demo: a Mac desktop with Sanna's client app in Safari, on an annual financial statement",
+      // The demo's wallpaper, showing while it loads
+      background:
+        "radial-gradient(120% 90% at 0% 0%, #f6e3cc 0%, transparent 60%), radial-gradient(100% 100% at 100% 100%, #d3dcc4 0%, transparent 60%), linear-gradient(135deg, #f3e9dc, #e4e2d2)",
+    },
   },
   {
     id: "celsia",

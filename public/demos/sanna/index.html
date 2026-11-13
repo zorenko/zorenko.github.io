@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- The Sanna demo on the portfolio home page (content/work.ts): a Mac desktop with Sanna's client app in Safari, like the
+       Muster demo. With ?app it's only the app, filling the frame. docs/demos.md says how demos like this are made.
+       It follows the Sanna screens in Figma (portfolio – cv, section 453:10708): the timeline with Today's focus, a task
+       ("Annual financial statement") with its unknown transactions and Hege's panel, and All tasks complete. The flow
+       between them is made up: review the transactions, answer two questions, send it to Hege, and the timeline moves on
+       when she approves it. Bank, Documents and Profile show in the rail but do nothing. Everything is in memory: a
+       reload starts over. -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sanna demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&family=Instrument+Sans:wght@400..600&family=Unbounded:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- ?app: only Sanna, filling the frame, with no menu bar, Safari bar or Dock -->
+  <script>if (new URLSearchParams(location.search).has('app')) document.documentElement.classList.add('is-app-only')</script>
+</head>
+<body>
+<div class="desk" data-desk>
+  <div class="mbar">
+    <span class="mbar__apple" aria-hidden="true"></span>
+    <span class="mbar__app">Safari</span>
+    <span class="mbar__menu" aria-hidden="true"><span>File</span><span>Edit</span><span>View</span><span>History</span><span>Bookmarks</span><span>Window</span><span>Help</span></span>
+    <span class="mbar__right" aria-hidden="true">
+      <i class="mbar__ico mbar__ico--wifi"></i>
+      <i class="mbar__ico mbar__ico--search"></i>
+      <i class="mbar__ico mbar__ico--cc"></i>
+      <span class="mbar__time" data-time></span>
+    </span>
+  </div>
+
+  <!-- Safari, with Sanna's client app -->
+  <section class="win" aria-label="Safari">
+    <div class="sbar">
+      <div class="win__lights" aria-hidden="true"><i></i><i></i><i></i></div>
+      <i class="sbar__ico sbar__ico--side" aria-hidden="true"></i>
+      <span class="sbar__nav"><button type="button" class="sbar__btn" data-act="back" aria-label="Back" disabled></button><i class="sbar__btn sbar__btn--fwd" aria-hidden="true"></i></span>
+      <span class="sbar__url"><img class="sbar__fav" src="assets/mark.svg" alt="" width="12" height="12" /><span>app.sanna.no</span><span class="sbar__path" data-path>/timeline</span><i class="sbar__ico sbar__ico--reload" aria-hidden="true"></i></span>
+      <span class="sbar__right" aria-hidden="true"><i class="sbar__ico sbar__ico--share"></i><i class="sbar__ico sbar__ico--plus"></i><i class="sbar__ico sbar__ico--tabs"></i></span>
+    </div>
+
+    <div class="app" data-app>
+      <!-- the timeline: the rail on the left, the year in the middle, where you are in it on the right -->
+      <header class="head">
+        <img class="head__mark" src="assets/mark.svg" alt="Sanna" width="20" height="20" />
+        <div class="head__co"><b>Company AS</b><span>999 999 999</span></div>
+      </header>
+      <nav class="rail" data-rail aria-label="Sanna"></nav>
+      <main class="tl" data-tl tabindex="-1"><div class="tl__in" data-tl-in></div></main>
+      <div class="ticks" data-ticks aria-hidden="true"></div>
+      <div class="bybar" data-bar></div>
+
+      <!-- a task, over the timeline -->
+      <div class="sheet" data-sheet hidden>
+        <div class="sheet__in">
+          <div class="sheet__head">
+            <img src="assets/mark.svg" alt="" width="20" height="20" />
+            <span>Annual financial statement</span>
+            <button type="button" class="xbtn" data-act="close-task" aria-label="Close"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          </div>
+          <div class="sheet__scroll" data-sheet-scroll><div class="sheet__col" data-sheet-col></div></div>
+          <div class="foot" data-foot></div>
+          <aside class="tpanel" data-panel hidden></aside>
+        </div>
+      </div>
+
+      <div class="layer" data-layer></div>
+      <div class="toasts" data-toasts aria-live="polite"></div>
+    </div>
+  </section>
+
+  <nav class="dock" aria-label="Dock">
+    <span class="dock__app is-running" data-name="Finder"><img class="ai" src="assets/dock/finder.webp" alt="" width="52" height="52" draggable="false" /></span>
+    <button type="button" class="dock__app is-running" data-dock data-name="Safari" aria-label="Safari"><img class="ai" src="assets/dock/safari.webp" alt="" width="52" height="52" draggable="false" /></button>
+    <span class="dock__app is-running" data-name="Claude"><img class="ai" src="assets/dock/claude.webp" alt="" width="52" height="52" draggable="false" /></span>
+    <span class="dock__sep" aria-hidden="true"></span>
+    <span class="dock__app" data-name="Trash"><img class="ai" src="assets/dock/trash.webp" alt="" width="52" height="52" draggable="false" /></span>
+  </nav>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
