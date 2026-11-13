@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CopyEmail } from "@/components/copy-email";
-import { Experience } from "@/components/experience";
 import { ExperimentWall } from "@/components/experiment-wall";
 import { LISTED } from "@/content/experiments";
 import { PostList } from "@/components/post-list";
@@ -25,7 +24,6 @@ export default function Home() {
     <main className="q" id="q-main">
       <header className="q-head" {...enter(0)}>
         <div className="q-profile">
-          <Link className="q-mark" href="/" aria-label={`${NAME}, home`}>az</Link>
           <div className="q-who">
             <ScrambleText as="h1" className="q-name" text={NAME} delay={150} />
             <ScrambleText as="p" className="q-role" text="Design engineer" delay={400} />
@@ -53,18 +51,14 @@ export default function Home() {
         <WorkCarousel items={WORK} label="Work" />
       </div>
 
-      {/* No visible section titles; aria-label names them for screen readers */}
-      <section className="q-sec" {...enter(2)} aria-label="Experience">
-        <Experience />
-      </section>
-
-      <section className="q-sec" {...enter(3)} aria-label="Writing">
+      {/* No visible section title; aria-label names it for screen readers */}
+      <section className="q-sec" {...enter(2)} aria-label="Writing">
         <PostList posts={posts.slice(0, 3)} />
         <Link className="q-more" href="/blog/">All posts</Link>
       </section>
 
       {SHOW_EXPERIMENTS_WALL && (
-        <section className="q-sec q-sec--wall" {...enter(4)} aria-label="Experiments">
+        <section className="q-sec q-sec--wall" {...enter(3)} aria-label="Experiments">
           <ExperimentWall items={LISTED} />
         </section>
       )}
