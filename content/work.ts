@@ -5,12 +5,13 @@
      and scaled to fit the card, so lay it out for that size (the Muster demo's ?embed mode shows only its desk).
    - image: a still, cropped to the card's shape (1180 × 696) from the top.
    - video: muted and looping; plays only while it's on screen.
-   A demo can set `background`, shown while it loads.
+   A demo can set `background`, shown while it loads, and `glass`: the demo's page is see-through where it wants the
+   glass (Visuals' sidebar), so `background` stays under it as a tint that the side cards show through faintly.
    `href` links the title (and, for images and videos, the picture in the middle). Links starting with http open
    in a new tab. */
 
 export type WorkMedia =
-  | { type: "demo"; src: string; width: number; height: number; title: string; background?: string }
+  | { type: "demo"; src: string; width: number; height: number; title: string; background?: string; glass?: boolean }
   | { type: "image"; src: string; alt: string }
   | { type: "video"; src: string; poster?: string };
 
@@ -23,6 +24,23 @@ export type WorkItem = {
 };
 
 export const WORK: WorkItem[] = [
+  {
+    // Only the app's window (?app). Without ?app the page is a Mac desktop with the window, Safari and the Dock.
+    id: "visuals",
+    title: "Visuals",
+    description: "Saves pictures from X, Pinterest and any page. Your own Claude tags them, and writes a brand project's brief from its pictures.",
+    media: {
+      type: "demo",
+      src: "/demos/visuals/index.html?app",
+      width: 1180,
+      height: 696,
+      title: "Visuals demo: the Visuals window, with a brand project",
+      // The demo's wallpaper, a light tint, nearly opaque: the cards behind show through faintly (glass)
+      glass: true,
+      background:
+        "radial-gradient(120% 90% at 0% 0%, rgb(241 236 210 / 0.9) 0%, transparent 60%), radial-gradient(100% 100% at 100% 100%, rgb(197 214 238 / 0.9) 0%, transparent 60%), linear-gradient(135deg, rgb(238 240 224 / 0.86), rgb(216 225 239 / 0.86))",
+    },
+  },
   {
     id: "muster",
     title: "Muster",

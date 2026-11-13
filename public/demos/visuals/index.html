@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- The Visuals demo on the portfolio home page (content/work.ts), opened there with ?app: only Visuals' window. Without
+       ?app it's a Mac desktop with Visuals' glass window, Safari and the Dock. docs/demos.md says how demos like this are made. Like the Muster demo, but made by hand for the portfolio: Visuals has no landing page.
+       It follows Visuals 0.16.3 (github.com/musteryourskills/visuals, src/lib/ui/templates/references): the sidebar, the
+       feed (it loops) with its new dots and Sort bar, a brand project (a grid of sections and directions, each direction's
+       palette, a picture's comment, and the brief, whose Generate fills in the empty fields), a bucket with Ask, a tag's
+       page with Useful and Not useful, the tag graph, Colors, an open picture with Ask, and Safari with the Save to Visuals
+       extension. Home and Settings are left out: Settings shows in the sidebar but does nothing. The pictures are real posts saved
+       from X and Pinterest: copies in pictures/, listed in pictures.js with a link to each post. Everything is in memory: a reload starts over. -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visuals demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- ?app: only Visuals' window, filling the frame, with no menu bar, Dock or Safari (what the site shows) -->
+  <script>if (new URLSearchParams(location.search).has('app')) document.documentElement.classList.add('is-app-only')</script>
+</head>
+<body>
+<div class="desk" data-desk>
+  <div class="mbar">
+    <span class="mbar__apple" aria-hidden="true"></span>
+    <span class="mbar__app" data-front-app>Visuals</span>
+    <span class="mbar__menu" data-menus aria-hidden="true"></span>
+    <span class="mbar__right" aria-hidden="true">
+      <i class="mbar__ico mbar__ico--wifi"></i>
+      <i class="mbar__ico mbar__ico--search"></i>
+      <i class="mbar__ico mbar__ico--cc"></i>
+      <span class="mbar__time" data-time></span>
+    </span>
+  </div>
+
+  <!-- Visuals: the sidebar on the window's glass, the page in a white panel inset 8px -->
+  <section class="win win--app is-front" data-win="app" aria-label="Visuals">
+    <div class="win__lights" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="app__side"><nav class="side" aria-label="Visuals" data-side></nav></div>
+    <main class="panel" data-panel></main>
+    <div class="layer" data-layer></div>
+    <div class="toasts" data-toasts aria-live="polite"></div>
+  </section>
+
+  <!-- Safari, on a page of pictures, with the Save to Visuals extension -->
+  <section class="win win--web" data-win="web" aria-label="Safari" hidden>
+    <div class="sbar">
+      <div class="win__lights win__lights--bar" aria-hidden="true"><i></i><i></i><i></i></div>
+      <i class="sbar__ico sbar__ico--side" aria-hidden="true"></i>
+      <span class="sbar__nav" aria-hidden="true"><i class="sbar__btn"></i><i class="sbar__btn sbar__btn--fwd"></i></span>
+      <span class="sbar__url"><i class="sbar__fav" aria-hidden="true"></i><span>plates.gallery</span><span class="sbar__path">/week-46</span><i class="sbar__ico sbar__ico--reload" aria-hidden="true"></i></span>
+      <span class="sbar__right" aria-hidden="true"><i class="sbar__ico sbar__ico--share"></i><i class="sbar__ico sbar__ico--plus"></i><i class="sbar__ico sbar__ico--tabs"></i></span>
+    </div>
+    <div class="site" data-site>
+      <header class="site__head">
+        <span class="site__logo">Plates</span>
+        <span class="site__nav"><span>Week 46</span><span>Archive</span><span>About</span></span>
+      </header>
+      <div class="site__intro">
+        <h2>Week 46</h2>
+        <p>Six pictures we liked this week. Save the ones you want to keep.</p>
+      </div>
+      <div class="site__grid" data-site-grid></div>
+    </div>
+    <div class="ext-toast" data-ext-toast role="status" aria-live="polite" hidden></div>
+  </section>
+
+  <nav class="dock" aria-label="Dock">
+    <span class="dock__app is-running" data-name="Finder"><img class="ai" src="assets/dock/finder.webp" alt="" width="52" height="52" draggable="false" /></span>
+    <button type="button" class="dock__app is-running" data-dock="web" data-name="Safari" aria-label="Safari"><img class="ai" src="assets/dock/safari.webp" alt="" width="52" height="52" draggable="false" /></button>
+    <button type="button" class="dock__app is-running" data-dock="app" data-name="Visuals" aria-label="Visuals"><img class="ai" src="assets/dock/visuals.svg" alt="" width="52" height="52" draggable="false" /></button>
+    <span class="dock__app is-running" data-name="Claude"><img class="ai" src="assets/dock/claude.webp" alt="" width="52" height="52" draggable="false" /></span>
+    <span class="dock__app" data-name="Terminal"><img class="ai" src="assets/dock/terminal.webp" alt="" width="52" height="52" draggable="false" /></span>
+    <span class="dock__sep" aria-hidden="true"></span>
+    <span class="dock__app" data-name="Trash"><img class="ai" src="assets/dock/trash.webp" alt="" width="52" height="52" draggable="false" /></span>
+  </nav>
+</div>
+<script src="pictures.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

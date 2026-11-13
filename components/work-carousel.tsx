@@ -77,7 +77,7 @@ function Media({ item, copy }: { item: WorkItem; copy: boolean }) {
   const hide = copy ? -1 : undefined;
   if (media.type === "demo")
     return (
-      <div className="q-car-media" data-demo="" style={media.background ? { background: media.background } : undefined}>
+      <div className="q-car-media" data-demo="" data-glass={media.glass ? "" : undefined} style={media.background ? { background: media.background } : undefined}>
         {/* Inert until it's in the middle (components/work-carousel.tsx sets it) */}
         <div className="q-car-frame" inert style={cssVars({ "--dw": media.width })}>
           <iframe src={media.src} width={media.width} height={media.height} title={media.title} loading="lazy" tabIndex={hide} />
