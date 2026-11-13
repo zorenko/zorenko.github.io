@@ -308,6 +308,11 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .q-car-media img,
 .q-car-media video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; -webkit-user-drag: none; }
 .q-car-frame { position: absolute; inset: 0; }
+/* A glass demo (media.glass): the demo's page is see-through where it wants the glass, over the card's tint (its
+   `background`). The blur only works in some browsers: Chrome doesn't blur the cards behind from inside the carousel's
+   3D, so the tint is nearly opaque. The iframe keeps a light color scheme, or a dark page would paint it opaque. */
+.q-car-media[data-glass] { -webkit-backdrop-filter: blur(40px) saturate(1.8); backdrop-filter: blur(40px) saturate(1.8); }
+.q-car-media[data-glass] iframe { color-scheme: light; }
 /* Demos are laid out at their own size (--dw wide) and scaled to the card (--car-wn, its width in px) */
 .q-car-frame iframe { position: absolute; top: 0; left: 0; border: 0; transform: scale(calc(var(--car-wn, 1180) / var(--dw, 1180))); transform-origin: 0 0; }
 .q-car-card:not(.is-active) .q-car-media { cursor: pointer; }
