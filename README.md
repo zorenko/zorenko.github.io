@@ -17,6 +17,7 @@ npm run build    # writes the static site to out/
 | What | Where |
 | --- | --- |
 | Pages (one folder per URL) | `app/` |
+| Sections switched off for now (Writing, Experiments, project pages) | `lib/flags.ts`: set one to `true` to bring it back |
 | Site styles (the `q-*` classes, colours, dark mode) | `app/site.css` |
 | Tailwind and the shadcn theme, mapped to the site colours | `app/globals.css` |
 | Blog posts | `content/posts.ts` (list) and `content/blog/<slug>.mdx` (text) |

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { enter } from "@/lib/dom";
+import { SHOW } from "@/lib/flags";
 import { Demo, type DemoMedia } from "./demo";
 import { Shots, type Shot } from "./shots";
 
@@ -18,6 +20,7 @@ export function Project({ title, lead, role, demo, intro, shots, next, children 
   children?: ReactNode;
 }) {
   const introAt = demo ? 3 : 2;
+  if (!SHOW.projectPages) notFound(); // switched off in lib/flags.ts
   const shotsAt = introAt + (intro ? 1 : 0);
   return (
     <main className="q" id="q-main">

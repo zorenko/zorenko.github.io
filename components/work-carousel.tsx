@@ -16,6 +16,7 @@
    plays wherever its card is on screen, and its arrows work only in the middle. */
 
 import Link from "next/link";
+import { isShown } from "@/lib/flags";
 import { useEffect, useRef, useState } from "react";
 import type { WorkItem } from "@/content/work";
 import { Demo } from "./demo";
@@ -40,7 +41,9 @@ const SLIDE_TICK_MS = 100;
 const TILT_DEG = 3;
 const TILT_PERSPECTIVE = 1600;
 const TILT_EASE = 0.12;
-// Curve
+// Curve. FLAT shows the side cards facing you, smaller and tucked behind, with no turn or depth; false brings back
+// the curved row
+const FLAT = true;
 const SIDE_SCALE = 0.8;
 const SIDE_SCALE_PHONE = 0.88;
 const NEXT_SCALE = 0.7; // the next ones out, on wide screens
@@ -53,9 +56,12 @@ const PHONE = 768; // px, as in site.css
 const WIDE = 992; // px: two cards on each side from here up
 // Wide screens: side cards slide in behind the middle one (in card widths), the next ones out further still.
 // They only start once a card is TUCK_FROM away, so cards passing in the middle don't overlap.
-const TUCK = 0.4;
-const TUCK_NEXT = 0.2;
+const TUCK = 0.52;
+const TUCK_NEXT = 0.24;
 const TUCK_FROM = 0.45;
+// The same, when FLAT: the row is straight, so they slide in further to keep the outer cards on screen
+const TUCK_FLAT = 0.6;
+const TUCK_NEXT_FLAT = 0.68;
 const INFO_FULL = 0.15; // title and description fully shown this close to the middle (in cards)…
 const INFO_GONE = 0.6; // …and gone by this far out
 // First time on screen: every card edge-on, turning over on a spring from the middle out
@@ -210,7 +216,8 @@ function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
   const { href, title, year } = item;
   // The year follows the title, outside its link
   const when = <span className="q-car-year"> · {year}</span>;
-  if (!href) return <h3 className="q-car-title">{title}{when}</h3>;
+  // A link into a section switched off in lib/flags.ts (the project pages) shows as plain text
+  if (!href || !isShown(href)) return <h3 className="q-car-title">{title}{when}</h3>;
   const props = { tabIndex: copy ? -1 : undefined };
   return (
     <h3 className="q-car-title">
@@ -269,16 +276,18 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
 
     // How far a card t cards from the middle has slid in behind (wide screens)
     function tuckAt(t: number) {
-      if (t >= 1) return (TUCK + TUCK_NEXT * (t - 1)) * width;
+      const near = FLAT ? TUCK_FLAT : TUCK;
+      const next = FLAT ? TUCK_NEXT_FLAT : TUCK_NEXT;
+      if (t >= 1) return (near + next * (t - 1)) * width;
       if (t <= TUCK_FROM) return 0;
       const u = (t - TUCK_FROM) / (1 - TUCK_FROM);
-      const k = (TUCK_NEXT / TUCK) * (1 - TUCK_FROM); // matches its speed at the side spot
-      return TUCK * width * (u * u * (3 - 2 * u) + k * u * u * (u - 1));
+      const k = (next / near) * (1 - TUCK_FROM); // matches its speed at the side spot
+      return near * width * (u * u * (3 - 2 * u) + k * u * u * (u - 1));
     }
 
     // Phones and tablets: a side card turned in looks closer to the middle one; push it out so the gap looks even
     function faceGap() {
-      if (wide) return 0;
+      if (wide || FLAT) return 0;
       const angle = (step - ((1 - sideScale) * width) / 2) / radius;
       const turn = Math.min(angle, CURVE_TURN_MAX);
       const half = (width * sideScale) / 2;
@@ -301,10 +310,10 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
         scale -= (sideScale - NEXT_SCALE) * Math.min(Math.max(t - 1, 0), 1);
       }
       return {
-        x: radius * Math.sin(angle) - tuck + faceGap() * Math.min(t, 1),
-        z: -radius * (1 - Math.cos(angle)),
+        x: FLAT ? t * step - pull - tuck : radius * Math.sin(angle) - tuck + faceGap() * Math.min(t, 1),
+        z: FLAT ? 0 : -radius * (1 - Math.cos(angle)),
         angle,
-        turn: Math.min(angle, CURVE_TURN_MAX),
+        turn: FLAT ? 0 : Math.min(angle, CURVE_TURN_MAX),
         scale,
       };
     }
@@ -366,7 +375,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
         if (flip) show = clamp01(show * flip.fade);
         const hidden = !show || spot.angle > CURVE_HIDE;
         if (!(hidden && s.hidden)) {
-          const turn = lean + (flip ? edgeOn + (rest - edgeOn) * flip.at : rest);
+          const turn = (FLAT ? 0 : lean) + (flip ? edgeOn + (rest - edgeOn) * flip.at : rest);
           card.style.transform = `translate3d(${dir * spot.x}px, 0, ${spot.z}px) rotateY(${turn}rad) scale(${spot.scale})`;
         }
         if (hidden !== s.hidden) {
@@ -437,14 +446,26 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       lastTime = 0;
       frame = requestAnimationFrame(tick);
     }
+    // The cards turning over on first view is only a show: any click, key, drag or scroll ends it at once and goes
+    // ahead, so nothing is lost while the last cards are still settling
+    function finishIntro() {
+      if (!flipping) return;
+      cancelAnimationFrame(turnFrame);
+      clearTimeout(waitTimer);
+      seen?.disconnect();
+      flipping = null;
+      busy = false;
+      render(true);
+    }
     function moveBy(px: number) {
-      if (busy) return;
+      finishIntro();
       announce = true;
       target += px;
       run();
     }
     function next(direction: number) {
-      if (!step || busy || drag) return;
+      finishIntro();
+      if (!step || drag) return;
       moveBy(centerOf(indexAt(target) + direction) - target);
     }
     // Bring a card to the middle, measured from where the row is drawn now (mid-move, current and target differ)
@@ -520,7 +541,8 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     let dragged = false;
     const onThumb = (e: Event) => !!(e.target as Element).closest(".q-car-media");
     const onDown = (e: PointerEvent) => {
-      if ((e.pointerType === "mouse" && e.button !== 0) || busy || !onThumb(e)) return;
+      if ((e.pointerType === "mouse" && e.button !== 0) || !onThumb(e)) return;
+      finishIntro();
       drag = { x: e.clientX, y: e.clientY, last: e.clientX, time: e.timeStamp, v: 0, axis: null, from: 0 };
       dragged = false;
       addEventListener("pointermove", onMove);
@@ -590,7 +612,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       if (Math.abs(st[i].offset) < 0.5) return; // the middle picture: only its own controls (slideshow arrows) act
       e.preventDefault();
       e.stopPropagation();
-      if (!busy) goTo(i);
+      goTo(i);
     };
     const onDragStart = (e: DragEvent) => {
       if (onThumb(e)) e.preventDefault();
@@ -620,7 +642,8 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     let turnFrame = 0;
     let waitTimer = 0;
     function turn() {
-      flipping!.start = performance.now();
+      if (!flipping) return; // already ended by a click or key
+      flipping.start = performance.now();
       const end = flipping!.start + FLIP_MS + (sides() + 1) * FLIP_STAGGER;
       const turning = (now: number) => {
         flipping!.now = now;

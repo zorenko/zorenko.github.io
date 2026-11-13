@@ -1,13 +1,16 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ExperimentsCanvas } from "@/components/experiments-canvas";
 import { ExperimentPreview } from "@/components/experiments";
 import { LISTED, experimentHref } from "@/content/experiments";
 import { enter } from "@/lib/dom";
+import { SHOW } from "@/lib/flags";
 import { pageMeta } from "@/lib/site";
 
 export const metadata = pageMeta("Experiments", "Small interaction patterns and component ideas, built in the browser.");
 
 export default function Experiments() {
+  if (!SHOW.experiments) notFound(); // switched off in lib/flags.ts
   return (
     <>
       <main className="q q-xp-page" id="q-main">
