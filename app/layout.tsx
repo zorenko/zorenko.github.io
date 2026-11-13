@@ -31,7 +31,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a className="q-skip" href="#q-main">
           Skip to content
         </a>
-        <div className="q-fade" aria-hidden="true" />
         {children}
         <Dock />
       </body>
