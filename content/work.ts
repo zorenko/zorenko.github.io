@@ -69,7 +69,15 @@ export const WORK: WorkItem[] = [
     title: "Celsia",
     description: "An ESG reporting module, from zero to one. Celsia was acquired in 2024.",
     href: "/work/celsia/",
-    media: { type: "image", src: "/assets/img/work/celsia-slide-01.jpg", alt: "Celsia reporting module" },
+    media: {
+      type: "demo",
+      src: "/demos/celsia/index.html",
+      width: 1180,
+      height: 696,
+      title: "Celsia demo: the reporting module, with data input, insights and targets",
+      // The app's light grey, showing while the demo loads
+      background: "#f1f1f3",
+    },
   },
   {
     id: "earlier-work",

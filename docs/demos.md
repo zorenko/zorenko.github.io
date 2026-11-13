@@ -1,13 +1,13 @@
 # Live demos in the work carousel
 
-How to make a clickable demo of a product for the home page carousel, like Visuals' and Muster's. Read this, then read the
+How to make a clickable demo of a product for the home page carousel, like Visuals', Celsia's and Muster's. Read this, then read the
 nearest existing demo: the files are the real reference, this is the map.
 
 ## How the carousel shows a demo
 
 - A slide in `content/work.ts` with `media: { type: "demo", src, width, height, title, background }`.
 - `src` is a static page in `public/demos/<name>/`. The carousel loads it in an iframe drawn at `width` × `height`
-  (1180 × 696 for both demos) and scales it to the card. **Design and check the page at exactly that size.**
+  (1180 × 696 for all of them) and scales it to the card. **Design and check the page at exactly that size.**
 - The iframe is `loading="lazy"`, and `inert` until its card is in the middle, so it can't be clicked from the side.
 - `background` shows while the page loads: use the page's own background so there's no flash.
 - `glass: true` makes the card glass: the demo's page is see-through where it wants the glass, over the card's
@@ -16,12 +16,16 @@ nearest existing demo: the files are the real reference, this is the map.
   Visuals uses it: its page is transparent in `?app`, and its window only tints it.
 - The first slide in `content/work.ts` is the cover: the one in the middle when the page loads.
 - A query string picks how the page shows (`?app`, `?embed`), so one page can serve several framings.
+- `components/demo.tsx` draws the iframe and scales it to its box. The carousel uses it, and so can a project page:
+  pass the slide's `media` from `content/work.ts` to `<Project demo={…}>` (as `app/work/celsia/page.tsx` does), and
+  it shows at the top, wider than the text. Both read the same entry, so there's one place to change a demo.
 
-## The two demos
+## The demos
 
 | Demo | What it is | Framing |
 | --- | --- | --- |
 | `public/demos/visuals/` | Made by hand: about 1,000 lines of plain HTML, CSS and JS, no build. Follows the real app's screens and words. | `?app`: only the app's window, filling the frame (used on the site). No query: a Mac desktop with the window, Safari and the Dock. |
+| `public/demos/celsia/` | Made by hand, like Visuals, from Figma frames and the newer look in the portfolio's screenshots. The app's sidebar moves between pages: a report whose data points open in a sidebar, Home, the Help center, Data input with its guide, a metric's chart, the Pollution topic and a target. | Only the app's window; no query. |
 | `public/demos/muster/` | A copy of the Muster landing page (its own repo). | `?embed`: only the landing page's Mac desktop. Its head comment says how to copy it again. |
 
 Prefer the Visuals approach for a new demo: a product with a landing page can be copied as Muster was, but a hand-made

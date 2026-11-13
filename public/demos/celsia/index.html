@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- The Celsia demo on the portfolio home page (content/work.ts): the reporting module's Preview report, only the app's
+       window. docs/demos.md says how demos like this are made. Made by hand from the Figma file "Celsia app – Concepts 24-25"
+       (the Metrics / Info frame, 2002:41951) in the later look of the portfolio's screenshots (public/assets/img/work/
+       celsia-slide-01.jpg): the light grey app sidebar, the report's table of contents, the report, and the
+       data point sidebar. Data points sit in the report's text: click one, or its paragraph, to open it. ESRS E1's four
+       disclosure requirements have text; the rest of the table of contents shows but isn't in the demo.
+       The other pages follow the Figma file "portfolio - cv" (section 453:10707, screens celsia01–10): Home, the Help center,
+       Data input with its onboarding guide, a metric's chart (Insights), the Pollution topic with its roles, and a target.
+       The app's sidebar moves between them. Everything is in memory: a reload starts over. -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Celsia demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app" data-app>
+  <nav class="rail" aria-label="Celsia" data-rail></nav>
+  <main class="main">
+    <div class="body" data-report>
+      <nav class="toc" aria-label="Report" data-toc></nav>
+      <div class="stage" data-stage></div>
+      <aside class="dp" aria-label="Data point" data-dp hidden></aside>
+    </div>
+    <div class="page" data-page hidden></div>
+  </main>
+  <div class="layer" data-layer></div>
+  <div class="toasts" data-toasts aria-live="polite"></div>
+</div>
+<script src="icons.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
