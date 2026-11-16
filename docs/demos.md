@@ -19,7 +19,19 @@ nearest existing demo: the files are the real reference, this is the map.
   out at 1180 × 753 to fill it. Celsia uses it.
 - The first slide in `content/work.ts` is the cover: the one in the middle when the page loads.
 - A query string picks how the page shows (`?app`, `?embed`), so one page can serve several framings.
-- `components/demo.tsx` draws the iframe and scales it to its box. The carousel uses it, and so can a project page:
+- **Stills and recordings.** A demo shows in steps, so there's always something to see however slow the connection
+  (`components/demo.tsx`): first a still of the demo as it opens (`still.webp`, and `still@2x.webp`, in its folder), then
+  - with a mouse or trackpad, the live demo, fading in over the still once it has drawn;
+  - on a phone or tablet, where a demo this small can't be used, a recording of one round of its walkthrough
+    (`tour.mp4`, H.264, about 1 MB), fetched only when it first plays: in the middle card, or on screen on a project page;
+  - with reduced motion, Save-Data or a 2G connection, only the still.
+
+  `scripts/capture-demos.mjs` makes all three for every demo in `content/work.ts` (its head comment says how to run
+  it). **Take them again whenever a demo's opening screen or its walkthrough changes**: the still must match the page
+  as it opens, or the live demo jumps as it fades in. The recording ends when `walkthrough.js` sends
+  `walkthrough-round` at the end of its last scene, and draws the cursor 2.4 times larger, to read at a phone's scale.
+  A glass demo's stills and recording have its `background` under them.
+- `components/demo.tsx` draws the still, the iframe or the recording, and scales the iframe to its box. The carousel uses it, and so can a project page:
   pass the slide's `media` from `content/work.ts` to `<Project demo={…}>` (as `app/work/celsia/page.tsx` does), and
   it shows at the top, wider than the text. Both read the same entry, so there's one place to change a demo.
 
@@ -96,7 +108,7 @@ desktop around it when the demo needs it, such as a story that crosses apps: a b
      same canvas trick; icons are Lucide's, from `node_modules/lucide-react`.
    - Convert to WebP in headless Chromium (canvas `toDataURL('image/webp', 0.74)`): this Mac's ffmpeg and `sips`
      can't write WebP. Put downloads in their own folder and the scripts elsewhere, outside the repo.
-5. **Add the slide** in `content/work.ts`.
+5. **Add the slide** in `content/work.ts`, then take its stills and recording with `scripts/capture-demos.mjs <name>`.
 
 ## Checking it
 

@@ -17,7 +17,8 @@
    Walkthrough({ name, color, scenes, where, tidy, loop }). `loop: false` is for a demo whose story ends (Sanna: all
    tasks complete): after the last scene the cursor leaves for good, and the demo is the visitor's. The cursor's look is
    here; the hover it gives what it points at (.is-walk-hover) is in each demo's CSS, a twin of each of the demo's own
-   :hover rules.
+   :hover rules. At the end of each round it sends `walkthrough-round` on the window: scripts/capture-demos.mjs records
+   one round, for phones.
 
    "You": in the site's work carousel, the visitor's own pointer over a card's picture or demo is a cursor in the same
    look, named You. components/you-cursor.tsx draws it, once, over the whole card; inside a demo this file hides the
@@ -58,7 +59,9 @@
     if (now - shownAt > 250) { shownAt = now; shown = frame.getBoundingClientRect().width / (frame.offsetWidth || innerWidth) || 1 }
     return shown
   }
-  const cursorScale = () => (frame ? ON_SCREEN / shownScale() : 1)
+  // ?walkscale=2.4 draws it that much larger: scripts/capture-demos.mjs records it for phones, where it's shown small
+  const extra = Number(new URLSearchParams(location.search).get('walkscale')) || 1
+  const cursorScale = () => (frame ? ON_SCREEN / shownScale() : 1) * extra
   // In the carousel, a demo is live only in the middle card: the carousel makes the others inert
   const holder = frame?.closest('.q-demo-frame')
   const centred = () => !holder?.inert
@@ -300,6 +303,8 @@
         }
         scene++
         if (scene === scenes.length) {
+          // For scripts/capture-demos.mjs, which records one round for phones
+          dispatchEvent(new Event('walkthrough-round'))
           if (!loop) { await w.pause(1200); over = true; stop(); return }
           // Round again, after a rest, as if from the start
           await w.pause(rest)

@@ -32,7 +32,10 @@ export function Project({ title, lead, role, demo, intro, shots, next, children 
       {demo && (
         <figure className="q-pdemo" {...enter(2)}>
           <Demo demo={demo} />
-          <figcaption>A live demo: click around</figcaption>
+          <figcaption>
+            <span className="q-pdemo-live">A live demo: click around</span>
+            <span className="q-pdemo-touch">A recording of the demo: open this page on a computer to click around</span>
+          </figcaption>
         </figure>
       )}
       {intro && <div className="q-pbody" {...enter(introAt)}>{intro}</div>}
