@@ -256,7 +256,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     const st: CardState[] = els.map(() => ({ offset: 0 }));
     const info = els.map((el) => el.querySelector<HTMLElement>(".q-car-info"));
     const frames = els.map((el) => el.querySelector<HTMLElement>(".q-demo-frame"));
-    const videos = els.map((el) => el.querySelector("video"));
+    const videos = els.map((el) => el.querySelector<HTMLVideoElement>(".q-car-media > video")); // a demo plays its own recording (demo.tsx)
     const reduce = prefersReducedMotion();
     const n = items.length;
 

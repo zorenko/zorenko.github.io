@@ -488,6 +488,15 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .q-demo { position: relative; overflow: hidden; aspect-ratio: var(--demo-ratio); }
 .q-demo-frame { position: absolute; inset: 0; }
 .q-demo-frame iframe { position: absolute; top: 0; left: 0; border: 0; transform: scale(var(--demo-scale, 0)); transform-origin: 0 0; }
+/* The still shows first; the live demo or the recording fades in over it once it has drawn, and the still goes (a
+   glass demo is see-through over it) */
+.q-demo-frame .q-demo-still,
+.q-demo-frame video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; -webkit-user-drag: none; }
+.q-demo-frame iframe,
+.q-demo-frame video { opacity: 0; transition: opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+.q-demo-frame[data-ready] iframe,
+.q-demo-frame[data-ready] video { opacity: 1; }
+.q-demo-frame[data-ready] .q-demo-still { visibility: hidden; transition: visibility 0s 0.3s; }
 /* A glass demo (media.glass): the demo's page is see-through where it wants the glass, over the box's tint (its
    `background`). The blur only works in some browsers: Chrome doesn't blur the cards behind from inside the carousel's
    3D, so the tint is nearly opaque. The iframe keeps a light color scheme, or a dark page would paint it opaque. */
@@ -500,6 +509,9 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .q-pdemo .q-demo::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06); pointer-events: none; }
 .q-dark .q-pdemo .q-demo::after { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); }
 .q-pdemo figcaption { margin-top: 10px; color: var(--q-muted); }
+/* Live with a mouse or trackpad; elsewhere a recording or a still (demo.tsx), so the caption says so */
+@media (pointer: fine) { .q-pdemo .q-pdemo-touch { display: none; } }
+@media not (pointer: fine) { .q-pdemo .q-pdemo-live { display: none; } }
 .q-pdemo + .q-pbody { margin-top: 48px; }
 
 /* Post body: reads at 14/24 */
@@ -954,7 +966,8 @@ html.q-dark {
 /* Analytics consent (components/consent.tsx): a one-line glass pill, the same height and glass as the dock,
    level with it in the bottom left corner, and shrinking with it on scroll (html[data-dock-mini], set by the dock).
    The answer is a split button: Allow, and a chevron that opens a small menu with Decline.
-   Where there isn't room beside the dock, the pill floats centred above it. */
+   Where there isn't room beside the dock, it folds into a cookie icon in the bottom left corner (mirroring the
+   theme switch on the right), and tapping the icon opens the pill above it. */
 .q-consent {
   position: fixed;
   left: calc(env(safe-area-inset-left, 0px) + 24px);
@@ -1014,10 +1027,42 @@ html[data-dock-mini] .q-consent:not([data-open]) { scale: 0.7; transition-durati
 .v-quiet .q-consent-row:hover { color: var(--dock-fg); }
 .q-consent-row:active { scale: 0.96; }
 .v-quiet .q-consent-row:focus-visible { outline: 2px solid var(--dock-fg); outline-offset: -3px; }
+/* The icon: a one-button island like the theme switch, only shown on narrow screens */
+.q-consent-chip { display: none; }
 @media (max-width: 1000px) {
-  .q-consent { left: 50%; translate: -50% 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); transform-origin: 50% 100%; }
-  /* Shrunk, the dock is 14px shorter, so the pill drops by the same amount to keep the gap */
-  html[data-dock-mini] .q-consent:not([data-open]) { translate: -50% 14px; }
+  .v-quiet .q-consent-chip {
+    all: unset;
+    position: fixed;
+    left: calc(env(safe-area-inset-left, 0px) + 24px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    z-index: 99;
+    display: grid;
+    place-items: center;
+    width: calc(var(--dock-button) + var(--dock-inset) * 2);
+    height: calc(var(--dock-button) + var(--dock-inset) * 2);
+    color: var(--dock-fg);
+    cursor: pointer;
+    transform-origin: 0 100%;
+    scale: 1;
+    transition: scale 340ms cubic-bezier(0.32, 0.72, 0, 1);
+    animation: q-dock-rise 620ms cubic-bezier(0.2, 1.22, 0.32, 1) 400ms backwards;
+  }
+  .q-consent-chip .q-dock-glyph { position: relative; z-index: 1; }
+  .q-consent-chip[aria-expanded="true"] .q-dock-bg { background: var(--dock-glass-thick); }
+  .q-consent-chip:active { scale: 0.95; transition-duration: 100ms; }
+  .v-quiet .q-consent-chip:focus-visible { outline: 2px solid var(--dock-fg); outline-offset: -3px; border-radius: 999px; }
+  html[data-dock-mini] .q-consent-chip[aria-expanded="false"] { scale: 0.7; transition: scale 420ms cubic-bezier(0.65, 0, 0.35, 1); }
+
+  /* The pill opens above the icon, left-aligned with it */
+  .q-consent:not([data-expanded]) { display: none; }
+  .q-consent {
+    left: calc(env(safe-area-inset-left, 0px) + 24px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+    max-width: calc(100vw - 48px);
+    transform-origin: 0 100%;
+    animation: q-consent-menu-in 260ms cubic-bezier(0.34, 1.3, 0.64, 1) backwards; /* not "both", so the glass keeps its blur */
+  }
+  html[data-dock-mini] .q-consent:not([data-open]) { scale: 1; }
 }
 @media (max-width: 360px) {
   .v-quiet .q-consent-text { white-space: normal; }
@@ -1040,6 +1085,6 @@ html.q-dark .q-lb-bg { background: rgb(24 25 28 / 0.85); }
   .reveal { opacity: 1; transform: none; transition: none; }
   .q-thumb img, .q-archive-word, .q-lb-bg, .q-lb-body { transition: none; }
   .q-stage { transition: none; }
-  .q-dock-island, .q-dock-bar.is-entering, .q-dock-panel.is-entering *, .q-theme, .q-theme *, .q-consent, .q-consent * { animation: none !important; transition: none; }
+  .q-dock-island, .q-dock-bar.is-entering, .q-dock-panel.is-entering *, .q-theme, .q-theme *, .q-consent, .q-consent *, .q-consent-chip { animation: none !important; transition: none; }
   .q-cv, .q-cv-hint, .q-views-pill { animation: none; transition: none; }
 }

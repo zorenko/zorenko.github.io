@@ -3,6 +3,8 @@
    To add a slide, add an entry here. Media is one of:
    - demo: a self-contained page in public/demos/<name>/, shown live in an iframe. It's drawn at `width` × `height`
      and scaled to fit the card, so lay it out for that size (the Muster demo's ?embed mode shows only its desk).
+     A still shows first, and on phones and tablets a recording of its walkthrough instead of the live page: both in
+     its folder, made by scripts/capture-demos.mjs (docs/demos.md).
    - image: a still, cropped to the card's shape (1180 × 696) from the top.
    - video: muted and looping; plays only while it's on screen.
    - slides: stills that fade one into the next while the card is on screen, middle or side. In the middle they hold
