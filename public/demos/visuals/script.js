@@ -262,6 +262,8 @@
         dynamic: ['Logo', 'd1'], rays: ['Logo', 'd1'], guide: ['Logo', 'd2'], agu: ['Typography', 'd1'], answer: ['Typography', 'd2'],
         polar: ['Color and texture', 'd1'], cassette: ['Color and texture', 'd1'], sun: ['Color and texture', 'd2'], cyano: ['Color and texture', 'd2'],
         iso: ['Layout', 'd1'], spacefund: ['Layout', 'd1'], achievable: ['Layout', 'd2'], isosite: ['Layout', 'd2'], lines: [FIRST_SECTION, undefined],
+        floesa: [FIRST_SECTION, 'd1'], tapecutter: ['Color and texture', 'd1'],
+        section: [FIRST_SECTION, 'd2'], model: [FIRST_SECTION, 'd2'], thermora: ['Color and texture', 'd2'], cassina: ['Layout', 'd2'],
       }, {
         company: 'A museum of design and architecture in Oslo: drawings, models and posters from 1900 until now. It opens a new building by the fjord in 2027.',
         name: 'Formhuset',
