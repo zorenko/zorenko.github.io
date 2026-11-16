@@ -2396,6 +2396,72 @@
       setScene(asked).then(() => { if (!SHOT) requestAnimationFrame(() => requestAnimationFrame(() => { still = false; document.documentElement.classList.remove('is-still'); })); });
     }
 
+    // ── the walkthrough, on zorenko.github.io only (?embed): Anastasia's cursor goes through the three surfaces, Safari,
+    //    the menu bar and Terminal, and does in each what a visitor would (../walkthrough.js runs it, and gives way to
+    //    the visitor). Each step skips what's done already; a new round starts from a reset demo ──
+    const web$ = sel => () => $(`[data-web-side] ${sel}, [data-web-main] ${sel}`, desk);
+    if (document.documentElement.classList.contains('is-embed') && !SHOT && !new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
+      name: 'Anastasia',
+      color: '#7b4dff',
+      where: () => ({ web: 0, pop: 1, term: 2 })[scene],
+      // Before it carries on: the scene's window or popover open again, if the visitor closed it
+      tidy: async w => {
+        if (scene === 'pop' && pop.classList.contains('is-closed')) { await w.click(toggle); await w.pause(500); }
+        if (scene !== 'pop' && wins[scene].hidden) { await w.click(dockOf(scene)); await w.pause(700); }
+      },
+      scenes: [
+        // Safari: the new skills, sorted in one go; then Health, and a conflict fixed
+        { enter: async w => {
+          if (dirty) { reset(); await w.pause(300); }
+          await w.click(dockOf('web'));
+          await w.pause(600);
+        }, steps: [
+          async w => {
+            if (!unsorted().length) return;
+            await w.click(web$('[data-web="unsorted"]'));
+            await w.pause(1300);
+            await w.click(() => $('[data-web-main] [data-sortall]', desk));
+            await w.pause(1800);
+          },
+          async w => {
+            await w.click(() => $('[data-web-side] [data-web="needs"]', desk));
+            await w.pause(1300);
+            const issue = () => $('[data-web-main] li:not(.is-fixed) .web__btn[data-web^="issue:"]', desk);
+            if (!issue()) return;
+            await w.click(issue);
+            await w.pause(1600);
+            const fix = () => $('[data-web-main] [data-fix]', desk);
+            if (fix()) { await w.show(fix); await w.click(fix); await w.pause(1800); }
+          },
+        ] },
+        // The menu bar: Muster's popover, a folder in it, and back
+        { enter: async w => { await w.click(toggle); await w.pause(700); }, steps: [
+          async w => {
+            const folder = () => $('[data-view] [data-go^="folder:"]', desk);
+            if (!folder()) return;
+            await w.click(folder);
+            await w.pause(1600);
+            await w.click(() => $('[data-view] [data-back]', desk));
+            await w.pause(900);
+          },
+        ] },
+        // Terminal: its check runs by itself; then fix the first one it lists, and say yes
+        { enter: async w => { await w.click(dockOf('term')); await w.pause(900); }, steps: [
+          async w => {
+            await w.until(() => checkedOnce && !busy, 8000);
+            await w.pause(900);
+            const cmd = () => $$('[data-tty-log] [data-run^="muster fix"]', desk).pop();
+            if (!cmd()) return;
+            await w.click(cmd);
+            if (!(await w.until(() => $('[data-run="y"]', promptEl), 6000))) return;
+            await w.pause(1200);
+            await w.click(() => $('[data-run="y"]', promptEl));
+            await w.pause(2200);
+          },
+        ] },
+      ],
+    });
+
     // the menu bar shows the visitor's own day and time, macOS style
     const timeEl = $('[data-desk-time]', desk);
     const tick = () => {

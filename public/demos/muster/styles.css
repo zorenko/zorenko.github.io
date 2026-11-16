@@ -2039,3 +2039,41 @@ html:has(.contact[open]) { overflow: hidden; }
 .is-embed #demo > .wrap { max-width: none; padding: 0; }
 .is-embed .desk { height: 100vh; border-radius: 0; box-shadow: none; }
 .is-embed .desk::after { display: none; }
+
+/* ── the walkthrough (../walkthrough.js draws the cursor): what it points at looks as it does under a pointer. The
+   same rules as each :hover above ── */
+.btn--primary.is-walk-hover:not(:disabled) { filter: brightness(1.04); --lift: .24;}
+.btn--soft.is-walk-hover { background: var(--canvas); --lift: .14;}
+.btn--ghost.is-walk-hover { color: var(--ink);}
+button).is-walk-hover { color: var(--ink); }
+.token.is-walk-hover::before { background: var(--surface-3); }
+.fold__status li.is-walk-hover { z-index: 10;}
+.fold__status li.is-walk-hover .fold__tip { opacity: 1; translate: -50% 0; transition-delay: 80ms;}
+.t-run.is-walk-hover { text-decoration-style: solid; }
+.sbar__btn:not(:disabled).is-walk-hover { background: rgb(0 0 0 / .06); }
+.web__item.is-walk-hover { background: var(--surface-2); }
+.web__crumb-link.is-walk-hover { color: var(--ink); }
+.web__seg button.is-walk-hover { background: var(--surface-2); }
+.web__stats button:not(:disabled).is-walk-hover span { color: var(--ink); }
+.web__btn.is-walk-hover { background: var(--surface-3); }
+.web__btn.is-primary.is-walk-hover { background: var(--accent-mid); }
+.web__btn.is-ghost.is-walk-hover { background: var(--surface-2); color: var(--ink); }
+.web__link.is-walk-hover { text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+.web__bars.is-walk-hover i { opacity: .6; } .web__bars i:hover { opacity: 1; }
+.dock__app.is-walk-hover::before { opacity: 1; transform: translate(-50%, 0); }
+.scene[aria-selected="false"].is-walk-hover { background: var(--surface); } .scene[aria-selected="false"]:hover .scene__body { opacity: 1; }
+.demo__reset.is-walk-hover { background: var(--surface); }
+.web__main)::-webkit-scrollbar-thumb.is-walk-hover { background-color: rgb(0 0 0 / .48);}
+.vbar.is-walk-hover { background-color: rgb(0 0 0 / .48);}
+.vbar.is-light.is-walk-hover { background-color: rgb(255 255 255 / .6);}
+.pv-item:not(:disabled).is-walk-hover { background: rgb(0 0 0 / .07);}
+.pv-back.is-walk-hover { background: rgb(0 0 0 / .07);}
+.pv-btn--dark.is-walk-hover { background: #000;}
+.tok.is-walk-hover::before { background: var(--surface-3);}
+.tok.is-walk-hover .token__icon { scale: 1.1; rotate: calc(var(--r, 0deg) * .75);}
+.turn__seg button.is-walk-hover { color: var(--ink); }
+.qa summary.is-walk-hover i { background: var(--accent-fill); box-shadow: var(--accent-depth); } .qa summary:hover i::before, .qa summary:hover i::after { background: var(--accent-ink); }
+.qa__link.is-walk-hover { color: var(--ink); text-decoration-color: currentColor; }
+.pick.is-walk-hover input:not(:checked) + span { background: var(--surface-2); }
+.footer__col a.is-walk-hover, .footer__link.is-walk-hover, .footer__bottom a.is-walk-hover { color: var(--ink); }
+.contact__close.is-walk-hover { background: var(--surface-2); color: var(--ink); }

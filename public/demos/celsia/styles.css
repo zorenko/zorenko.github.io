@@ -614,3 +614,44 @@ p { margin: 0; }
 .dtab__main td { font-weight: 500; background: var(--bg-muted); }
 .dtab__kid td:first-child { padding-left: 20px; color: var(--muted); }
 .bar__hint { padding: 0 2px 0 4px; color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+/* ── the walkthrough (../walkthrough.js draws the cursor): what it points at looks as it does under a pointer. The
+   same rules as each :hover above ── */
+.rail__item.is-walk-hover { background: var(--bg-hover); }
+.rail__item[data-tip].is-walk-hover::after { content: attr(data-tip); position: absolute; z-index: 20; left: calc(100% + 6px); top: 50%; transform: translateY(-50%); padding: 4px 8px; border-radius: 6px; background: var(--navy); color: #fff; font-size: 12px; line-height: 16px; white-space: nowrap; pointer-events: none; }
+.btn.is-walk-hover { background: var(--bg-hover); }
+.btn--outline.is-walk-hover { background: var(--bg-muted); }
+.btn--ghost-muted.is-walk-hover { background: none; color: var(--text); }
+.iconbtn.is-walk-hover { background: var(--bg-hover); }
+.iconbtn--box.is-walk-hover { background: var(--bg-muted); }
+.toc__row.is-walk-hover { background: var(--bg-hover); }
+.toc__row.is-off.is-walk-hover { background: none; }
+.para.is-walk-hover { background: var(--bg-selected-muted); }
+.v.is-walk-hover { background: #e5e5e5; }
+.dr-link.is-walk-hover { background: var(--bg-hover); }
+.tab.is-walk-hover { color: var(--text); }
+.who.is-walk-hover { background: var(--bg-hover); }
+.menu__item.is-walk-hover { background: var(--bg-hover); }
+.note.is-walk-hover { background: var(--bg-hover); }
+.check.is-walk-hover { background: var(--bg-hover); }
+.btn--primary.is-walk-hover { background: var(--brand-hover); }
+.link.is-walk-hover { color: var(--brand-text); }
+.dd__btn.is-walk-hover { background: var(--bg-hover); }
+.tick.is-walk-hover { background: var(--bg-hover); color: var(--text); }
+.tour.is-walk-hover { box-shadow: inset 0 0 0 1px var(--line-strong), 0 4px 12px rgb(0 0 0 / .06); }
+.tour.is-walk-hover .tour__shot img { transform: translateY(-4px); }
+.qcard.is-walk-hover, .skill.is-walk-hover { box-shadow: inset 0 0 0 1px var(--line-strong), 0 4px 12px rgb(0 0 0 / .06); }
+.skill.is-walk-hover .skill__art .sk { transform: translateY(-2px); }
+.art.is-walk-hover { background: var(--bg-hover); }
+.news.is-walk-hover { background: var(--bg-muted); }
+.emoji.is-walk-hover { background: var(--bg-hover); color: var(--text); }
+.val--edit.is-walk-hover { background: #fff; box-shadow: inset 0 0 0 1px var(--line-strong); }
+.com.is-walk-hover { box-shadow: inset 0 0 0 1px var(--line-strong); }
+.guide__step.is-walk-hover { background: var(--bg-hover); }
+.segbtns button.is-walk-hover { color: var(--text); }
+.pitem.is-walk-hover:not([disabled]) { background: var(--bg-hover); }
+.pill-btn.is-walk-hover .pill { box-shadow: inset 0 0 0 1px currentColor; }
+.dr.is-walk-hover { background: var(--bg-hover); }
+.cline.is-walk-hover { background: var(--bg-hover); }
+.gtable .val--edit.is-walk-hover .ico { opacity: 1; }
+.act-row.is-walk-hover { background: var(--bg-hover); }

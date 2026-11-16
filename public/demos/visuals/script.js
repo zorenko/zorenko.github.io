@@ -1413,6 +1413,140 @@
   let resizeTimer
   addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (S.front === 'app') renderPanel() }, 120) })
 
+  /* ── the walkthrough: Anastasia's cursor goes through the pages in the coach ring's order, and does on each what a
+     visitor would (../walkthrough.js runs it, and gives way to the visitor). Each step finds what it presses when it gets
+     there, and skips what's no longer there to press: a second time round, Sort is gone and the brief is filled ── */
+  const scrollBox = () => $('[data-scroll]', panel)
+  const sideRow = (act, arg) => () => $(`[data-act="${act}"][data-arg="${arg}"]`, side)
+  const answered = (kind) => () => { const a = S.answers[kind]; return Boolean(a && !a.busy && a.shown >= a.text.length) }
+  // The tile nearest the middle of the feed that shows whole, above the bar at the bottom
+  function middleTile() {
+    const box = scrollBox().getBoundingClientRect()
+    const cx = box.left + box.width / 2
+    const cy = box.top + box.height * 0.42
+    let best
+    let near = Infinity
+    for (const t of panel.querySelectorAll('[data-tile]')) {
+      const r = t.getBoundingClientRect()
+      if (r.top < box.top + 8 || r.bottom > box.bottom - 64 || r.height < 60) continue
+      const d = Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy)
+      if (d < near) { near = d; best = t }
+    }
+    return best
+  }
+  // Keeps the brief's field that Generate is writing in view, as it moves down the tab
+  function followBrief(seen) {
+    const box = $('[data-brief]', panel)
+    if (!box) return
+    for (const t of box.querySelectorAll('textarea')) {
+      if (seen.get(t.dataset.q) === t.value) continue
+      seen.set(t.dataset.q, t.value)
+      const below = t.getBoundingClientRect().bottom - (box.getBoundingClientRect().bottom - 24)
+      if (below > 0) box.scrollBy({ top: below + 40, behavior: 'smooth' })
+    }
+  }
+  if (!new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
+    name: 'Anastasia',
+    color: '#7b4dff',
+    // Each page's place in the tour; one that isn't in it sits after the one it's nearest
+    where: () => {
+      if (S.page === 'project') return S.project === 'p1' ? 3 : 3.5
+      if (S.page === 'bucket') return S.bucket === 'b1' ? 4 : 4.5
+      return { pictures: 0, tags: 1, tag: 1.5, colors: 2 }[S.page]
+    },
+    // Before it carries on: back in Visuals, with what the visitor left open closed
+    tidy: async (w) => {
+      if (S.front !== 'app') { await w.click('[data-dock="app"]'); await w.pause(500) }
+      if (S.layer) ACTIONS['close-layer']()
+      if (S.open) { await w.click(() => $('.pv [data-act="close"]', panel)); await w.pause(300) }
+      if (S.sel.size || S.menu || S.sectionMenu || S.commentOpen) {
+        clearSelection(); S.menu = false; S.sectionMenu = false; S.commentOpen = undefined
+        renderPanel()
+      }
+    },
+    scenes: [
+      // All pictures: down the feed a little, Sort the new pictures, then open one and ask Claude Code about it
+      { enter: (w) => w.click(sideRow('page', 'pictures')), steps: [
+        async (w) => {
+          await w.move(scrollBox, { x: 380, y: 260 })
+          await w.scroll(scrollBox, 420)
+          await w.pause(400)
+        },
+        async (w) => {
+          if (!$('[data-act="sort"]', panel)) return
+          await w.click(() => $('[data-act="sort"]', panel))
+          await w.aside(-40, -60)
+          await w.until(() => !S.sorting, 20000)
+          await w.pause(1800)
+        },
+        async (w) => {
+          const tile = middleTile()
+          if (!tile || !(await w.click(tile))) return
+          if (!(await w.until(() => $('.pv', panel), 2000))) return
+          await w.pause(900)
+          if (!(await w.click(() => $('.pv [data-act="send"]:not(:disabled)', panel)))) return
+          await w.aside()
+          await w.until(answered('picture'), 20000)
+          await w.pause(2400)
+          await w.click(() => $('.pv [data-act="close"]', panel))
+        },
+      ] },
+      // Tags: point at a few tags in the graph, then press one and look at its pictures
+      { enter: (w) => w.click(sideRow('page', 'tags')), steps: [
+        async (w) => {
+          const names = allTags().map(([t]) => t)
+          const node = (t) => () => $(`[data-node="${t}"] .gnode__hit`, panel)
+          for (const t of [names[4], names[1]].filter(Boolean)) { await w.hover(node(t)); await w.pause(1200) }
+          const pick = names.slice(1, 6).find((t) => t !== S.tagSel) ?? names[0]
+          if (!pick) return
+          await w.click(node(pick))
+          await w.pause(500)
+          await w.hover(() => $('.split__right [data-tile]', panel))
+          await w.pause(1600)
+        },
+      ] },
+      // Colors: two colors that pictures have
+      { enter: (w) => w.click(sideRow('page', 'colors')), steps: [
+        async (w) => {
+          const keys = [...panel.querySelectorAll('.swatch:not([aria-disabled])')].map((b) => b.dataset.arg).filter((k) => k !== S.colorSel)
+          for (const k of [...new Set([keys[Math.floor(keys.length * 0.6)], keys[Math.floor(keys.length * 0.2)]])].filter(Boolean)) {
+            await w.click(() => $(`.swatch[data-arg="${k}"]`, panel))
+            await w.pause(1500)
+          }
+        },
+      ] },
+      // The brand project: a look at its grid, then Generate fills a tab of the brief that has empty fields
+      { enter: (w) => w.click(sideRow('project', 'p1')), steps: [
+        async (w) => {
+          await w.hover(() => $('.scroll--project [data-tile]', panel))
+          await w.pause(1100)
+        },
+        async (w) => {
+          const pr = projectById('p1')
+          const empty = (tab) => questionsOf(pr, tab).flatMap((x) => x.qs).some((q) => !answersOf(pr, tab)[q.id]?.trim())
+          const tab = [...pr.directions.map((d) => d.id), 'overview', 'constraints'].find(empty)
+          if (!tab) return
+          if (S.briefTab !== tab) { await w.click(() => $(`[data-act="brief-tab"][data-arg="${tab}"]`, panel)); await w.pause(700) }
+          if (!(await w.click(() => $('[data-act="generate"]:not(:disabled)', panel)))) return
+          await w.aside()
+          const seen = new Map()
+          await w.until(() => { followBrief(seen); return !S.gen }, 30000)
+          await w.pause(2000)
+        },
+      ] },
+      // The bucket: ask Claude Code about it, from what each section is for
+      { enter: (w) => w.click(sideRow('bucket', 'b1')), steps: [
+        async (w) => {
+          if ($('[data-act="ask-again"][data-arg="bucket"]', panel)) { await w.click(() => $('[data-act="ask-again"][data-arg="bucket"]', panel)); await w.pause(500) }
+          if (!(await w.click(() => $('[data-act="send"][data-arg="bucket"]:not(:disabled)', panel)))) return
+          await w.aside()
+          await w.until(answered('bucket'), 20000)
+          await w.pause(2800)
+        },
+      ] },
+    ],
+  })
+
   $('[data-menus]').innerHTML = MENUS.app.map((m) => `<span>${m}</span>`).join('')
   tick()
   setInterval(tick, 20000)

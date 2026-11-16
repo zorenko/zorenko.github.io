@@ -597,6 +597,40 @@
   })
   addEventListener('resize', () => { renderShift(); renderTicks(); closePop() })
 
+  /* ── the walkthrough: Anastasia's cursor does the task the coach ring points at, one press at a time, from the
+     timeline to All tasks complete (../walkthrough.js runs it, and gives way to the visitor). Each press reads the
+     demo as it is, so after the visitor's turn it carries on from wherever they left it. The story ends, so the tour
+     does too: then the demo is the visitor's ── */
+  const ANSWER = { q1: 'No', q2: 'Yes' } // q2: the shareholder's loan of the first transaction
+  const LINGER = { 'open-task': 1800, tx: 1500, step: 1000, cat: 800, template: 1000, receipt: 900, send: 900, 'send-hege': 600 }
+  async function nextPress(w) {
+    if (!S.sheet && S.phase === 'done') { await w.hover(() => $('.alldone', tlIn), { x: 40, y: 60 }); await w.pause(2600); return false }
+    if (!S.sheet && S.phase !== 'work') { await w.until(() => S.phase === 'done', 8000); await w.pause(600); return true }
+    if (S.sendingTx || S.sending) { await w.until(() => !S.sendingTx && !S.sending, 4000); return true }
+    const t = S.panel && txById(S.panel)
+    if (t?.uploading) { await w.until(() => !t.uploading, 4000); await w.pause(400); return true }
+    if (S.sent) { await w.pause(1600); await w.click(() => $('.sent-to .cta', sheetCol)); await w.pause(800); return true }
+    // The category menu, open: Customer payment for the one Hege asked about
+    if (t && S.menu) { await w.click(() => $(`[data-act="cat"][data-arg="${t.cat ?? 'sale'}"]`, panel)); await w.pause(LINGER.cat); return true }
+    const ring = $('.is-coach', desk)
+    if (!ring) { await w.pause(400); return true }
+    let target = ring
+    if (ring.matches('.yn')) { const q = ring.closest('[data-q]').dataset.q; target = $(`[data-arg="${q}:${ANSWER[q]}"]`, ring) }
+    else if (!ring.matches('[data-act]')) target = $('[data-act]', ring)
+    await w.show(target)
+    await w.click(target)
+    await w.pause(LINGER[target.dataset.act] ?? 900)
+    return true
+  }
+  if (!new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
+    name: 'Anastasia',
+    color: '#7b4dff',
+    loop: false,
+    where: () => 0,
+    tidy: async () => closePop(),
+    scenes: [{ enter: async () => {}, steps: [async (w) => { for (let n = 0; n < 80 && (await nextPress(w)); n++); }] }],
+  })
+
   tick()
   setInterval(tick, 20000)
   renderTimeline()

@@ -1295,5 +1295,108 @@
     }
   })
 
+  /* ── the walkthrough: Anastasia's cursor goes through the report, Insights, a target, Home and Data input with its
+     guide, and does on each what a visitor would (../walkthrough.js runs it, and gives way to the visitor). Each step
+     finds what it presses when it gets there, and skips what's done: a second time round, the answer is written ── */
+  const railItem = (p) => () => $(`.rail__item[data-arg="${p}"]`, rail)
+  if (!new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
+    name: 'Anastasia',
+    color: '#7b4dff',
+    // Each page's place in the tour; the Help center and Pollution sit after the page they're nearest
+    where: () => ({ report: 0, topic: 0.5, metric: 1, target: 2, home: 3, input: 4, help: 4.5 })[S.page],
+    // Before it carries on: what the visitor left open closed
+    tidy: async (w) => {
+      if (S.editing) finishEdit()
+      if (S.menu) { S.menu = false; renderDp() }
+      if (S.pmenu) { S.pmenu = undefined; renderPage() }
+      if (S.layer === 'chart') { await w.click(() => $('[data-act="close-layer"]', layer)); await w.pause(300) }
+    },
+    scenes: [
+      // The report: a target in the text, with its minimum disclosure; then a paragraph whose answer is written from
+      // the subsidiaries' answers, and put in the report
+      { enter: (w) => w.click(railItem('report')), steps: [
+        async (w) => {
+          if (S.report !== 'e1-4') { await w.click(() => $('[data-act="report"][data-arg="e1-4"]', toc)); await w.pause(900) }
+          await w.click(() => $('.v[data-v="t-s1"]', stage))
+          await w.pause(1600)
+          await w.click(() => $('[data-act="tab"][data-arg="mdr"]', dpEl))
+          await w.pause(700)
+          const box = () => $('.check[aria-checked="false"]', dpEl)
+          if (box()) { await w.show(box); await w.click(box); await w.pause(1200) }
+        },
+        async (w) => {
+          if (S.report !== 'e1-4' || S.sums['e14-how']) return
+          await w.click(() => $('[data-para="e14-how"]', stage), { x: 60, y: 30 })
+          await w.pause(900)
+          const write = () => $('[data-write]', dpEl)
+          if (!(await w.show(write))) return
+          await w.pause(300)
+          if (!(await w.click(write))) return
+          // Out of the sidebar, so its name doesn't sit over the answer being written
+          await w.aside(-250, 10)
+          await w.until(() => S.sums['e14-how'] && !S.sums['e14-how'].busy, 20000)
+          await w.pause(1400)
+          const use = () => $('[data-act="use-sum"]', dpEl)
+          await w.show(use)
+          if (await w.click(use)) await w.pause(2200)
+        },
+      ] },
+      // Insights: the year instead of the quarter, then a country off and on again
+      { enter: (w) => w.click(railItem('metric')), steps: [
+        async (w) => {
+          const range = S.met.range === '1y' ? '5y' : '1y'
+          await w.click(() => $(`[data-act="met-range"][data-arg="${range}"]`, pageEl))
+          await w.pause(1600)
+          const dk = () => $('[data-act="met-c"][data-arg="dk"]', pageEl)
+          await w.show(dk)
+          await w.click(dk)
+          await w.pause(1300)
+          await w.click(dk)
+          await w.pause(900)
+        },
+      ] },
+      // A target: link an action, then up to the chart, where its estimated impact moves
+      { enter: (w) => w.click(railItem('target')), steps: [
+        async (w) => {
+          const act = () => $('.act-row[aria-checked="false"]', pageEl)
+          if (!act()) return
+          await w.show(act)
+          await w.click(act)
+          await w.pause(1600)
+          await w.scroll(pageEl, -pageEl.scrollTop)
+          await w.hover(() => $('.tg-chart', pageEl), { x: 360, y: 90 })
+          await w.pause(1600)
+        },
+      ] },
+      // Home: a to-do ticked off
+      { enter: (w) => w.click(railItem('home')), steps: [
+        async (w) => {
+          const todo = () => $('[data-act="todo"][aria-checked="false"]:not([data-arg="tour"])', pageEl)
+          if (todo()) { await w.click(todo); await w.pause(1000) }
+          await w.hover(() => $('[data-act="tour"]', pageEl))
+          await w.pause(500)
+        },
+      ] },
+      // Data input, from Home's product tour: its guide, two steps on, then hidden, and a row opened
+      { enter: async (w) => {
+        if (S.page !== 'home') { await w.click(railItem('home')); await w.pause(700) }
+        await w.click(() => $('[data-act="tour"]', pageEl))
+      }, steps: [
+        async (w) => {
+          if (S.layer !== 'guide') { await w.click(() => $('[data-act="guide-open"]', pageEl)); await w.pause(800) }
+          for (let i = 0; i < 2; i++) {
+            await w.pause(1600)
+            await w.click(() => $('[data-act="guide-step"][data-arg="1"]', layer))
+          }
+          await w.pause(1600)
+          await w.click(() => $('[data-act="guide-hide"]', layer))
+          await w.pause(800)
+          const row = () => $('[data-act="inp-open"][aria-expanded="false"]', pageEl)
+          if (row()) { await w.click(row); await w.pause(1400) }
+        },
+      ] },
+    ],
+  })
+
   renderAll()
 })()
