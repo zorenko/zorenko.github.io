@@ -448,9 +448,11 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       leanFrom(f);
       render();
       frame = current === target && !lean ? 0 : requestAnimationFrame(tick);
+      root.classList.toggle("is-still", !frame);
     }
     function run() {
       if (frame) return;
+      root.classList.remove("is-still");
       lastTime = 0;
       frame = requestAnimationFrame(tick);
     }

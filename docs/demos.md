@@ -28,7 +28,7 @@ nearest existing demo: the files are the real reference, this is the map.
 | Demo | What it is | Framing |
 | --- | --- | --- |
 | `public/demos/visuals/` | Made by hand: about 1,000 lines of plain HTML, CSS and JS, no build. Follows the real app's screens and words. | `?app`: only the app's window, filling the frame (used on the site). No query: a Mac desktop with the window, Safari and the Dock. |
-| `public/demos/celsia/` | Made by hand, like Visuals, from Figma frames (some only concepts), rebranded away from the production app because the work is under NDA: shadcn/ui's look in black and white with orange as the one brand colour, Geist, Lucide icons, and skeuomorphic icons in the sidebar and on Home. The app's sidebar moves between pages: a report whose data points open in a sidebar, Home, the Help center, Data input with its guide, a metric's chart, the Pollution topic and a target. The guide's pictures follow the Figma concept's onboarding, redrawn as crops of the demo's own screens on an orange panel. | Only the app's window. `?glass`: see-through around its panel, for a glass card (no longer used: the site shows it at 1180 × 753 in a browser window). |
+| `public/demos/celsia/` | Made by hand, like Visuals, from Figma frames (some only concepts), rebranded away from the production app because the work is under NDA, and simplified so anyone can follow it: plain words instead of the standards' codes, none of the production app's specialist set-up (disclosure checklists, table blocks), and a made-up company, Northfield. Dark, in soft greys with one pale lemon accent, Geist, Lucide icons, and skeuomorphic icons in the sidebar and on Home. It starts at Home; the app's sidebar moves between Home, Data input with its guide, a report whose numbers and texts open in a sidebar, Insights, the Pollution topic, a target and the Help center. The guide's and the tour's pictures are crops of the demo's own screens on a dotted dark panel: take them again when the screens change. | Only the app's window. `?glass`: see-through around its panel, for a glass card (no longer used: the site shows it at 1180 × 753 in a browser window). |
 | `public/demos/sanna/` | Made by hand like Visuals, from Sanna's screens in Figma (no repo to run): the timeline, a task with Hege's panel, All tasks complete. The flow between the screens is made up. | No query: a Mac desktop with Sanna's web app in Safari (used on the site). `?app`: only the app. |
 | `public/demos/muster/` | A copy of the Muster landing page (its own repo). | `?embed`: only the landing page's Mac desktop. Its head comment says how to copy it again. |
 
@@ -58,9 +58,9 @@ desktop around it when the demo needs it, such as a story that crosses apps: a b
      - a fake wait (`wait(ms)`, shortened with reduced motion) stands in for the app's real work, such as Claude
        answering; streamed answers are written a few characters at a time;
      - the walkthrough (every demo): Anastasia's cursor, a multiplayer one, goes through the pages and does on each
-       what a visitor would (Visuals: Sort, Ask, the tag graph, Colors (beige, then blue), Generate; Celsia: a target's disclosure, an
-       answer written from the subsidiaries, Insights, a target's actions, Home and the data input guide; Sanna: the
-       task, press by press (`nextTarget`); Muster: Sort and a fix in Safari, a folder in the menu bar, a
+       what a visitor would (Visuals: Sort, Ask, the tag graph, Colors (beige, then blue), Generate; Celsia: Home, the data
+       input guide, a target in the report, an answer written from the companies' answers, Insights and a target's
+       actions; Sanna: the task, press by press (`nextTarget`); Muster: Sort and a fix in Safari, a folder in the menu bar, a
        fix in Terminal). Visuals, Celsia and Muster go round again (Muster resets its demo first); Sanna's story ends
        at All tasks complete, so its tour does too (`loop: false`). The cursor shows the way, so no demo has a ring
        or highlight on what to press next (the coach rings were taken out).
