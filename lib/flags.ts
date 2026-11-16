@@ -9,6 +9,11 @@ export const SHOW = {
   experiments: false,
   /** Project pages: /work/sanna/, /work/celsia/, /work/earlier-work/. Off, the carousel titles don't link */
   projectPages: false,
+  /** Personal: the Personal section at the bottom of the About page */
+  personal: false,
+  /** How I work's Branding and Growth tabs. With both off, only Product shows, without the tab switcher */
+  branding: false,
+  growth: false,
 };
 
 /** Whether a link on the site leads somewhere that's shown. Links outside the flagged sections always do. */

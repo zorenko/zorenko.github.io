@@ -527,6 +527,7 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .q-ts-tabs button:active { transform: scale(0.96); }
 .v-quiet .q-ts-tabs button:focus-visible { outline: 2px solid var(--q-title); outline-offset: 2px; }
 .q-ts-panel { margin-top: 24px; }
+.q-ts-panel--solo { margin-top: 0; } /* no tab bar or intro above: the steps sit 40px under the page intro */
 .q-ts-panel:focus-visible { outline: none; }
 .v-quiet .q-ts-intro { max-width: 34em; line-height: 24px; color: var(--q-muted); }
 /* After the first switch, the incoming panel's steps fade up one after another instead of replaying the page entrance */
@@ -582,7 +583,8 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .q-ts-tools { display: flex; flex-direction: column; gap: 12px; margin-top: 16px !important; list-style: none; }
 .q-ts-tool { display: grid; grid-template-columns: 148px minmax(0, 1fr) auto; align-items: baseline; gap: 4px 16px; line-height: 24px; }
 .q-ts-note { color: var(--q-muted); }
-.q-ts-name { min-width: 0; }
+.q-ts-name { min-width: 0; padding-left: 30px; }
+.q-ts-name .q-ts-icon { margin-left: -30px; } /* a hanging icon: a name that wraps ("Google Analytics") lines up under its first word */
 /* App icon, or a letter tile when there isn't one. The inset hairline keeps white icons visible on white. */
 .q-ts-icon { display: inline-grid; place-items: center; width: 20px; margin-right: 10px; vertical-align: top; height: 20px; border-radius: 5px; background: var(--q-soft); color: var(--q-muted); font-size: 11px; font-weight: 500; line-height: 1; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); object-fit: cover; }
 img.q-ts-icon { box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.12); }

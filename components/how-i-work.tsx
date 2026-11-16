@@ -4,7 +4,8 @@
    Arrow keys, Home and End move between tabs; the choice is kept in the URL (#branding, #growth) so a tab
    can be linked to. Panel ids are prefixed so the hash never scrolls the page.
    Each step is one row (number, name, its tools' icons, how many posts are about it) that opens to show the
-   tools and those posts. */
+   tools and those posts.
+   With only one tab (the others switched off in lib/flags.ts) there's nothing to switch: no tab bar and no tab intro, just its steps. */
 
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState } from "react";
@@ -40,13 +41,21 @@ function ToolIcon({ tool, row = false }: { tool: Tool; row?: boolean }) {
   );
 }
 
-function Panel({ tab, hidden, postsByStep }: { tab: Tab; hidden: boolean; postsByStep: Record<string, Post[]> }) {
+function Panel({ tab, hidden, tabbed, postsByStep }: { tab: Tab; hidden: boolean; tabbed: boolean; postsByStep: Record<string, Post[]> }) {
   const [open, setOpen] = useState<boolean[]>(() => tab.steps.map(() => false));
   const allOpen = open.every(Boolean);
 
   return (
-    <section className="q-ts-panel" id={`q-ts-${tab.id}`} role="tabpanel" aria-labelledby={`q-ts-tab-${tab.id}`} tabIndex={0} data-enter="" style={cssVars({ "--i": 3 })} hidden={hidden}>
-      <p className="q-ts-intro">{tab.intro}</p>
+    <section
+      className={tabbed ? "q-ts-panel" : "q-ts-panel q-ts-panel--solo"}
+      id={`q-ts-${tab.id}`}
+      {...(tabbed ? { role: "tabpanel", "aria-labelledby": `q-ts-tab-${tab.id}`, tabIndex: 0 } : { "aria-label": tab.label })}
+      data-enter=""
+      style={cssVars({ "--i": 3 })}
+      hidden={hidden}
+    >
+      {/* The tab's one-line intro says what the tab is about; with no tabs the page's own intro covers it */}
+      {tabbed && <p className="q-ts-intro">{tab.intro}</p>}
       <ol className="q-ts" role="list" aria-label={`${tab.label} process`}>
         {tab.steps.map((step, k) => {
           const id = `q-ts-${tab.id}-${stepSlug(step.name)}`;
@@ -131,6 +140,8 @@ export function StackTabs({ tabs, postsByStep }: { tabs: Tab[]; postsByStep: Rec
     return () => removeEventListener("hashchange", fromHash);
   }, [tabs]);
 
+  if (tabs.length === 1) return <Panel tab={tabs[0]} hidden={false} tabbed={false} postsByStep={postsByStep} />;
+
   return (
     <>
       <div
@@ -173,7 +184,7 @@ export function StackTabs({ tabs, postsByStep }: { tabs: Tab[]; postsByStep: Rec
       </div>
       {tabs.map((t, i) => (
         <Fragment key={t.id}>
-          <Panel tab={t} hidden={i !== selected} postsByStep={postsByStep} />
+          <Panel tab={t} hidden={i !== selected} tabbed postsByStep={postsByStep} />
         </Fragment>
       ))}
     </>
