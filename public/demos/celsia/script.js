@@ -10,7 +10,7 @@
   const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 40) : ms))
 
   /* The progress bars' pixel grid (styles.css .progress__bar), drawn in whole device pixels at the size the page is
-     really shown: the site scales the demo down to fit a card, and a 4px grid at 0.68× lands cells and gaps on
+     really shown: the site scales the demo down to fit a card, and a 3px grid at 0.68× lands cells and gaps on
      fractions of a pixel, so some gaps vanish and the rows look uneven. Here every cell and gap is the same whole number
      of device pixels. Checked again now and then, since the card's size changes with the window. */
   const DITHER = [[0, 0], [2, 0], [3, 0], [6, 0], [1, 1], [2, 1], [4, 1], [8, 1], [0, 2], [1, 2], [3, 2], [5, 2]] // [column, row]: the scatter after a bar's fill, thinning out
@@ -21,7 +21,7 @@
     const k = scale * devicePixelRatio
     if (Math.abs(k - gridK) < 0.01) return
     gridK = k
-    const pitch = Math.max(3, Math.round(4 * k)), gap = Math.max(1, Math.round(k)), cell = pitch - gap
+    const pitch = Math.max(2, Math.round(3 * k)), gap = Math.max(1, Math.round(k)), cell = pitch - gap // 2px cells on a 3px grid at 1×
     const svg = (w, h, rects) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${rects}</svg>`)}")`
     const rect = ([c, r]) => `<rect x='${c * pitch}' y='${r * pitch}' width='${cell}' height='${cell}'/>`
     const st = document.documentElement.style
@@ -29,7 +29,65 @@
     st.setProperty('--dither', svg(10 * pitch, 3 * pitch, DITHER.map(rect).join('')))
     st.setProperty('--pitch', `${pitch / k}px`)
     st.setProperty('--bar-h', `${(3 * pitch - gap) / k}px`)
+    requestAnimationFrame(() => findPanels(true))
   }
+
+  /* The picture panels (.gart in the guide, .tour__shot on Home and Help) are a halftone of styles.css's --panel
+     gradient, like print: a grid of dots on near-white, each as big as the gradient is dark there and in its colour,
+     deepened. Drawn on a canvas in whole device pixels for each panel's size (again when it changes, or the scale
+     does); --panel stays underneath as the fallback. */
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
+  const mix = (a, b, t) => a.map((x, i) => x + (b[i] - x) * t)
+  const clamp01 = (x) => Math.max(0, Math.min(1, x))
+  const P_FROM = hex('#e6ebf6'), P_TO = hex('#ccd7f2'), P_INDIGO = hex('#b4bbf7'), P_LIGHT = hex('#fbfcfe'), P_PAPER = '#fafbfd'
+  // --panel's colour at (u, v), 0–1 across and down: the 135° base, the indigo glow at the bottom left, the light at the top right
+  function panelColor(u, v, W, H) {
+    let c = mix(P_FROM, P_TO, clamp01((u * W + v * H) / (W + H)))
+    c = mix(c, P_INDIGO, clamp01(1 - Math.hypot(u / 0.9, (v - 1) / 1.2) / 0.65))
+    return mix(c, P_LIGHT, clamp01(1 - Math.hypot((u - 1) / 0.8, v / 1.1) / 0.6))
+  }
+  const noise = (x, y) => { const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return n - Math.floor(n) } // the same speckle every time
+  const panelCache = new Map()
+  function paintPanel(el) {
+    const W = el.offsetWidth, H = el.offsetHeight, k = gridK || devicePixelRatio
+    if (!W || !H) return
+    const key = `${W}x${H}@${k.toFixed(3)}`
+    if (el.dataset.panel === key) return
+    el.dataset.panel = key
+    let url = panelCache.get(key)
+    if (!url) {
+      const pw = Math.round(W * k), ph = Math.round(H * k), pitch = Math.max(2, Math.round(3 * k))
+      const cv = document.createElement('canvas'), g = cv.getContext('2d')
+      cv.width = pw; cv.height = ph
+      g.fillStyle = P_PAPER; g.fillRect(0, 0, pw, ph)
+      const dots = []; let lo = 1, hi = 0
+      for (let y = pitch / 2; y < ph; y += pitch) for (let x = pitch / 2; x < pw; x += pitch) {
+        const c = panelColor(x / pw, y / ph, W, H), d = 1 - (c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11) / 255
+        dots.push([x, y, c, d]); lo = Math.min(lo, d); hi = Math.max(hi, d)
+      }
+      for (const [x, y, c, d] of dots) {
+        // spread over this panel's range, so the lightest corner keeps the finest dots and the darkest stays open
+        const t = 0.05 + 0.6 * clamp01((d - lo) / (hi - lo || 1) + (noise(x, y) - 0.5) * 0.14)
+        g.fillStyle = `rgb(${c.map((v) => Math.round(Math.max(0, v - 1.1 * (255 - v)))).join(' ')})`
+        g.beginPath(); g.arc(x, y, (pitch / 2) * Math.sqrt(t) * 1.05, 0, Math.PI * 2); g.fill()
+      }
+      url = cv.toDataURL()
+      panelCache.set(key, url)
+    }
+    el.style.background = `url(${url}) 0 0 / ${W}px ${H}px no-repeat`
+  }
+  const panelSizes = new ResizeObserver((entries) => entries.forEach((e) => paintPanel(e.target)))
+  const watched = new WeakSet()
+  function findPanels(all) {
+    document.querySelectorAll('.gart, .tour__shot').forEach((el) => {
+      if (!watched.has(el)) { watched.add(el); panelSizes.observe(el) }
+      if (all) paintPanel(el)
+    })
+  }
+  let panelsQueued = false
+  new MutationObserver(() => { if (panelsQueued) return; panelsQueued = true; requestAnimationFrame(() => { panelsQueued = false; findPanels() }) })
+    .observe(document.body, { childList: true, subtree: true })
+
   sizeGrid()
   addEventListener('resize', sizeGrid)
   setInterval(sizeGrid, 1000)
@@ -264,8 +322,7 @@
       <button type="button" class="rail__logo" data-act="go" data-arg="home" aria-label="Celsia, home"><img src="assets/logo.svg" alt="" width="26" height="26" /></button>
       ${RAIL.map(item).join('')}
       <span class="rail__gap"></span>
-      ${RAIL_END.map(item).join('')}
-      <span class="rail__avatar">${avatar(ME, true)}</span>`
+      ${RAIL_END.map(item).join('')}`
   }
 
   /* ── the table of contents ── */
@@ -295,7 +352,6 @@
     const link = (rep, dir) => rep ? `<button type="button" class="dr-link dr-link--${dir}" data-act="report" data-arg="${rep.id}">${dir === 'prev' ? icon('arrow-narrow-left') : ''}<div><small>${dir === 'prev' ? 'Previous' : 'Next'}</small><span>${esc(rep.title)}</span></div>${dir === 'next' ? icon('arrow-narrow-right') : ''}</button>` : '<span></span>'
     stage.innerHTML = `
       <article class="paper ${enter ? 'is-in' : ''}" data-paper>
-        <p class="paper__kicker">Climate</p>
         <h1 class="paper__title">${esc(r.title)}</h1>
         <div class="parent">
           ${Object.keys(r.paras).map((pid) => `
@@ -707,7 +763,6 @@
   }
   PAGES.input = () => `
     <div class="wrap">
-      <p class="kicker">Climate</p>
       <h1 class="h1">Greenhouse gas emissions, 2023</h1>
       <div class="toolbar">
         <label class="search">${icon('search')}<input type="search" data-inp-q value="${esc(S.inp.q ?? '')}" placeholder="Search" aria-label="Search data points" /></label>
@@ -905,7 +960,6 @@
     const mine = COMPANIES.flatMap((c) => c.people.filter((p) => p.who === ME).flatMap((p) => p.tasks.map(([n, r], i) => ({ k: `${p.id}:${i}`, n, r, c: c.name }))))
     return `
     <div class="wrap">
-      <p class="kicker">Report 2023</p>
       <h1 class="h1">Pollution</h1>
       <div class="facts">
         <div class="fact"><span class="fact__k">Done</span><span class="fact__v">${ring(pct)}${pct}%</span></div>
@@ -956,7 +1010,7 @@
     const rows = [[2023, t.base, 'base', 'Start'], ...t.miles.map(([yr, v], i) => [yr, v, `m${i}`, i === t.miles.length - 1 ? 'Goal' : ''])]
     return `
     <div class="wrap">
-      <div class="tg-head"><div><p class="kicker">Target</p><h1 class="h1 h1--tight">Reduce air pollution from our plants</h1><p class="muted">From 200 to 40 tonnes a year by 2050</p></div></div>
+      <div class="tg-head"><div><h1 class="h1 h1--tight">Reduce air pollution from our plants</h1><p class="muted">From 200 to 40 tonnes a year by 2050</p></div></div>
       <div class="tg-chart">${tgtChart(576, 210)}</div>
       <div class="tg-legend">${legend.map(([k, n, c]) => `<button type="button" class="key ${sh[k] ? '' : 'is-off'}" style="--c:${c}" role="checkbox" aria-checked="${sh[k]}" data-act="tgt-show" data-arg="${k}"><i class="key--${k}"></i>${n}</button>`).join('')}</div>
       <ol class="steps">
