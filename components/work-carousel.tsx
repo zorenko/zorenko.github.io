@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from "react";
 import type { WorkItem } from "@/content/work";
 import { Browser } from "./browser";
 import { Demo } from "./demo";
+import { YouCursor } from "./you-cursor";
 import { prefersReducedMotion } from "@/lib/dom";
 
 // Spring snap: pulled toward where it's heading, overshooting a little and settling
@@ -726,6 +727,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
         ))}
       </div>
       <p className="q-sr" aria-live="polite" ref={liveRef} />
+      <YouCursor />
     </section>
   );
 }

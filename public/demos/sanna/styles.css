@@ -416,3 +416,20 @@ button.dock__app:active .ai { filter: brightness(.7); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ── the walkthrough (../walkthrough.js draws the cursor): what it points at looks as it does under a pointer. The
+   same rules as each :hover above ── */
+button.sbar__btn.is-walk-hover:not(:disabled) { background: rgb(0 0 0 / .06); }
+.dock__app.is-walk-hover::before { opacity: 1; transform: translate(-50%, 0); }
+[data-tip].is-walk-hover::before { opacity: 1; transform: translate(0, -50%); }
+.ibtn.is-walk-hover, .tbtn.is-walk-hover { background: #f6efe8; }
+.doc.is-walk-hover { background: #f8f1e4; }
+.xbtn.is-walk-hover { background: rgb(47 22 2 / .05); }
+.cont.is-walk-hover { background: rgb(47 22 2 / .04); color: var(--stone-800); }
+.go.is-walk-hover { background: #faf8f5; }
+.yn button.is-walk-hover { color: var(--stone-800); }
+.cta.is-walk-hover { background: #e25600; }
+.field.is-walk-hover { border-color: #d4d0cb; }
+.need button.is-walk-hover { text-decoration: underline; text-underline-offset: 2px; }
+.menu button.is-walk-hover { background: #f5f2ee; }
+.file .rm.is-walk-hover { background: #f1ede7; }

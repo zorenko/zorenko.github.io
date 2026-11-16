@@ -3,7 +3,9 @@
 <head>
   <!-- A copy of the Muster landing page (musteryourskills.com, from the landing repo) for the demo on the portfolio home page, opened with ?embed.
        Analytics and the variants switcher are left out. To update it, copy index.html, styles.css, script.js and assets/ again
-       and reapply: the ?embed line in the first script, no PostHog block, no variants.js, and the embed block at the end of styles.css. -->
+       and reapply: the ?embed line in the first script, no PostHog block, no variants.js, the embed block at the end of styles.css, and
+       the walkthrough (../walkthrough.js before script.js, its scenes after the ?try block in script.js, and the .is-walk-hover twins
+       at the end of styles.css). -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Muster your skills for Claude Code and Codex</title>
@@ -865,6 +867,7 @@
 </dialog>
 
 <script src="assets/token.js" defer></script>
+<script src="../walkthrough.js" defer></script>
 <script src="script.js" defer></script>
 </body>
 </html>
