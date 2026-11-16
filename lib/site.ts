@@ -2,7 +2,6 @@ export const SITE_URL = "https://zorenko.github.io";
 export const NAME = "Anastasia Zorenko";
 export const EMAIL = "zorenkoa@gmail.com";
 export const LINKEDIN = "https://www.linkedin.com/in/anastasiazorenko/";
-export const GITHUB = "https://github.com/zorenko";
 export const OG_IMAGE = "/assets/img/work/celsia-slide-01.jpg";
 /** Google Tag Manager container ID ("GTM-…"); Google Analytics is set up inside the container. Empty turns analytics and the cookie banner off. */
 export const GTM_ID = "GTM-PJ7ZHZNP";
