@@ -19,6 +19,7 @@ import Link from "next/link";
 import { isShown } from "@/lib/flags";
 import { useEffect, useRef, useState } from "react";
 import type { WorkItem } from "@/content/work";
+import { Browser } from "./browser";
 import { Demo } from "./demo";
 import { prefersReducedMotion } from "@/lib/dom";
 
@@ -171,27 +172,7 @@ function Slides({ media: { slides, browser }, alt, copy }: { media: SlidesMedia;
     </div>
   );
   if (!browser) return pictures;
-  const url = slides[at].url ?? "";
-  const slash = url.indexOf("/");
-  return (
-    <div className="q-car-desk" style={{ background: browser.background }}>
-      <div className="q-car-win">
-        <div className="q-car-sbar" aria-hidden="true">
-          <span className="q-car-lights"><i /><i /><i /></span>
-          <i className="q-car-ico q-car-ico--side" />
-          <span className="q-car-nav"><i /><i /></span>
-          <span className="q-car-url">
-            {slash < 0 ? url : url.slice(0, slash)}
-            {slash >= 0 && <span>{url.slice(slash)}</span>}
-            <i className="q-car-ico q-car-ico--reload" />
-          </span>
-          <span className="q-car-tools"><i className="q-car-ico q-car-ico--share" /><i className="q-car-ico q-car-ico--plus" /><i className="q-car-ico q-car-ico--tabs" /></span>
-        </div>
-        {pictures}
-      </div>
-      {arrows}
-    </div>
-  );
+  return <Browser background={browser.background} url={slides[at].url ?? ""} around={arrows}>{pictures}</Browser>;
 }
 
 function Media({ item, copy }: { item: WorkItem; copy: boolean }) {

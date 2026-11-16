@@ -366,7 +366,7 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
   background: #fff;
   box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.25), 0 calc(28 * var(--u)) calc(70 * var(--u)) calc(-18 * var(--u)) rgb(30 42 58 / 0.28); /* cool slate, to suit the steel wallpaper */
 }
-.q-car-win .q-car-slides { position: relative; flex: 1; min-height: 0; }
+.q-car-win .q-car-slides, .q-car-win .q-demo-frame { position: relative; flex: 1; min-height: 0; }
 .q-car-sbar { flex: none; display: flex; align-items: center; gap: calc(14 * var(--u)); height: calc(44 * var(--u)); padding: 0 calc(14 * var(--u)); background: #f6f6f6; border-bottom: 1px solid rgb(0 0 0 / 0.1); color: #6e6e73; }
 .q-car-lights { display: flex; gap: calc(8 * var(--u)); margin-right: calc(4 * var(--u)); }
 .q-car-lights i { width: calc(12 * var(--u)); height: calc(12 * var(--u)); border-radius: 50%; background: #ff5f57; }

@@ -11,11 +11,13 @@
      background, its address bar showing each slide's `url`; without, they fill the card, cropped like an image.
    A demo can set `background`, shown while it loads, and `glass`: the demo's page is see-through where it wants the
    glass (Visuals' sidebar), so `background` stays under it as a tint that the side cards show through faintly.
+   With `browser`, a demo shows in the same Safari window on that background as the slides, its address bar showing
+   `url`. The window's page is 902 × 576 in the card's 1180ths, so lay the demo out at 1180 × 753 to fill it.
    `href` links the title (only the title: the picture doesn't link). Links starting with http open in a new tab.
    `year` shows after the title, after a middle dot: the same years as the project's page, where it has one. */
 
 export type WorkMedia =
-  | { type: "demo"; src: string; width: number; height: number; title: string; background?: string; glass?: boolean }
+  | { type: "demo"; src: string; width: number; height: number; title: string; background?: string; glass?: boolean; browser?: { background: string; url: string } }
   | { type: "image"; src: string; alt: string }
   | { type: "video"; src: string; poster?: string }
   | { type: "slides"; slides: { src: string; url?: string }[]; alt: string; browser?: { background: string } };
@@ -57,14 +59,17 @@ export const WORK: WorkItem[] = [
     href: "/work/celsia/",
     media: {
       type: "demo",
-      src: "/demos/celsia/index.html?glass",
+      src: "/demos/celsia/index.html",
+      // In a Safari window like the earlier work's, so laid out at the window page's shape (902 × 576)
       width: 1180,
-      height: 696,
+      height: 753,
       title: "Celsia demo: the reporting module, with data input, insights and targets",
-      // The app's off-white as frosted glass: the page is see-through around its white panel, and this tint, a little
-      // see-through, is blurred over whatever is behind the card
-      glass: true,
-      background: "linear-gradient(135deg, rgb(252 251 250 / 0.78), rgb(244 244 245 / 0.72))",
+      browser: {
+        url: "app.celsia.io",
+        // A sage wallpaper, for sustainability: near-white at the top left, soft eucalyptus at the bottom right
+        background:
+          "radial-gradient(70% 90% at 0% 0%, #fbfcf9 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #eef3ec 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #c9d8cb 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #e3ebe2 0%, transparent 70%), linear-gradient(135deg, #f4f7f2, #dbe5da)",
+      },
     },
   },
   {

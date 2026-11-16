@@ -24,7 +24,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
 /* ?glass (index.html): the off-white frame around the panel is see-through, and the site's card under it gives the
-   frosted tint and blur (content/work.ts, glass) */
+   frosted tint and blur (content/work.ts, glass; no longer used: the site shows it in a browser window) */
 .is-glass, .is-glass body { background: transparent; }
 body { overflow: hidden; background: var(--bg-app); font: 400 13px/1.4 var(--f); color: var(--text); -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; margin: 0; }
