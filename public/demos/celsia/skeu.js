@@ -1,6 +1,6 @@
 /* The demo's skeuomorphic icons, drawn by hand for the app's sidebar and the Home page (the rest of the app uses
    Lucide's line icons, icons.js). After the folder and file icons in kubilayss's project panel
-   (x.com/kubilayss/status/2119903375781146759), in black and white (orange when on): each is a small object with a white-to-grey body,
+   (x.com/kubilayss/status/2119903375781146759), in black and white (in the accent's indigo when on): each is a small object with a white-to-grey body,
    an outline darker at the bottom, a lighter layer behind, filled grey details and a soft shadow (styles.css, .sk).
    The gradients are defined once in index.html. Each is the inner shapes of a 24 × 24 icon, drawn by skeu(name):
    .sk-back is the layer behind, .sk-b the body, .sk-line an outline with no fill, .sk-g a filled detail and .sk-gs a

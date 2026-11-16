@@ -66,9 +66,10 @@ export const WORK: WorkItem[] = [
       title: "Celsia demo: the reporting module, with data input, insights and targets",
       browser: {
         url: "app.celsia.io",
-        // A sage wallpaper, for sustainability: near-white at the top left, soft eucalyptus at the bottom right
+        // A cold steel wallpaper, for the app's steel and indigo: near-white at the top left, pale steel at the top right,
+        // steel blue with a breath of indigo at the bottom right
         background:
-          "radial-gradient(70% 90% at 0% 0%, #fbfcf9 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #eef3ec 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #c9d8cb 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #e3ebe2 0%, transparent 70%), linear-gradient(135deg, #f4f7f2, #dbe5da)",
+          "radial-gradient(70% 90% at 0% 0%, #f9fafc 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #e4e9f1 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #a9b4d6 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #dde3ee 0%, transparent 70%), linear-gradient(135deg, #f1f4f8, #c8d0e2)",
       },
     },
   },
