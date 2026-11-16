@@ -409,10 +409,6 @@ button.dock__app:active .ai { filter: brightness(.7); }
 .waiting { display: flex; align-items: center; gap: 8px; padding: 12px; border-radius: 8px; background: #f4f3f0; font: 400 13px/18px var(--f-is); color: var(--stone-600); }
 .waiting .ico { width: 14px; height: 14px; color: #218358; stroke-width: 2.2; }
 
-/* coach: the next thing to press, a soft pulsing orange ring */
-.is-coach { animation: coach 1.7s var(--ease-out) infinite; }
-@keyframes coach { from { box-shadow: var(--sh, 0 0 #0000), 0 0 0 0 rgb(242 95 33 / .55); } to { box-shadow: var(--sh, 0 0 #0000), 0 0 0 9px rgb(242 95 33 / 0); } }
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }

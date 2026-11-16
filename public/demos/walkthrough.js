@@ -10,8 +10,9 @@
      from the page they're on: the first step on it that hasn't run yet, or else the next scene.
    - A step that ran to its end is done until the tour comes round again; one that was stopped runs again from its start.
    - It runs only for a fine pointer without reduced motion: on a phone, or with reduced motion, the demo is as before.
-   - In the site's carousel it runs only in the middle card: it starts when its card first comes to the middle, holds
-     still where it is when the card moves to the side, and carries on when the card is back in the middle.
+   - In the site's carousel it runs only in the middle card: it starts when its card first comes to the middle, stops
+     and fades out where it is when the card moves to the side, and fades back in there and carries on when the card is
+     back in the middle.
 
    Walkthrough({ name, color, scenes, where, tidy, loop }). `loop: false` is for a demo whose story ends (Sanna: all
    tasks complete): after the last scene the cursor leaves for good, and the demo is the visitor's. The cursor's look is
@@ -35,9 +36,9 @@
     .walk { position: fixed; left: 0; top: 0; z-index: 2147483000; pointer-events: none; opacity: 0; transition: opacity .3s cubic-bezier(.23, 1, .32, 1); will-change: transform; }
     .walk.is-on { opacity: 1; }
     .walk__in { position: absolute; left: 0; top: 0; transform: scale(var(--walk-scale, 1)); transform-origin: 0 0; }
-    .walk__arrow { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; overflow: visible; fill: var(--walk); stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .25)); transform-origin: 3px 3px; transition: transform .12s cubic-bezier(.23, 1, .32, 1); }
+    .walk__arrow { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; overflow: visible; fill: var(--walk); stroke: rgb(255 255 255 / .7); stroke-width: 2.8; stroke-linejoin: round; paint-order: stroke; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .25)); transform-origin: 3px 3px; transition: transform .12s cubic-bezier(.23, 1, .32, 1); }
     .walk.is-pressing .walk__arrow { transform: scale(.84); }
-    .walk__name { position: absolute; left: 19px; top: 24px; padding: 4px 9px; border-radius: 6px; background: var(--walk); color: #fff; font: 500 15px/1.3 "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: 0; white-space: nowrap; box-shadow: 0 1px 3px rgb(0 0 0 / .18); }
+    .walk__name { position: absolute; left: 15px; top: 13px; padding: 4px 9px; border-radius: 6px; background: var(--walk); color: #fff; font: 500 15px/1.3 "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: 0; white-space: nowrap; box-shadow: 0 0 0 1.5px rgb(255 255 255 / .7), 0 1px 3px rgb(0 0 0 / .25); }
     .walk.is-left .walk__name { left: auto; right: 8px; }
     .walk.is-up .walk__name { top: auto; bottom: 10px; }
     .walk__ring { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; border: 2px solid var(--walk); border-radius: 50%; animation: walk-ring .5s cubic-bezier(.23, 1, .32, 1) forwards; }
@@ -314,13 +315,14 @@
       unhover()
       el.classList.remove('is-on', 'is-pressing')
     }
-    // Its card left the middle: the cursor stays where it is, still, and its step stops there
+    // Its card left the middle: its step stops there and the cursor fades out where it is, to fade back in there when
+    // the card is back (a side card shows no one's cursor)
     function hold() {
       if (!active) return
       active = false
       run++
       unhover()
-      el.classList.remove('is-pressing')
+      el.classList.remove('is-on', 'is-pressing')
     }
 
     /* ── the visitor: a press or a key takes over; then stillness, or leaving the demo, gives the tour back ── */
@@ -347,8 +349,8 @@
     for (const type of ['pointerdown', 'keydown', 'touchstart']) addEventListener(type, takeOver, { passive: true, capture: true })
     for (const type of ['pointermove', 'wheel']) addEventListener(type, busy, { passive: true, capture: true })
     document.addEventListener('mouseout', (e) => { if (e.isTrusted && !e.relatedTarget && taken) later(away) })
-    // In the carousel it starts when its card comes to the middle, holds still when the card leaves it, and carries on
-    // when the card is back
+    // In the carousel it starts when its card comes to the middle, stops and hides when the card leaves it, and carries
+    // on when the card is back
     // The carousel switches inert as the card passes halfway to the middle, so it starts a moment later, as it settles
     let wasCentred = centred()
     if (wasCentred) later(start)

@@ -146,10 +146,6 @@ p { margin: 0; }
 .bar__label .ico { width: 12px; height: 12px; }
 .bar .iconbtn { width: 26px; height: 26px; }
 
-/* the coach: what to press next, a soft pulsing ring */
-.is-coach { animation: coach 1.7s var(--ease-out) infinite; }
-@keyframes coach { from { box-shadow: 0 0 0 0 rgb(74 85 245 / .45); } to { box-shadow: 0 0 0 8px rgb(74 85 245 / 0); } }
-
 /* ── the data point sidebar: a soft panel ── */
 .dp { position: relative; isolation: isolate; flex: none; width: 320px; margin: 8px; border-radius: 12px; background: var(--bg-muted); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
 .dp.is-in { animation: dp-in .3s var(--ease-out); }

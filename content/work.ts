@@ -14,7 +14,13 @@
    With `browser`, a demo shows in the same Safari window on that background as the slides, its address bar showing
    `url`. The window's page is 902 × 576 in the card's 1180ths, so lay the demo out at 1180 × 753 to fill it.
    `href` links the title (only the title: the picture doesn't link). Links starting with http open in a new tab.
-   `year` shows after the title, after a middle dot: the same years as the project's page, where it has one. */
+   `year` shows after the title, after a middle dot: the same years as the project's page, where it has one.
+   `icons` are the tiles before the title (components/company.tsx): one before it, or one before each name of a title
+   that lists several, split at its commas ("Yandex, Cognite").
+   `sites` are the products' or companies' own sites, the same way: one for the title, or one for each name. The title
+   links to them (in a new tab) while its `href`, a project page, is switched off (lib/flags.ts). */
+
+import type { CompanyId } from "@/components/company";
 
 export type WorkMedia =
   | { type: "demo"; src: string; width: number; height: number; title: string; background?: string; glass?: boolean; browser?: { background: string; url: string } }
@@ -25,6 +31,10 @@ export type WorkMedia =
 export type WorkItem = {
   id: string;
   title: string;
+  /** Tiles before the title: one, or one for each of its comma-separated names */
+  icons?: CompanyId[];
+  /** Their own sites: one, or one for each of its comma-separated names */
+  sites?: string[];
   /** When it was made: a year or a range, such as "2022–2026" */
   year: string;
   description: string;
@@ -37,8 +47,9 @@ export const WORK: WorkItem[] = [
     // Only the app's window (?app). Without ?app the page is a Mac desktop with the window, Safari and the Dock.
     id: "visuals",
     title: "Visuals",
+    icons: ["visuals"],
     year: "2026",
-    description: "Inspiration gets lost across X, Pinterest and open tabs. Visuals keeps it in one place, tags it with your own Claude and turns it into a brief.",
+    description: "Personal project. A home for the design references you save and never use: Claude sorts and tags them, learns your preferences and turns collections into a brief.",
     media: {
       type: "demo",
       src: "/demos/visuals/index.html?app",
@@ -54,8 +65,10 @@ export const WORK: WorkItem[] = [
   {
     id: "celsia",
     title: "Celsia",
+    icons: ["celsia"],
+    sites: ["https://celsia.io/"],
     year: "2022–2026",
-    description: "EU sustainability reporting is slow, costly and easy to get wrong. Celsia makes reporting easy, ensures compliance and supports collaboration. Acquired in 2024.",
+    description: "Design lead. Celsia is software that helps companies collect data and write their EU sustainability (CSRD) reports. Acquired by ISS-Corporate in 2024.",
     href: "/work/celsia/",
     media: {
       type: "demo",
@@ -76,8 +89,9 @@ export const WORK: WorkItem[] = [
   {
     id: "muster",
     title: "Muster",
+    icons: ["muster"],
     year: "2026",
-    description: "AI skills pile up across Claude Code, Codex, plugins and projects, clashing and duplicated. Muster finds every one and sorts them into folders.",
+    description: "Personal project. Muster sorts the skills installed in Claude Code and Codex, keeps them updated, and flags the ones that clash, repeat or never run.",
     href: "https://musteryourskills.com/",
     media: {
       type: "demo",
@@ -92,26 +106,28 @@ export const WORK: WorkItem[] = [
   },
   {
     id: "earlier-work",
-    title: "Yandex, Kaspersky, Cognite",
-    year: "2015–2021",
-    description: "Engineers running clouds, security and industrial sites drown in dense, fast-moving data. Interfaces that keep it readable and quick to act on.",
+    title: "Yandex, Cognite",
+    icons: ["yandex-cloud", "cognite"],
+    sites: ["https://yandex.cloud/en", "https://www.cognite.com/"],
+    year: "2019–2022",
+    description: "Product designer. Developer tools for the cloud and industrial data: consoles, dashboards and app builders that help developers work with complex systems and act on them.",
     href: "/work/earlier-work/",
     // The screens of the "portfolio – cv" Figma file's Section 3 (node 453:10709), in its order, exported at 2x
     // and scaled to 2000 px wide. Each `url` is what the address bar shows with it.
     media: {
       type: "slides",
       slides: [
-        "console.cloud.yandex.ru",
-        "fusion.cognite.com",
-        "yt.yandex-team.ru",
-        "fusion.cognite.com",
-        "logbroker.yandex-team.ru",
-        "fusion.cognite.com",
-        "cloud.yandex.ru/marketplace",
-        "fusion.cognite.com",
-        "status.cloud.yandex.ru",
+        "yandex.ru",
+        "cognite.com",
+        "yandex.ru",
+        "cognite.com",
+        "yandex.ru",
+        "cognite.com",
+        "yandex.ru",
+        "cognite.com",
+        "yandex.ru",
       ].map((url, i) => ({ src: `/assets/img/work/earlier-screen-${String(i + 1).padStart(2, "0")}.jpg`, url })),
-      alt: "Screens from earlier work at Yandex, Kaspersky and Cognite",
+      alt: "Screens from earlier work at Yandex and Cognite",
       browser: {
         // A gray steel wallpaper: near-white at the top left, pale silver at the top right, soft slate at the bottom right
         background:
@@ -122,8 +138,10 @@ export const WORK: WorkItem[] = [
   {
     id: "sanna",
     title: "Sanna",
+    icons: ["sanna"],
+    sites: ["https://www.sanna.no/"],
     year: "2026",
-    description: "Year-end accounts and tax returns overwhelm small business owners. Sanna's app walks them through it step by step, with an accountant alongside.",
+    description: "Contract work. Sanna is an accounting firm that automates the routine work and gives each company its own accountant at a fixed monthly price.",
     href: "/work/sanna/",
     media: {
       // A Mac desktop with Sanna's client app in Safari. With ?app it's only the app.

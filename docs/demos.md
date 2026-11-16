@@ -57,22 +57,21 @@ desktop around it when the demo needs it, such as a story that crosses apps: a b
      - an animation that a re-render would restart, such as Sort's tags on each tile, changes the DOM in place;
      - a fake wait (`wait(ms)`, shortened with reduced motion) stands in for the app's real work, such as Claude
        answering; streamed answers are written a few characters at a time;
-     - the coach ring (`renderCoach`), a soft pulsing ring like Muster's, points at the next page in the sidebar that
-       hasn't been opened yet (Visuals: Tags, Colors, the brand project, the bucket), so a visitor sees what to click;
      - the walkthrough (every demo): Anastasia's cursor, a multiplayer one, goes through the pages and does on each
-       what a visitor would (Visuals: Sort, Ask, the tag graph, Colors, Generate; Celsia: Home, the data input guide, a
-       target in the report, an answer written from the companies' answers, Insights and a target's actions; Sanna: the
-       task the coach ring points at, press by press; Muster: Sort and a fix in Safari, a folder in the menu bar, a
+       what a visitor would (Visuals: Sort, Ask, the tag graph, Colors (beige, then blue), Generate; Celsia: Home, the data
+       input guide, a target in the report, an answer written from the companies' answers, Insights and a target's
+       actions; Sanna: the task, press by press (`nextTarget`); Muster: Sort and a fix in Safari, a folder in the menu bar, a
        fix in Terminal). Visuals, Celsia and Muster go round again (Muster resets its demo first); Sanna's story ends
-       at All tasks complete, so its tour does too (`loop: false`).
+       at All tasks complete, so its tour does too (`loop: false`). The cursor shows the way, so no demo has a ring
+       or highlight on what to press next (the coach rings were taken out).
        `public/demos/walkthrough.js` is the engine, shared, and knows nothing of a demo: a demo loads it before its
        `script.js` and gives it its scenes at the end of `script.js`, and twins its `:hover` rules as `.is-walk-hover` (a
        line each, at the end of its `styles.css`).
        The visitor takes over when they press or type in the demo (hovering and scrolling don't); when they've been
        still for 5 seconds, or left it, the cursor carries on from their page. While it drives, `focus()` does nothing and `scrollIntoView()` scrolls only
        inside the demo, so the tour never scrolls the site or takes the carousel's arrow keys. In the carousel it runs only
-       in the middle card (the others are `inert`): it starts when its card first comes to the middle, holds still when
-       the card moves to the side, and carries on when it's back (0.3 s after the card passes halfway, as it settles). It's off with reduced
+       in the middle card (the others are `inert`): it starts when its card first comes to the middle, stops and fades
+       out when the card moves to the side, and fades back in where it was and carries on when it's back (0.3 s after the card passes halfway, as it settles). It's off with reduced
        motion, on touch screens, and with `?nowalk`. After a round it starts again after 1.5 seconds. Over the carousel the
        visitor's own pointer over a card's picture or demo (not the space around it or the text under it) is a cursor in the same look, named You (`components/you-cursor.tsx` outside the demos,
        `walkthrough.js` inside them, at the same size on screen);

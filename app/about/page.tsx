@@ -9,7 +9,7 @@ export default function About() {
     <main className="q q-about" id="q-main">
       <header className="q-phead" {...enter(1)}>
         <h1>About</h1>
-        <p className="q-plead">I&apos;ve been designing digital products for over 10 years, and since 2018 I&apos;ve specialised in complex B2B products, mostly devtools. In 2022 I joined Celsia as lead designer, shaping a sustainability reporting platform from MVP to a mature product.</p>
+        <p className="q-plead">I&apos;ve been designing digital products for over 10 years, and since 2018 I&apos;ve specialised in complex B2B products, mostly devtools. In 2022 I joined Celsia as design lead, shaping a sustainability reporting platform from MVP to a mature product.</p>
         <p className="q-plead">Today I work with companies independently, helping with a wide range of problems, from product to branding.</p>
         <p className="q-plead">I care about the whole experience, the quality and the details. I also believe done is better than perfect, and I don&apos;t see a contradiction there. I&apos;ve always championed design systems as codified design expertise, a way to keep quality high at scale. Now, with AI, I ship front-end code myself, so I can experiment faster and make sure the product works exactly as it should.</p>
       </header>
