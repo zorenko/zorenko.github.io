@@ -1,4 +1,5 @@
 /* How I work (/how-i-work/). Each tab (Product, Branding, Growth) has its own steps, and each step its tools.
+   Branding and Growth are behind flags (lib/flags.ts); with only one tab shown, the page has no tabs to switch.
    status is one of "active", "experiment", "phasing-out".
    icon is a file in public/assets/img/stack/ (square, 64px); leave it out to get a letter tile instead.
    iconPad: true insets icons that have no background of their own.
@@ -9,7 +10,7 @@ export type Tool = { name: string; note: string; status: Status; icon?: string; 
 export type Step = { name: string; desc: string; tools: Tool[] };
 export type Tab = { id: string; label: string; intro: string; steps: Step[] };
 
-/** "Ship and review" → "ship-and-review", as used in a post's stack: ["product/ship-and-review"] */
+/** "Review and test" → "review-and-test", as used in a post's stack: ["product/review-and-test"] */
 export const stepSlug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export const STATUS_LABEL: Record<Status, string> = {
@@ -37,6 +38,8 @@ export const TABS: Tab[] = [
         desc: "Agree on scope and turn it into a plan.",
         tools: [
           { name: "Linear", icon: "linear.png", note: "Issues, scope and priorities", status: "active" },
+          { name: "Granola", icon: "granola.png", note: "Notes from scoping calls and workshops", status: "active" },
+          { name: "Whiteboard", icon: "whiteboard.svg", note: "Sketching flows and ideas by hand", status: "active" },
           { name: "FigJam", note: "User flows and workshop boards", status: "phasing-out" },
         ],
       },
@@ -46,21 +49,26 @@ export const TABS: Tab[] = [
         tools: [
           { name: "Figma", icon: "figma.png", note: "Exploration, components and tokens", status: "active" },
           { name: "Claude Code", icon: "claude-code.svg", iconPad: true, note: "Experiments, design.md, tokens and skills", status: "active" },
-          { name: "Storybook", icon: "storybook.svg", note: "Component work", status: "active" },
+          { name: "Storybook", icon: "storybook.svg", note: "Component work and prototypes", status: "active" },
         ],
       },
       {
-        name: "Build",
+        name: "Build and ship",
         desc: "Prototype and ship in real code.",
         tools: [
           { name: "Claude Code", icon: "claude-code.svg", iconPad: true, note: "Building, refactoring and reviewing", status: "active" },
-          { name: "Conductor", icon: "conductor.png", note: "Several coding agents in parallel", status: "experiment" },
+          { name: "Conductor", icon: "conductor.png", note: "Several coding agents in parallel", status: "active" },
+          { name: "Granola", icon: "granola.png", note: "Talking through tasks for the agents", status: "active" },
         ],
       },
       {
-        name: "Ship and review",
-        desc: "Release, check it in the browser, refine.",
-        tools: [{ name: "gstack", icon: "gstack.png", note: "Automated browser QA and design review", status: "experiment" }],
+        name: "Review and test",
+        desc: "Check it in the browser, see how people use it, refine.",
+        tools: [
+          { name: "Google Analytics", icon: "google-analytics.svg", note: "Traffic and where visitors come from", status: "active" },
+          { name: "PostHog", icon: "posthog.png", note: "Product analytics and session replays", status: "active" },
+          { name: "gstack", icon: "gstack.png", note: "Automated browser QA and design review", status: "experiment" },
+        ],
       },
     ],
   },

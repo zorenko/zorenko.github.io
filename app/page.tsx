@@ -14,7 +14,7 @@ import { GITHUB, LINKEDIN, NAME } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: { absolute: `${NAME} | Digital Designer` },
-  openGraph: { type: "website", title: `${NAME} | Digital Designer`, description: "Independent digital designer with 10 years of experience in product development: product, brand and design engineering." },
+  openGraph: { type: "website", title: `${NAME} | Digital Designer`, description: "Digital designer with 10 years of experience in product development: product, brand and design engineering." },
 };
 
 // The experiments wall at the bottom of the page. Hidden for now; true brings it back (with SHOW.experiments on too).
@@ -44,7 +44,7 @@ export default function Home() {
           </CopyEmail>
         </div>
 
-        <p>Independent digital designer with 10 years of experience in product development. Helping companies with product, brand and design engineering through the full scope of design work from problem definition to shipping final solutions. Previously, part of Celsia, Cognite, Yandex Cloud and <Link href="/about/">other teams</Link>. Based in Oslo.</p>
+        <p>Digital designer with 10 years of experience in product development. Helping companies with product, brand and design engineering through the full scope of design work from problem definition to shipping final solutions. Previously, part of Celsia, Cognite, Yandex Cloud and <Link href="/about/">other teams</Link>. Based in Oslo.</p>
       </header>
 
       {/* The carousel names itself ("Work") for screen readers, so no visible title */}
