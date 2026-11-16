@@ -111,7 +111,7 @@ function Panel({ tab, hidden, tabbed, postsByStep }: { tab: Tab; hidden: boolean
           );
         })}
       </ol>
-      <button type="button" className="q-ts-all" onClick={() => setOpen(open.map(() => !allOpen))}>
+      <button type="button" className="q-ts-all" style={cssVars({ "--k": tab.steps.length })} onClick={() => setOpen(open.map(() => !allOpen))}>
         {allOpen ? "Close all steps" : "Open all steps"}
       </button>
     </section>

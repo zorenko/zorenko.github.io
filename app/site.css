@@ -27,34 +27,40 @@
   /* The page column, on every page: the home intro's 40em measure (640px), 86% of the window on phones. The work
      carousel's cards are wider (--car-w); their title and description sit back in this column. */
   --q-col: min(640px, 86vw);
+  --car-w: min(max(56vw, 600px), 86vw, 1000px); /* the carousel's card width; the home header and About follow it too */
+  /* The wide text block (home header, About): the card's width minus a side inset that grows with it (none at 600px,
+     up to 48px from 840px), and type that grows with the screen, 16px on phones up to 18px on wide screens */
+  --wide-pad: clamp(0px, calc((var(--car-w) - 600px) / 5), 48px);
+  --wide-fs: clamp(1rem, 0.85rem + 0.25vw, 1.125rem);
+  --wide-measure: 40em; /* the longest a paragraph's line gets in it (about 75 characters), however wide the screen */
   --q-gap: 96px; /* space between sections */
   --q-ease: cubic-bezier(0.23, 1, 0.32, 1);
   --q-ease-modal: cubic-bezier(0.16, 1, 0.3, 1);
   color-scheme: light;
 }
 html.q-dark {
-  /* Soft cool greys, a step darker than the Celsia demo (whose app is #1e1f23 on #2a2b30) */
-  --q-bg: #18191c;
-  --q-text: #e1e2e6;
-  --q-title: #f5f5f7;
-  --q-muted: #9c9ea6;
-  --q-date: #8a8c94;
-  --q-underline: #46484e;
-  --q-frame: #2b2c31;
-  --q-soft: #212226;
-  --q-icon: #8a8c94;
-  --q-icon-hover: #e1e2e6;
-  --q-cta: #e8e9ec;
+  /* Soft warm greys, a touch of red over blue so dark mode reads warm, not blue */
+  --q-bg: #1a1918;
+  --q-text: #e5e3df;
+  --q-title: #f6f5f3;
+  --q-muted: #a39f99;
+  --q-date: #918d87;
+  --q-underline: #4b4844;
+  --q-frame: #2e2c2a;
+  --q-soft: #232120;
+  --q-icon: #918d87;
+  --q-icon-hover: #e5e3df;
+  --q-cta: #ebe9e5;
   --q-cta-hover: #fff;
-  --q-cta-text: #18191c;
-  --q-tray: #1e1f23;
-  --q-tray-line: #27282d;
-  --q-card: #27282d;
-  --q-card-line: #303137;
-  --q-well: #1e1f23;
-  --q-morph-bg: #35363c;
-  --q-morph-line: #3e3f46;
-  --q-morph-text: #b6b8bf;
+  --q-cta-text: #1a1918;
+  --q-tray: #201f1d;
+  --q-tray-line: #2a2826;
+  --q-card: #2a2826;
+  --q-card-line: #33312e;
+  --q-well: #201f1d;
+  --q-morph-bg: #383532;
+  --q-morph-line: #423f3b;
+  --q-morph-text: #bcb8b2;
   --q-ok: #3dd68c;
   --q-try: #52a9ff;
   color-scheme: dark;
@@ -69,8 +75,10 @@ body.v-quiet {
   color: var(--q-text);
   font: 400 16px/1.5 "Geist", Inter, system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
+/* Switching theme cross-fades the whole page at once (crossFade in lib/dom.ts), so colours don't change one by one */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 250ms; animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
+@media (prefers-reduced-motion: reduce) { ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 150ms; } }
 .v-quiet p, .v-quiet h1, .v-quiet h2, .v-quiet dl, .v-quiet dd, .v-quiet figure, .v-quiet ul { margin: 0; padding: 0; }
 .v-quiet a { color: inherit; text-decoration-color: var(--q-underline); text-underline-offset: 4px; }
 .v-quiet a:hover { text-decoration: none; }
@@ -85,15 +93,25 @@ body.v-quiet {
 @media (max-width: 640px) { .q { padding-top: 112px; } }
 
 /* Header */
-.q-head { position: relative; display: flex; flex-direction: column; gap: 4px; }
-.q-profile { display: flex; align-items: center; gap: 20px; margin-bottom: 36px; padding-right: 72px; }
-.q-who { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.q-name { font-size: 16px; font-weight: 500; line-height: 1.2; color: var(--q-title); }
-.q-role { line-height: 1.2; color: var(--q-muted); }
+/* As wide as the carousel's middle card (minus --wide-pad), centred past the narrower column, with --wide-fs type; the
+   spacing inside is in em, so it grows along with the type */
+.q-head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  width: var(--car-w);
+  margin-inline: calc(50% - var(--car-w) / 2);
+  padding-inline: var(--wide-pad);
+  font-size: var(--wide-fs);
+}
+.q-profile { display: flex; align-items: center; gap: 20px; margin-bottom: 2.25em; padding-right: 72px; }
+.q-who { display: flex; flex-direction: column; gap: 0.25em; min-width: 0; }
+.q-name { font-size: 1em; font-weight: 500; line-height: 1.2; color: var(--q-title); }
 .q-enc { display: inline-block; opacity: 0.45; color: var(--q-muted); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
-.q-head > p { line-height: 26px; max-width: 40em; }
+.q-head > p { max-width: var(--wide-measure); line-height: 1.625; text-wrap: pretty; }
 
-.q-tools { position: absolute; top: calc(14px * 1.2 / 2 - 12px); right: 0; /* 24px icons centred on the name's line */ display: flex; align-items: center; gap: 8px; }
+.q-tools { position: absolute; top: calc(1.2em / 2 - 12px); right: var(--wide-pad); /* 24px icons centred on the name's line */ display: flex; align-items: center; gap: 8px; }
 .v-quiet .q-icon {
   all: unset;
   position: relative;
@@ -126,7 +144,7 @@ body.v-quiet {
   filter: blur(4px);
   transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
 }
-.q-tip:not(:empty) { opacity: 1; transform: translate(-50%, 0); filter: none; }
+.q-tip[data-shown] { opacity: 1; transform: translate(-50%, 0); filter: none; }
 
 @keyframes q-icon-in { from { opacity: 0; transform: scale(0.7) rotate(var(--r, 20deg)); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
 
@@ -146,6 +164,9 @@ body.v-quiet {
   /* Centred on the capitals: its bottom sits half of (its height − the cap height) below the baseline */
   vertical-align: calc((var(--cap) * 1em - var(--size)) / 2); --cap: 0.7; }
 html.q-dark .q-co-icon { box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / .16); }
+/* A company with no mark: its letter on a plain tile, out of the flow so the tile sits like the others */
+.q-co-icon--letter { background: var(--q-frame); color: var(--q-muted); }
+.q-co-letter { position: absolute; inset: 0; display: grid; place-items: center; font-size: 0.6em; font-weight: 500; line-height: 1; }
 .q-co-mark { position: absolute; inset: 0; margin: auto; width: 61%; height: 61%; mask-position: center; mask-size: contain; mask-repeat: no-repeat; }
 .q-co-mark--wide { width: 78%; }
 /* Writing: post rows (rendered from /blog/posts.json by /assets/blog/blog.js) */
@@ -204,7 +225,6 @@ html.q-dark .q-co-icon { box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / .16); }
   border: 1px solid var(--q-tray-line);
   border-radius: 16px;
   background: var(--q-tray);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 .q-tray--stack { grid-template-columns: 1fr; }
 @media (max-width: 520px) { .q-tray { grid-template-columns: 1fr; } }
@@ -282,7 +302,6 @@ html.q-dark .q-frame img { filter: brightness(0.9); }
    same grid cell and is moved into place with a transform each frame. Pictures are 1180 × 696, the demos' size. */
 body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar included */
 .q-car {
-  --car-w: min(max(56vw, 600px), 86vw, 1000px); /* card width: wider than the text column, so the work gets room */
   --car-gap: 3vw;
   position: relative;
   width: 100vw;
@@ -321,6 +340,8 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 }
 .q-car-media::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06); pointer-events: none; }
 .q-dark .q-car-media::after { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); }
+/* Dark mode: the screens a touch dimmer, so the light ones don't glare on a dark page (as .q-frame img) */
+.q-dark .q-car-media { filter: brightness(0.86); }
 .q-car-media img,
 .q-car-media video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; -webkit-user-drag: none; }
 /* Slideshow (media type "slides"): the next picture fades in over the last, which stays put underneath so the card
@@ -425,12 +446,13 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
    land on the card instead (a click there brings it to the middle) */
 .q-car-card:not(.is-active) iframe { pointer-events: none; }
 /* Title on the left, description on the right */
-.q-car-info { display: grid; grid-template-columns: 1fr 54%; column-gap: 32px; align-items: start; width: min(var(--q-col), 100%); margin-inline: auto; /* the text column, centred under the wider card */ padding-top: 20px; font-size: 14px; line-height: 20px; } /* stays 14px while the rest of the site is 16px */
-.v-quiet .q-car-title { margin: 0; font-size: 14px; font-weight: 400; line-height: inherit; color: var(--q-title); }
+.q-car-info { display: grid; grid-template-columns: 1fr 54%; column-gap: 32px; align-items: start; width: var(--car-w); margin-inline: auto; padding: 20px var(--wide-pad) 0; /* the card's width less the same inset as the home header */ font-size: calc(var(--wide-fs) - 2px); line-height: 1.625; } /* 2px under the home header's text, scaling with it */
+.v-quiet .q-car-title { margin: 0; font-size: 1em; font-weight: 400; line-height: inherit; color: var(--q-title); }
 .v-quiet .q-car-title a { color: inherit; text-decoration: underline; text-decoration-color: var(--q-underline); text-underline-offset: 4px; transition: text-decoration-color 200ms var(--q-ease); }
 .v-quiet .q-car-title a:hover { text-decoration-color: currentColor; }
 .v-quiet .q-car-year { color: var(--q-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .v-quiet .q-car-desc { margin: 0; color: var(--q-muted); text-wrap: pretty; }
+.q-car-info .q-co-icon { --size: 1.125em; border-radius: 0.3em; } /* the tile grows with the text */
 @media (max-width: 767px) {
   .q-car { --car-gap: 8px; }
   .q-car-info { grid-template-columns: 1fr; row-gap: 4px; padding-top: 16px; }
@@ -478,7 +500,35 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .v-quiet .q-prose + .q-prose { margin-top: 12px; }
 /* A visible section title on a sub-page (About), set like the case-study headings */
 .v-quiet .q-sec-title { margin-bottom: 16px; font-size: 16px; font-weight: 500; line-height: 24px; color: var(--q-title); }
-.q-about .q-plead, .q-about .q-prose { max-width: none; } /* About: text fills the column */
+/* Wide pages (About, How I work): the same container and type as the home header; paragraphs stop at --wide-measure,
+   sizes in em so they follow --wide-fs */
+.q.q-wide { width: var(--car-w); padding-inline: var(--wide-pad); font-size: var(--wide-fs); }
+.q-wide .q-plead, .q-wide .q-prose { max-width: var(--wide-measure); line-height: 1.625; }
+.v-quiet .q-wide .q-phead h1, .v-quiet .q-wide .q-sec-title { font-size: 1em; }
+.v-quiet .q-wide .q-sec-title { margin-bottom: 1em; line-height: 1.5; }
+.q-wide .q-plead { margin-top: 0.75em !important; }
+.q-wide .q-row { line-height: 1.5; }
+/* A list ruled like How I work's steps: a line above each row and under the last (components/experience.tsx) */
+.q-list--lines { gap: 0; border-bottom: 1px solid var(--q-frame); }
+.q-list--lines .q-row { display: grid; grid-template-columns: 3.5em minmax(min-content, 1fr) auto; justify-content: start; gap: 12px; padding: 14px 0; border-top: 1px solid var(--q-frame); }
+.q-xp-year { font-family: "Faculty Glyphic", Georgia, serif; font-size: calc(1em - 2px); } /* the years first, in the steps' number face */
+.q-list--lines b, .q-list--lines .q-note-inline { white-space: nowrap; } /* a company name or note never breaks at its hyphen (ISS-Corporate) */
+.q-list--lines .q-co-icon { --size: 1.125em; border-radius: 0.3em; margin-right: 0.45em; } /* the tiles grow with the text, as under the carousel */
+/* Small screens: the short name (ISS-C) and no note, so the role keeps to one line */
+/* Company names link to their sites, underlined like the carousel's titles */
+.v-quiet .q-list--lines a { text-decoration: underline; text-decoration-color: var(--q-underline); text-underline-offset: 4px; transition: text-decoration-color 200ms var(--q-ease); }
+.v-quiet .q-list--lines a:hover { text-decoration-color: currentColor; }
+.q-xp-short { display: none; }
+@media (max-width: 520px) { .q-xp-full { display: none; } .q-xp-short { display: inline; } }
+.q-xp-role { text-align: right; } /* year, company, then the role on the far right */
+/* The rows fade up one after another, 40ms apart, starting with their section's entrance ([data-enter]'s --i) */
+.q-list--lines .q-row { animation: q-in 500ms var(--q-ease) both; animation-delay: calc(50ms + var(--i, 0) * 70ms + var(--k, 0) * 40ms); }
+@media (prefers-reduced-motion: reduce) { .q-list--lines .q-row { animation: none; } }
+/* How I work's steps */
+.v-quiet .q-wide .q-ts-intro, .v-quiet .q-wide .q-ts-desc { max-width: var(--wide-measure); line-height: 1.625; }
+.q-wide .q-ts-btn, .q-wide .q-ts-tool, .q-wide .q-ts-post { line-height: 1.5; }
+@media (min-width: 521px) { .q-wide .q-ts-tool { grid-template-columns: 10.5em minmax(0, 1fr) auto; } } /* the name column grows with the type */
+.v-quiet .q-wide .q-ts-label { font-size: 0.8125em; line-height: 1.4; }
 .q-strike { color: color-mix(in srgb, var(--q-text) 40%, var(--q-bg)); } /* a crossed-out aside, faded toward the background (works in dark mode too) */
 .q-plead { margin-top: 12px !important; line-height: 24px; color: var(--q-text) !important; max-width: 34em; }
 
@@ -543,9 +593,9 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 
 
 /* Tabs: Product, Branding, Growth. Each panel is its own process. A pill slides under the selected tab. */
-.q-ts-tabs { position: relative; display: inline-grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 40px; padding: 2px; border: 1px solid var(--q-card-line); border-radius: 10px; transition: border-color 0.3s ease; }
+.q-ts-tabs { position: relative; display: inline-grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 40px; padding: 2px; border: 1px solid var(--q-card-line); border-radius: 10px; }
 @media (max-width: 520px) { .q-ts-tabs { display: grid; } }
-.q-ts-pill { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 8px) / 3); border-radius: 8px; background: var(--q-frame); transition: translate 280ms var(--q-ease), background-color 0.3s ease; }
+.q-ts-pill { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 8px) / 3); border-radius: 8px; background: var(--q-frame); transition: translate 280ms var(--q-ease); }
 .q-ts-tabs[data-value="1"] .q-ts-pill { translate: calc(100% + 2px) 0; }
 .q-ts-tabs[data-value="2"] .q-ts-pill { translate: calc(200% + 4px) 0; }
 .v-quiet .q-ts-tabs button { all: unset; position: relative; min-width: 60px; height: 28px; padding: 0 14px; border-radius: 8px; color: var(--q-muted); text-align: center; line-height: 28px; cursor: pointer; transition: color 200ms var(--q-ease), transform 160ms var(--q-ease); }
@@ -564,6 +614,10 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 
 .q-ts { margin: 40px 0 0; padding: 0; list-style: none; border-bottom: 1px solid var(--q-frame); }
 .q-ts-step { border-top: 1px solid var(--q-frame); }
+/* On load the steps fade up one after another, 40ms apart, starting with the panel's entrance ([data-enter]'s --i),
+   and "Open all steps" comes last; the same as About's Work rows. A tab switch has its own stagger (above) */
+.q-ts-step, .v-quiet .q-ts-all { animation: q-in 500ms var(--q-ease) both; animation-delay: calc(50ms + var(--i, 0) * 70ms + var(--k, 0) * 40ms); }
+@media (prefers-reduced-motion: reduce) { .q-ts-step, .v-quiet .q-ts-all { animation: none; } } /* .v-quiet: past the button's `all: unset` */
 .v-quiet .q-ts-head { margin: 0; font: inherit; }
 .q-ts-btn {
   all: unset;
@@ -578,7 +632,7 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
   cursor: pointer;
 }
 .q-ts-btn:focus-visible { outline: 2px solid var(--q-title); outline-offset: 2px; border-radius: 6px; }
-.q-ts-n { font-family: "Faculty Glyphic", Georgia, serif; font-weight: 400; color: var(--q-date); } /* the Archive card's face */
+.q-ts-n { font-family: "Faculty Glyphic", Georgia, serif; font-size: calc(1em - 2px); font-weight: 400; color: var(--q-date); } /* the Archive card's face */
 .q-ts-title { font-weight: 500; color: var(--q-title); }
 /* The step's tools as an overlapping stack of icons; the ring in the page colour separates them */
 .q-ts-icons { display: flex; }
@@ -650,9 +704,8 @@ html.q-dark img.q-ts-icon { box-shadow: 0 0 0 0.5px rgb(255 255 255 / 0.12); }
   background: color-mix(in srgb, var(--q-bg) 94%, transparent);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
-.q-views-pill { position: absolute; top: 2px; left: 2px; width: 32px; height: 28px; border-radius: 8px; background: var(--q-frame); transition: translate 280ms var(--q-ease), background-color 0.3s ease; }
+.q-views-pill { position: absolute; top: 2px; left: 2px; width: 32px; height: 28px; border-radius: 8px; background: var(--q-frame); transition: translate 280ms var(--q-ease); }
 html[data-xp-view="canvas"] .q-views-pill { translate: 34px 0; }
 .v-quiet .q-views button {
   all: unset;
@@ -790,12 +843,12 @@ html:not([data-xp-view="canvas"]) .q-cv-hint { display: none; }
   --dock-pad: 8px;
 }
 html.q-dark {
-  --dock-bg: #25262b;
+  --dock-bg: #282624;
   --dock-fg: #fff;
   --dock-muted: rgb(255 255 255 / 0.6);
   --dock-hairline: rgb(255 255 255 / 0.1);
-  --dock-glass: rgb(46 47 53 / 0.4);
-  --dock-glass-thick: rgb(40 41 47 / 0.66);
+  --dock-glass: rgb(50 48 45 / 0.4);
+  --dock-glass-thick: rgb(44 42 39 / 0.66);
   --dock-blur: blur(12px) saturate(170%) brightness(1.1);
   --dock-rim: rgb(255 255 255 / 0.3);
   --dock-glow: rgb(255 255 255 / 0.07);
@@ -1023,6 +1076,16 @@ html[data-dock-mini] .q-consent:not([data-open]) { scale: 0.7; transition-durati
 }
 .q-consent-menu .q-dock-bg { background: var(--dock-glass-thick); }
 @keyframes q-consent-menu-in { from { opacity: 0; transform: translateY(6px) scale(0.96); filter: blur(3px); } }
+/* Leaving (consent.tsx, data-leaving; .v-quiet outranks the buttons' `all: unset`). Only transforms on the island
+   itself; the fade is on its children, since an island fading as a whole stops its glass (.q-dock-bg) from blurring
+   the page behind */
+@keyframes q-consent-sink { to { transform: translateY(calc(100% + 24px)); } }
+@keyframes q-consent-fold { to { transform: translateY(6px) scale(0.96); } }
+@keyframes q-consent-fade { to { opacity: 0; } }
+.v-quiet .q-consent[data-leaving="out"], .v-quiet .q-consent-chip[data-leaving="out"] { animation: q-consent-sink 240ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+.v-quiet .q-consent[data-leaving="out"] > *, .v-quiet .q-consent-chip[data-leaving="out"] > * { animation: q-consent-fade 240ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+.v-quiet .q-consent-menu[data-leaving] { animation: q-consent-fold 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+.v-quiet .q-consent-menu[data-leaving] > * { animation: q-consent-fade 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 .v-quiet .q-consent-row { all: unset; position: relative; z-index: 1; padding: 8px 14px; border-radius: 16px; color: var(--q-text); font-size: 13px; font-weight: 500; line-height: 20px; cursor: pointer; transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1), scale 180ms cubic-bezier(0.22, 1, 0.36, 1); }
 .v-quiet .q-consent-row:hover { color: var(--dock-fg); }
 .q-consent-row:active { scale: 0.96; }
@@ -1063,6 +1126,9 @@ html[data-dock-mini] .q-consent:not([data-open]) { scale: 0.7; transition-durati
     animation: q-consent-menu-in 260ms cubic-bezier(0.34, 1.3, 0.64, 1) backwards; /* not "both", so the glass keeps its blur */
   }
   html[data-dock-mini] .q-consent:not([data-open]) { scale: 1; }
+  /* Folding back toward the icon: the way it opened, in reverse (the fade is on the children, as above) */
+  .v-quiet .q-consent[data-leaving="fold"] { animation: q-consent-fold 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .v-quiet .q-consent[data-leaving="fold"] > * { animation: q-consent-fade 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 }
 @media (max-width: 360px) {
   .v-quiet .q-consent-text { white-space: normal; }
@@ -1072,12 +1138,13 @@ html[data-dock-mini] .q-consent:not([data-open]) { scale: 0.7; transition-durati
 .q-lb { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 4vh 3vw; }
 .q-lb[hidden] { display: none; }
 .q-lb-bg { position: absolute; inset: 0; background: rgb(255 255 255 / 0.82); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); opacity: 0; transition: opacity 250ms var(--q-ease-modal); cursor: zoom-out; }
-html.q-dark .q-lb-bg { background: rgb(24 25 28 / 0.85); }
+html.q-dark .q-lb-bg { background: rgb(26 25 24 / 0.85); }
 .q-lb-body { position: relative; max-width: min(1100px, 94vw); opacity: 0; transform: scale(0.92); transition: opacity 250ms var(--q-ease-modal), transform 250ms var(--q-ease-modal); pointer-events: none; }
 .q-lb-body img { display: block; max-width: 100%; max-height: 78vh; border-radius: 12px; box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.35); }
 .q-lb-body figcaption { margin-top: 16px; text-align: center; color: var(--q-muted); }
 .q-lb[data-open] .q-lb-bg, .q-lb[data-open] .q-lb-body { opacity: 1; transform: none; transition-duration: 300ms; }
-.q-lb-close { all: unset; position: absolute; top: 20px; right: 24px; padding: 6px 12px; border-radius: 999px; background: var(--q-soft); color: var(--q-text); font-size: 12px; cursor: pointer; }
+.q-lb-close { all: unset; position: absolute; top: 20px; right: 24px; padding: 6px 12px; border-radius: 999px; background: var(--q-soft); color: var(--q-text); font-size: 12px; cursor: pointer; scale: 1; transition: scale 180ms cubic-bezier(0.22, 1, 0.36, 1); }
+.q-lb-close:active { scale: 0.96; transition-duration: 100ms; }
 .q-lb-close:focus-visible { outline: 2px solid var(--q-title); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {

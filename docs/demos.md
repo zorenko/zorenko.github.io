@@ -94,8 +94,8 @@ desktop around it when the demo needs it, such as a story that crosses apps: a b
    projects, tag graph and palette changed between 0.9 and 0.16. Port the real logic where it's small (the tag graph's
    layout started as `tag-graph.ts`, ported to plain JS; the demo now draws only a tree of the strongest ties, from a
    radial start, so it reads clearly at its small size).
-4. **Pictures and content.** Use real pictures the person picks, with credit: Visuals' are posts from X and one
-   Pinterest pin, listed in `pictures.js` (one entry per post: its link, its files, then a title, tags, colors and what
+4. **Pictures and content.** Use real pictures the person picks, with credit: Visuals' are posts from X and some
+   Pinterest pins, listed in `pictures.js` (one entry per post: its link, its files, then a title, tags, colors and what
    Ask says of it, written by hand from looking at each picture). Keep copies in the demo's folder (WebP, 800px wide at
    most), since links to other sites break.
    - X: a post's pictures come from its public embed data, with no sign-in:

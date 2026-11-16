@@ -10,6 +10,7 @@
 
 import { GoogleTagManager } from "@next/third-parties/google";
 import { useEffect, useRef, useState } from "react";
+import { prefersReducedMotion } from "@/lib/dom";
 
 const KEY = "q-analytics";
 const OPEN_EVENT = "q-analytics-open";
@@ -36,6 +37,23 @@ const clearAnalyticsCookies = () => {
   }
 };
 
+/** Keeps something on the page for `ms` after `on` turns false, flagged as leaving, so it can animate out (the
+    leaving animations are in app/site.css, [data-leaving]) */
+function usePresence(on: boolean, ms: number) {
+  const [lingering, setLingering] = useState(false);
+  const [was, setWas] = useState(on);
+  if (on !== was) {
+    setWas(on);
+    setLingering(!on && !prefersReducedMotion());
+  }
+  useEffect(() => {
+    if (!lingering) return;
+    const t = setTimeout(() => setLingering(false), ms);
+    return () => clearTimeout(t);
+  }, [lingering, ms]);
+  return { shown: on || lingering, leaving: !on && lingering };
+}
+
 export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
   const [choice, setChoice] = useState<Choice | null>(null);
   const [open, setOpen] = useState(false);
@@ -47,6 +65,12 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
   const moreRef = useRef<HTMLButtonElement>(null);
   const declineRef = useRef<HTMLButtonElement>(null);
   const viaKeyboard = useRef(false); // opened with Enter or Space: move focus into the menu
+  // Leaving: after a choice the island sinks back out of the bottom edge it rose from; on narrow screens the pill
+  // folds back toward the icon, and the menu fades back into the chevron
+  const island = usePresence(open, 240);
+  const pill = usePresence(expanded, 160);
+  const menuP = usePresence(menu, 160);
+  const out = island.leaving ? "out" : undefined;
 
   useEffect(() => {
     const saved = read();
@@ -121,10 +145,12 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
   return (
     <>
       {load && choice === "granted" && <GoogleTagManager gtmId={gtmId} />}
-      {open && (
+      {island.shown && (
         <button
           type="button"
           className="q-consent-chip"
+          data-leaving={out}
+          inert={!!out}
           ref={chipRef}
           aria-label="Analytics cookies"
           aria-expanded={expanded}
@@ -143,14 +169,16 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
           </svg>
         </button>
       )}
-      {open && (
+      {island.shown && (
         <section
           className="q-consent"
           id="q-consent"
           ref={rootRef}
           aria-label="Analytics cookies"
-          data-open={menu ? "true" : undefined}
-          data-expanded={expanded ? "true" : undefined}
+          data-open={menuP.shown ? "true" : undefined}
+          data-expanded={pill.shown || island.leaving ? "true" : undefined}
+          data-leaving={out ?? (pill.leaving ? "fold" : undefined)}
+          inert={!!out || pill.leaving}
         >
           <span className="q-dock-bg" aria-hidden="true" />
           <p className="q-consent-text">Allow analytics cookies?</p>
@@ -176,8 +204,8 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
                 <path d="m7.5 10 4.5 4.5 4.5-4.5" />
               </svg>
             </button>
-            {menu && (
-              <div className="q-consent-menu" id="q-consent-menu" role="menu">
+            {menuP.shown && (
+              <div className="q-consent-menu" id="q-consent-menu" role="menu" data-leaving={menuP.leaving ? "" : undefined} inert={menuP.leaving}>
                 <span className="q-dock-bg" aria-hidden="true" />
                 <button type="button" className="q-consent-row" role="menuitem" ref={declineRef} onClick={() => decide("denied")}>
                   Decline

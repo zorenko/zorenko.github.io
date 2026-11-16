@@ -26,8 +26,7 @@ export default function Home() {
       <header className="q-head" {...enter(0)}>
         <div className="q-profile">
           <div className="q-who">
-            <ScrambleText as="h1" className="q-name" text={NAME} delay={150} />
-            <ScrambleText as="p" className="q-role" text="Digital designer" delay={400} />
+            <ScrambleText as="h1" className="q-name" text="Anastasia Z." delay={150} />
           </div>
         </div>
 

@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
-import { cssVars, prefersReducedMotion } from "@/lib/dom";
+import { crossFade, cssVars, prefersReducedMotion } from "@/lib/dom";
 import { isShown } from "@/lib/flags";
 
 const Glyph = ({ children }: { children: ReactNode }) => (
@@ -275,8 +275,8 @@ function ThemeSwitch({ mini }: { mini: boolean }) {
 
   useEffect(() => {
     const prefersDark = matchMedia("(prefers-color-scheme: dark)");
-    const onScheme = () => setMode(applyTheme());
-    onScheme();
+    const onScheme = () => crossFade(() => setMode(applyTheme())); // the system turning dark or light
+    setMode(applyTheme());
     const onPointerDown = (e: PointerEvent) => {
       if (openRef.current && !rootRef.current!.contains(e.target as Node)) setOpen(false);
     };
@@ -298,7 +298,7 @@ function ThemeSwitch({ mini }: { mini: boolean }) {
       if (m === "system") localStorage.removeItem("q-theme");
       else localStorage.setItem("q-theme", m);
     } catch {}
-    setMode(applyTheme());
+    crossFade(() => setMode(applyTheme()));
     setOpen(false, true);
   };
 
