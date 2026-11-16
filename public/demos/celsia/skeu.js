@@ -27,13 +27,6 @@ window.SKEU = {
     '<circle class="sk-b" cx="12" cy="12.5" r="8.5"/>' +
     '<path class="sk-gs" d="M9.7 10.3a2.4 2.4 0 0 1 4.6.9c0 1.6-2.3 2-2.3 3.3"/>' +
     '<circle class="sk-g" cx="12" cy="17.1" r="1.15"/>',
-  table:
-    '<path class="sk-b" d="M3.5 10.1C3.5 5 4 4.5 9.1 4.5H14.9C20 4.5 20.5 5 20.5 10.1V14.4C20.5 19.5 20 20 14.9 20H9.1C4 20 3.5 19.5 3.5 14.4Z"/>' +
-    '<rect class="sk-g" x="6.5" y="7.5" width="11" height="2.2" rx="1.1"/>' +
-    '<rect class="sk-g sk-g--soft" x="6.5" y="11.5" width="4.5" height="2" rx="1"/>' +
-    '<rect class="sk-g sk-g--soft" x="12.5" y="11.5" width="5" height="2" rx="1"/>' +
-    '<rect class="sk-g sk-g--soft" x="6.5" y="15" width="4.5" height="2" rx="1"/>' +
-    '<rect class="sk-g sk-g--soft" x="12.5" y="15" width="5" height="2" rx="1"/>',
   people:
     '<circle class="sk-back" cx="15.6" cy="7.9" r="2.9"/>' +
     '<path class="sk-back" d="M11 19.5c0-3.1 2-5.3 4.6-5.3s4.6 2.2 4.6 5.3a1 1 0 0 1-1 1h-7.2a1 1 0 0 1-1-1z"/>' +

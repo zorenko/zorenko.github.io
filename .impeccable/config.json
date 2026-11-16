@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "radial-halo",
+        "value": "*",
+        "files": [
+          "public/demos/celsia/index.html"
+        ],
+        "createdAt": "2026-11-16T19:50:08.432Z",
+        "reason": "agent triage: the radial gradients are styles.css --panel, added in 5987e51 before this session; script.js redraws that panel as a dotted halftone behind the guide and product-tour pictures, so it isn't a decorative glow"
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "files": [
+          "public/demos/visuals/index.html"
+        ],
+        "createdAt": "2026-11-16T20:33:30.710Z",
+        "reason": "the Visuals demo copies the real Visuals app, whose UI font is Geist (styles.css --f, since d59f72e)"
+      }
+    ]
+  }
+}

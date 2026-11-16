@@ -119,7 +119,8 @@
 
   /* ── content ──
      In plain words, for someone new to sustainability reporting: no standard's codes or paragraph numbers, and none
-     of the production app's specialist set-up (its disclosure checklists, table blocks and reporting rules). */
+     of the production app's specialist set-up (its disclosure checklists and reporting rules). Only Climate targets
+     is written, in full, with a table and two charts, as a real report would have. */
   const PEOPLE = {
     hh: { name: 'Hannah Hayes', ini: 'HH', c: '' },
     ib: { name: 'Isabel Brooks', ini: 'IB', c: 'b' },
@@ -139,12 +140,12 @@
 
   // Every data point: a paragraph (text) or a value in its text (a target or a number). Fields left out take defaults.
   const DPS = {
-    // Our climate plan
-    'e11-plan': { name: 'Our plan to reach net zero', ask: 'Explain how the company will cut its emissions to reach net zero, and by when.', edited: '14.08.2023' },
-    't-nz': { kind: 'target', name: 'Net zero across our value chain by 2045', unit: 't CO₂e', actual: [[2020, 128000], [2021, 123200], [2022, 118480], [2023, 114000]], goal: [2045, 12800], source: 'From a target', owner: 'ib', files: ['Climate_plan_2023.pdf'], ask: 'Give the target the plan is built around: how much, and by when.', note: 'The last 10% is removed from the air for good.' },
-    'e11-gov': { name: 'Who approved the plan', ask: 'Say who approved the plan, and how often its progress is checked.' },
-    // Climate targets
-    'e14-how': { name: 'How we set our targets', source: 'Written by AI', note: AI_NOTE, files: ['Climate_strategy_2023.pdf'], ask: 'Explain how the company decided on its climate targets.',
+    // The net-zero target, in Climate targets' table
+    't-nz': { kind: 'target', name: 'Net zero across our value chain by 2045', unit: 't CO₂e', actual: [[2020, 128000], [2021, 123200], [2022, 118480], [2023, 114000]], goal: [2045, 12800], source: 'From a target', owner: 'ib', files: ['Climate_plan_2023.pdf'], ask: 'Give the target the plan is built around: how much, and by when.' },
+    // Climate targets. Laid out the way a report under the EU's climate standard (ESRS E1) shows its targets: what each
+    // one covers, its starting year and value, the goal, progress so far, whether it's science-based, the steps that get
+    // there and what each cuts, and that carbon credits don't count. The numbers add up with Energy use and Emissions.
+    'e14-how': { name: 'How we set our targets', source: 'Written by AI', note: AI_NOTE, files: ['Climate_strategy_2023.pdf'], ask: 'Explain how the company decided on its climate targets: when, from which starting year, and for which parts of the business.',
       comments: [{ by: 'ib', when: '2 days ago', text: 'Can we say which parts of the business we looked at? The auditors asked last year.' }],
       subs: [
         'We set our targets together with the group in 2021, using science-based guidance and our 2020 emissions.',
@@ -154,14 +155,17 @@
       ],
       summary: 'Northfield set its climate targets as a group in 2021, using science-based guidance and our 2020 emissions as the starting point. Each company helped through a workshop on what matters most and by collecting data from suppliers, and the Glasgow plant added its own target for process heat after its 2022 energy check.' },
     'e14-targets': { name: 'Our emission targets', ask: 'Give your emission targets: how much, by when, and from which starting year.' },
-    't-s1': { kind: 'target', name: 'Cut direct emissions per product by 35% by 2025', unit: 't CO₂e per unit', actual: [[2020, 0.84], [2021, 0.8], [2022, 0.74], [2023, 0.69]], goal: [2025, 0.546], dec: 2, source: 'From a target', owner: 'lm', files: ['Direct_emissions_2023.pdf'], edited: '2.10.2023',
-      note: 'The Glasgow plant we bought changes 2020 by less than 5%, so the starting point stays.',
+    't-s1': { kind: 'target', name: 'Cut direct and energy emissions by 42% by 2030', unit: 't CO₂e', actual: [[2020, 24600], [2021, 22000], [2022, 19580], [2023, 17600]], goal: [2030, 14268], source: 'From a target', owner: 'lm', files: ['Direct_emissions_2023.pdf'], edited: '2.10.2023',
+      note: 'Buying the Glasgow plant in 2022 changes our 2020 emissions by less than 5%, so the starting point stays.',
       ask: 'Give the target as a number, the year it should be reached, and the year it is measured from.',
       comments: [
         { by: 'ib', when: 'Yesterday', text: 'Does buying the Glasgow plant change our 2020 starting point?' },
         { by: 'lm', when: 'Yesterday', text: 'Barely, by less than 5%. I added a note.' },
       ] },
-    't-s23': { kind: 'target', name: 'Cut indirect emissions per product by 25% by 2030', unit: 't CO₂e per unit', actual: [[2020, 6.2], [2021, 6.1], [2022, 5.8], [2023, 5.6]], goal: [2030, 4.65], dec: 2, source: 'From a target', owner: 'sd', ask: 'Give the target as a number, the year it should be reached, and the year it is measured from.' },
+    't-s23': { kind: 'target', name: 'Cut value chain emissions per tonne we make by 25% by 2030', unit: 't CO₂e per tonne', actual: [[2020, 5.79], [2021, 5.74], [2022, 5.51], [2023, 5.33]], goal: [2030, 4.34], dec: 2, source: 'From a target', owner: 'sd', files: ['Supplier_survey_2023.pdf'], ask: 'Give the target as a number, the year it should be reached, and the year it is measured from.' },
+    'e14-table': { kind: 'table', block: true, name: 'Our targets at a glance', source: 'Added up', owner: 'lm', ask: 'Show each target with its starting point, where it stands now and its goal, side by side.' },
+    'e14-progress': { name: 'Progress in 2023', owner: 'lm', edited: '4.10.2023', ask: 'Say how far the company has come on each target, and explain why.' },
+    'e14-path': { kind: 'chart', block: true, name: 'Direct and energy emissions against the 2030 goal', source: 'From a number', owner: 'lm', files: ['Direct_emissions_2023.pdf'], ask: 'Show the emissions each year since the starting year, next to the path to the goal.' },
     'e14-material': { name: 'Where our biggest impacts are', ask: 'Explain how the targets match the areas where the company affects the climate most.',
       subs: [
         'Our largest impacts are electricity at the Leeds plant and trucking in raw materials.',
@@ -170,8 +174,7 @@
         null,
       ],
       summary: 'Our 2023 review found the biggest climate impacts in electricity and gas-fired heat at our plants, the aluminium we buy, and trucking materials and products. Our targets focus on these areas.' },
-    'e14-risks': { name: 'How climate risks shape our targets', ask: 'Explain how the ways climate change could affect the business were used when setting the targets.', edited: '21.09.2023', owner: 'ib' },
-    'e14-levers': { name: 'What we are doing to get there', ask: 'List the main things the company is doing to reach its targets.',
+    'e14-levers': { name: 'What we are doing to get there', ask: 'List the main steps the company is taking to reach its targets, and how much each will cut.',
       comments: [{ by: 'sd', when: '3 days ago', text: 'Add the heat pumps in Glasgow here?' }],
       subs: [
         'Department heads have a bonus tied to saving energy. We are putting solar panels on the roof in 2024.',
@@ -179,52 +182,29 @@
         null,
         'All our electricity has been renewable since 2022.',
       ],
-      summary: 'Teams are rewarded for saving energy, and we invest in research to cut emissions further. Our main steps are replacing the gas-fired heat in Glasgow with heat pumps by 2027, solar panels on the roof in Leeds in 2024, and renewable electricity, which already powers our Finnish site.' },
-    'e14-achievable': { name: 'Why the targets are realistic', ask: 'Say whether the targets are based on science, and why they can be reached.' },
-    // Energy use
-    'e15-total': { name: 'Total energy use', ask: 'Give how much energy the company used, and how much of it was renewable.' },
-    'e-total': { kind: 'metric', name: 'Total energy use', unit: 'MWh', years: [[2021, 51300], [2022, 49950], [2023, 48210]], sum: true, source: 'From a number', files: ['Energy_report_2023.pdf'], ask: 'Give the energy used by the company’s own sites and vehicles, in MWh.' },
-    'e-ren': { kind: 'metric', name: 'Share of renewable energy', unit: '%', years: [[2021, 48], [2022, 55], [2023, 61]], better: 'up', source: 'Added up', ask: 'Give the share of energy that came from renewable sources.' },
-    'e15-fossil': { name: 'Energy from fossil fuels', ask: 'Give how much energy came from fossil fuels, and what it was used for.' },
-    'e-fossil': { kind: 'metric', name: 'Energy from fossil fuels', unit: 'MWh', years: [[2021, 26700], [2022, 22480], [2023, 18800]], sum: true, source: 'From a number', owner: 'lm', ask: 'Give the energy that came from fossil fuels, in MWh.' },
-    'e15-int': { name: 'Energy for each euro earned', ask: 'Give the energy used for each thousand euros of revenue.' },
-    'e-int': { kind: 'metric', name: 'Energy per thousand euros of revenue', unit: 'MWh per €1,000', years: [[2021, 0.27], [2022, 0.24], [2023, 0.21]], dec: 2, source: 'Added up', ask: 'Divide the energy used by the revenue, in thousands of euros.' },
-    // Emissions
-    'e16-s1': { name: 'Direct emissions', ask: 'Give the emissions from sources the company owns, such as its boilers and vehicles.' },
+      summary: 'Our main steps are renewable electricity at every site, with solar panels on the roof in Leeds in 2024, and replacing the gas-fired heat in Glasgow with heat pumps by 2027. Our Welsh site has run on renewable electricity since 2022, and department heads have a bonus tied to saving energy.' },
+    'e14-steps': { kind: 'chart', block: true, name: 'What each step cuts by 2030', source: 'Typed in', owner: 'lm', files: ['Capex_plan_2024-2027.pdf'], ask: 'Show each main step with how much it is expected to cut, and by when.' },
+    'e14-risks': { name: 'How climate risks shape our targets', ask: 'Explain how the ways climate change could affect the business were used when setting the targets.', edited: '21.09.2023', owner: 'ib' },
+    'e14-achievable': { name: 'Why the targets are realistic', ask: 'Say whether the targets are based on science, why they can be reached, what pays for the steps, and whether carbon credits count towards them.' },
+    // Emissions, in Climate targets' chart and in Insights
     'g-s1': { kind: 'metric', name: 'Direct emissions (Scope 1)', unit: 't CO₂e', years: [[2021, 14100], [2022, 13280], [2023, 12480]], sum: true, source: 'From a number', owner: 'lm', files: ['Direct_emissions_2023.pdf'], ask: 'Give the emissions from sources the company owns, in tonnes of CO₂.' },
-    'e16-s2': { name: 'Emissions from energy we buy', ask: 'Give the emissions from producing the electricity and heat the company buys.' },
     'g-s2': { kind: 'metric', name: 'Emissions from energy we buy (Scope 2)', unit: 't CO₂e', years: [[2021, 7900], [2022, 6300], [2023, 5120]], sum: true, source: 'From a number', ask: 'Give the emissions from the electricity and heat the company buys, in tonnes of CO₂.' },
-    'e16-s3': { name: 'Emissions in our value chain', ask: 'Give the emissions from suppliers, transport and the use of your products.' },
-    'g-s3': { kind: 'metric', name: 'Value chain emissions (Scope 3)', unit: 't CO₂e', years: [[2021, 101200], [2022, 98900], [2023, 96400]], sum: true, source: 'From a number', owner: 'sd', files: ['Supplier_survey_2023.pdf'], ask: 'Give the emissions from suppliers, transport and the use of your products, in tonnes of CO₂.',
-      comments: [{ by: 'sd', when: 'Last week', text: 'Suppliers gave us real numbers for 64% of what we buy. The rest is estimated from spend.' }] },
-    'e16-tot': { name: 'Total emissions', ask: 'Add up all three kinds of emissions.' },
-    'g-tot': { kind: 'metric', name: 'Total emissions', unit: 't CO₂e', years: [[2021, 123200], [2022, 118480], [2023, 114000]], sum: true, source: 'Added up', ask: 'Add up direct, energy and value chain emissions.' },
   }
 
-  // The report's sections. A value in a paragraph is [[data point|its words]].
+  // The report's sections: only Climate targets is written; the rest of the contents is there to see, not to open.
+  // A value in a paragraph is [[data point|its words]].
   const REPORTS = [
-    { id: 'e1-1', title: 'Our climate plan', paras: {
-      'e11-plan': 'We adopted our climate plan in March 2023. It sets out how Northfield will reach [[t-nz|net zero emissions across our value chain by 2045]], in line with keeping global warming to 1.5°C: by using less energy, heating with electricity instead of gas, buying renewable power and working with our largest suppliers.',
-      'e11-gov': 'The Board approved the plan, and the management team checks its progress every quarter. Most of the emissions we can’t easily avoid come from the gas-fired heat at our Leeds and Glasgow plants, which we plan to switch to electricity by 2027.',
-    } },
     { id: 'e1-4', title: 'Climate targets', paras: {
-      'e14-how': 'At Northfield, we take our impact on the climate seriously. We set our emission targets through a careful process, using scientific guidance and looking closely at how our own business works.',
-      'e14-targets': 'Following the Science Based Targets initiative, we aim to [[t-s1|cut our direct emissions per product by 35% by 2025, compared with 2020]]. We also aim to [[t-s23|cut the emissions from the energy we buy and from our suppliers by 25% per product by 2030]].',
-      'e14-material': 'We chose these targets after a careful review of where our business affects the climate most. It looked at our whole value chain and found the biggest impacts in electricity use, transport and the materials we buy.',
-      'e14-risks': 'Every year we also look at how climate change could affect our business. This shows us where we can cut the most emissions, and where we are most at risk.',
-      'e14-levers': 'We reward teams for meeting these targets and invest in research to find new ways of cutting emissions. We are also moving to renewable energy, which will cut the emissions from the energy we buy.',
-      'e14-achievable': 'We believe these targets can be reached, based on our past emissions and how much we expect to grow. We take our aim of becoming carbon neutral seriously and will adjust our plans as needed.',
-    } },
-    { id: 'e1-5', title: 'Energy use', paras: {
-      'e15-total': 'In 2023, our sites and vehicles used [[e-total|48,210 MWh]] of energy, and [[e-ren|61%]] of it came from renewable sources, mostly hydropower.',
-      'e15-fossil': 'We used [[e-fossil|18,800 MWh]] of energy from fossil fuels, mainly natural gas for heat at the Leeds and Glasgow plants. We plan to switch both to electricity by 2027.',
-      'e15-int': 'We used [[e-int|0.21 MWh for every thousand euros]] we earned, down from 0.24 in 2022, as sales grew faster than our energy use.',
-    } },
-    { id: 'e1-6', title: 'Emissions', paras: {
-      'e16-s1': 'Our direct emissions in 2023 were [[g-s1|12,480 t CO₂e]], 6% lower than in 2022. Most of them come from gas for heat and from our vehicles.',
-      'e16-s2': 'The electricity and heat we buy caused [[g-s2|5,120 t CO₂e]], down as more of our sites switch to renewable power.',
-      'e16-s3': 'Emissions in our value chain were [[g-s3|96,400 t CO₂e]]. The goods and services we buy make up 71% of them, and transport 12%.',
-      'e16-tot': 'In total, we emitted [[g-tot|114,000 t CO₂e]], or 0.62 tonnes for every thousand euros we earned.',
+      'e14-how': 'In 2021, Northfield set climate targets for the whole group. Today they cover all four of our companies, in England, Scotland, Ireland and Wales, and every kind of emissions, from our own boilers and vans to the materials we buy and the trucks that deliver our products. We measure them all from 2020, the last full year before we set them. In May 2022, the Science Based Targets initiative checked them and confirmed they match what science says is needed to keep warming to 1.5°C.',
+      'e14-targets': 'For 2030 we have two targets. We aim to [[t-s1|cut our direct emissions and those from the energy we buy by 42% by 2030]], from 24,600 to 14,268 tonnes of CO₂e. And because most of our emissions come from what we buy, we aim to [[t-s23|cut the emissions in our value chain by 25% for every tonne we make by 2030]]. Both are steps towards net zero by 2045, which our climate plan sets out.',
+      'e14-table': { block: () => targetsTable() },
+      'e14-progress': 'By the end of 2023, our direct and energy emissions were 28% below 2020, ahead of the straight line to 2030. Most of the cut came from renewable electricity, which three of our four sites now buy, and from saving energy, above all new burners and heat recovery at the Leeds plant. Value chain emissions per tonne fell by 8%, more slowly than we need: our suppliers’ own cuts take time to show in our numbers, and 36% of what we buy is still estimated from what we spend on it rather than measured.',
+      'e14-path': { block: () => pathChart() },
+      'e14-material': 'We chose these targets after a review of where our business affects the climate most, which we repeated in 2023. In 2023, 85% of our emissions came from our value chain, and the goods and services we buy, above all aluminium and packaging, made up 60% on their own. At our own sites, gas for process heat in Leeds and Glasgow is the largest source.',
+      'e14-levers': 'Four steps make up most of the cut to 2030. We are moving every site to renewable electricity by 2025, with solar panels on the roof in Leeds in 2024 and a ten-year contract with a Scottish wind farm. We are replacing the gas boilers in Leeds and Glasgow with heat pumps by 2027, switching the vans that deliver in England to electric ones by 2028, and saving energy at every site each year. For the value chain, our 40 largest suppliers, who make up 70% of what we buy, have agreed to set their own targets by 2025.',
+      'e14-steps': { block: () => stepsChart() },
+      'e14-risks': 'Every year we also look at how climate change could affect our business. In 2023 we used two futures: one where warming is kept to 1.5°C, and one where it reaches 3°C. In the first, carbon prices could add €1.9 million a year to our energy and material costs by 2030. In the second, flooding and summer heat put the Leeds plant most at risk. Both point the same way: use less gas, and work more closely with our suppliers.',
+      'e14-achievable': 'Together, the four steps cut 11,800 tonnes compared with 2020, more than the 10,332 tonnes the 2030 target needs, which leaves room if a project runs late. We have set aside €14.2 million for them from 2024 to 2027. We don’t count carbon credits or carbon removed from the air towards these targets. The Board checks our progress every quarter, 20% of the management team’s yearly bonus depends on it, and if we buy or sell a business that changes our 2020 emissions by more than 5%, we recalculate the starting point.',
     } },
   ]
   const reportById = (id) => REPORTS.find((r) => r.id === id)
@@ -239,8 +219,8 @@
 
   // The report's contents: one group a topic
   const TOC = [
-    { id: 'climate', name: 'Climate', kids: REPORTS.map((r) => ({ report: r.id, name: r.title })) },
-    { id: 'pollution', name: 'Pollution', kids: [{ name: 'Overview', page: 'topic' }, { name: 'Air, water and soil', off: true }] },
+    { id: 'climate', name: 'Climate', kids: [{ name: 'Our climate plan', off: true }, { report: 'e1-4', name: 'Climate targets' }, { name: 'Energy use', off: true }, { name: 'Emissions', off: true }] },
+    { id: 'pollution', name: 'Pollution', kids: [{ name: 'Air, water and soil', off: true }] },
     { id: 'water', name: 'Water', kids: [{ name: 'Water use', off: true }] },
     { id: 'people', name: 'People', kids: [{ name: 'Our employees', off: true }] },
     { id: 'conduct', name: 'Business conduct', kids: [{ name: 'Anti-corruption', off: true }] },
@@ -250,6 +230,7 @@
   const S = {
     report: 'e1-4',
     open: new Set(['climate']), // the table of contents' open groups
+    tocOpen: false, // the table of contents' popup
     sel: undefined, // the open data point
     tab: 'details',
     editing: undefined, // a paragraph being edited
@@ -258,7 +239,6 @@
     menu: false, // the owner menu
     layer: undefined, // 'guide'
     sums: {}, // a text's answer written from its companies' answers: { text, busy, used }
-    downloading: false,
     dp: {}, // what can change on each data point
   }
   for (const [id, d] of Object.entries(DPS)) {
@@ -296,8 +276,8 @@
     if (typeof html !== 'string') return ''
     return html.replace(/\[\[[^|]+\|([^\]]+)\]\]/g, '$1').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim()
   }
-  const kindLabel = (d) => ({ narrative: 'Text', target: 'Target', metric: 'Number' })[d.kind]
-  const kindIcon = (d) => ({ narrative: 'align-justified', target: 'target-arrow', metric: 'chart-histogram' })[d.kind]
+  const kindLabel = (d) => ({ narrative: 'Text', target: 'Target', metric: 'Number', table: 'Table', chart: 'Chart' })[d.kind]
+  const kindIcon = (d) => ({ narrative: 'align-justified', target: 'target-arrow', metric: 'chart-histogram', table: 'table', chart: 'chart-line' })[d.kind]
   const avatar = (pid, lg) => { const p = PEOPLE[pid]; return `<span class="avatar ${p.c ? `avatar--${p.c}` : ''} ${lg ? 'avatar--lg' : ''}" title="${esc(p.name)}">${p.ini}</span>` }
 
   /* ── a chart for a target or a metric ── */
@@ -350,7 +330,7 @@
       ${RAIL_END.map(item).join('')}`
   }
 
-  /* ── the table of contents ── */
+  /* ── the table of contents: an icon button at the report's top left, and the contents in a popup under it ── */
   function renderToc() {
     const node = (n) => {
       if (n.kids) {
@@ -358,17 +338,84 @@
         return `<button type="button" class="toc__row toc__row--group" data-act="toggle" data-arg="${n.id}" aria-expanded="${open}"><span class="toc__name">${esc(n.name)}</span>${icon('chevron-down')}</button>
           ${open ? `<div class="toc__kids">${n.kids.map(node).join('')}</div>` : ''}`
       }
-      if (n.page) return `<button type="button" class="toc__row" data-act="go" data-arg="${n.page}"><span class="toc__name">${esc(n.name)}</span>${icon('arrow-up-right')}</button>`
       if (n.off) return `<button type="button" class="toc__row is-off" data-act="off" title="Not in this demo"><span class="toc__name">${esc(n.name)}</span></button>`
       return `<button type="button" class="toc__row" data-act="report" data-arg="${n.report}" ${S.report === n.report ? 'aria-current="page"' : ''}><span class="toc__name">${esc(n.name)}</span></button>`
     }
-    // The report's name, with its download, heads the table of contents
-    toc.innerHTML = `<div class="toc__head"><b>Report 2023</b><button type="button" class="iconbtn" data-act="download" aria-label="${S.downloading ? 'Preparing the PDF' : 'Download the report as a PDF'}" title="${S.downloading ? 'Preparing PDF…' : 'Download PDF'}" ${S.downloading ? 'disabled' : ''}>${S.downloading ? spinner() : icon('download')}</button></div>` + TOC.map(node).join('')
+    toc.innerHTML = `<button type="button" class="iconbtn toc__btn" data-act="toc" aria-label="Contents" title="Contents" aria-expanded="${S.tocOpen}" ${S.tocOpen ? 'aria-pressed="true"' : ''}>${icon('list')}</button>`
+      + (S.tocOpen ? `<div class="toc__pop" role="menu" aria-label="Contents">${TOC.map(node).join('')}</div>` : '') + guideChip()
   }
 
   /* ── the report ── */
   const paraHTML = (html) => html.replace(/\[\[([^|]+)\|([^\]]+)\]\]/g, (_, id, words) =>
     `<span class="v" data-act="pick" data-arg="${id}" data-v="${id}" role="button" tabindex="0" aria-label="${esc(kindLabel(DPS[id]))}: ${esc(DPS[id].name)}">${words}</span>`)
+  /* Tables and charts in the report: each is a data point of its own (a block), made from the targets' and numbers'
+     data points, so it agrees with them. They follow the demo's colours: greys and the accent's lemon. */
+  const S12_2020 = [15000, 9600] // direct (Scope 1) and energy (Scope 2) emissions in the starting year
+  const rowsOf = (id) => DPS[id].actual
+  const changeSoFar = (id) => { const a = rowsOf(id); return pct(a[0][1], a.at(-1)[1]) }
+  function targetsTable() {
+    const rows = [
+      ['t-s1', 'Direct and energy emissions', 'Scope 1 and 2, t CO₂e'],
+      ['t-s23', 'Value chain emissions per tonne we make', 'Scope 3, t CO₂e per tonne'],
+      ['t-nz', 'Net zero, all emissions', 'Scope 1, 2 and 3, t CO₂e'],
+    ]
+    return `<figure class="fig">
+      <figcaption class="fig__cap">Our climate targets<small>Measured from 2020</small></figcaption>
+      <table class="rtable">
+        <thead><tr><th>Target</th><th>2020</th><th>2023</th><th>So far</th><th>Goal</th></tr></thead>
+        <tbody>${rows.map(([id, name, sub]) => {
+          const d = DPS[id], [, start] = d.actual[0], [, now] = d.actual.at(-1), [gy, gv] = d.goal
+          return `<tr><td><b>${name}</b><small>${sub}</small></td><td>${num(start, d.dec)}</td><td>${num(now, d.dec)}</td><td>${signed(Math.round(changeSoFar(id)))}</td><td><b>${signed(Math.round(pct(start, gv)))}</b><small>by ${gy}</small></td></tr>`
+        }).join('')}</tbody>
+      </table>
+      <p class="fig__note">Emissions from the energy we buy are counted from the electricity we choose to buy (market-based). Per tonne uses what we made each year: 18,090 tonnes in 2023. Carbon credits don’t count towards any target.</p>
+    </figure>`
+  }
+  // Direct and energy emissions each year since 2020, by kind, with the straight line to the 2030 goal
+  function pathChart() {
+    const W = 496, H = 210, L = 40, R = 8, T = 12, B = 26, max = 30000
+    const s1 = [[2020, S12_2020[0]], ...DPS['g-s1'].years], s2 = [[2020, S12_2020[1]], ...DPS['g-s2'].years]
+    const [gy, gv] = DPS['t-s1'].goal, start = S12_2020[0] + S12_2020[1]
+    const yrs = []; for (let y = 2020; y <= gy; y++) yrs.push(y)
+    const step = (W - L - R) / yrs.length, bw = Math.min(26, step * .56)
+    const x = (y) => L + (y - 2020 + .5) * step, y = (v) => T + (H - T - B) * (1 - v / max)
+    let out = ''
+    for (let v = 0; v <= max; v += 10000) out += `<line class="ch-grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-axis" x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v ? `${v / 1000}k` : 0}</text>`
+    s1.forEach(([yr, a], i) => {
+      const b = s2[i][1]
+      out += `<rect class="ch-s1" x="${x(yr) - bw / 2}" y="${y(a)}" width="${bw}" height="${y(0) - y(a)}" rx="2"/>`
+      out += `<rect class="ch-s2" x="${x(yr) - bw / 2}" y="${y(a + b)}" width="${bw}" height="${y(a) - y(a + b) - 1.5}" rx="2"/>`
+      if (i === 0 || i === s1.length - 1) out += `<text class="ch-val" x="${x(yr)}" y="${y(a + b) - 6}" text-anchor="middle">${short(a + b)}</text>`
+    })
+    out += `<line class="ch-path" x1="${x(2020)}" y1="${y(start)}" x2="${x(gy)}" y2="${y(gv)}"/>`
+    out += `<circle class="ch-goal" cx="${x(gy)}" cy="${y(gv)}" r="4"/><text class="ch-val ch-val--goal" x="${x(gy)}" y="${y(gv) - 10}" text-anchor="end">Goal ${short(gv)}</text>`
+    yrs.forEach((yr) => { if (yr <= s1.at(-1)[0] || yr === 2025 || yr === gy) out += `<text class="ch-axis" x="${x(yr)}" y="${H - 6}" text-anchor="middle">${yr}</text>` })
+    return `<figure class="fig">
+      <figcaption class="fig__cap">Direct and energy emissions<small>t CO₂e a year, against the 2030 goal</small></figcaption>
+      <svg class="fig__svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Direct and energy emissions fell from ${num(start)} t in 2020 to ${num(s1.at(-1)[1] + s2.at(-1)[1])} t in 2023; the goal is ${num(gv)} t by ${gy}">${out}</svg>
+      <p class="fig__key"><span><i class="k-s1"></i>Direct (Scope 1)</span><span><i class="k-s2"></i>Energy we buy (Scope 2)</span><span><i class="k-path"></i>Straight line to the goal</span></p>
+    </figure>`
+  }
+  // The main steps to 2030: what each cuts a year by then, compared with 2020, by when, and how much of it is done.
+  // What's done adds up to 2023's cut (24,600 to 17,600): renewable electricity is the fall in energy emissions, saving
+  // energy the fall in direct ones. The Targets page plans with them too.
+  const STEPS = [
+    ['Renewable electricity at every site', 6000, 2025, 4480],
+    ['Saving energy at every site', 2800, 2030, 2520],
+    ['Heat pumps in Leeds and Glasgow', 2400, 2027, 0],
+    ['Electric delivery vans in England', 600, 2028, 0],
+  ]
+  function stepsChart() {
+    const total = STEPS.reduce((n, s) => n + s[1], 0), [, gv] = DPS['t-s1'].goal, need = S12_2020[0] + S12_2020[1] - gv
+    const max = Math.max(total, need)
+    return `<figure class="fig">
+      <figcaption class="fig__cap">What each step cuts by 2030<small>t CO₂e a year, compared with 2020</small></figcaption>
+      <div class="hbars">${STEPS.map(([n, v, yr]) => `<div class="hbar"><span class="hbar__name">${n}<small>by ${yr}</small></span><span class="hbar__track"><i style="--w:${(v / max) * 100}%"></i></span><span class="hbar__v">${num(v)}</span></div>`).join('')}
+        <div class="hbar hbar--sum"><span class="hbar__name">All four steps</span><span class="hbar__track"><i style="--w:${(total / max) * 100}%"></i><b style="--at:${(need / max) * 100}%" title="What the target needs"></b></span><span class="hbar__v">${num(total)}</span></div>
+      </div>
+      <p class="fig__key"><span><i class="k-need"></i>The 2030 target needs ${num(need)}</span></p>
+    </figure>`
+  }
   const commentsIn = (pid) => order(REPORT_OF[pid]).filter((id) => PARA_OF[id] === pid).reduce((n, id) => n + S.dp[id].comments.length, 0)
   function renderStage(enter) {
     const r = reportById(S.report)
@@ -381,7 +428,7 @@
         <div class="parent">
           ${Object.keys(r.paras).map((pid) => `
             <div class="para" data-act="pick" data-arg="${pid}" data-para="${pid}" tabindex="0" aria-label="${esc(DPS[pid].name)}">
-              <p class="para__text">${S.html[pid] ?? paraHTML(r.paras[pid])}</p>
+              ${typeof r.paras[pid] === 'string' ? `<p class="para__text">${S.html[pid] ?? paraHTML(r.paras[pid])}</p>` : `<div class="para__block">${r.paras[pid].block()}</div>`}
               ${countHTML(pid)}
             </div>`).join('')}
         </div>
@@ -407,7 +454,7 @@
       <div class="bar" role="toolbar" aria-label="${esc(kindLabel(d))}">
         <span class="bar__label">${icon(kindIcon(d))}${kindLabel(d)}</span>
         <button type="button" class="iconbtn" data-act="tab" data-arg="comments" aria-label="Comments" title="Comments" aria-pressed="${S.tab === 'comments'}">${icon('message')}</button>
-        <button type="button" class="iconbtn" data-act="edit" aria-label="Edit the text" title="Edit the text" aria-pressed="${S.editing === PARA_OF[S.sel]}">${icon('pencil')}</button>
+        <button type="button" class="iconbtn" data-act="edit" aria-label="Edit the text" title="${d.block ? 'Tables and charts are made from their numbers' : 'Edit the text'}" aria-pressed="${S.editing === PARA_OF[S.sel]}" ${d.block ? 'disabled' : ''}>${icon('pencil')}</button>
       </div>`)
   }
 
@@ -431,7 +478,7 @@
         </span>
       </div>
       <div class="dp__body ${enter && !wasHidden ? 'is-in' : ''}">
-        ${d.kind === 'narrative' ? '' : `<div class="cover">${chart(d, 300, 124)}</div>`}
+        ${d.kind === 'target' || d.kind === 'metric' ? `<div class="cover">${chart(d, 300, 124)}</div>` : ''}
         <h2 class="dp__title">${esc(d.name)}</h2>
         <div class="tabs"><div class="tabs__list" role="tablist">${tabs.map(([k, label]) => `<button type="button" class="tab" role="tab" data-act="tab" data-arg="${k}" aria-selected="${S.tab === k}" data-tab="${k}">${label}${k === 'comments' && st.comments.length ? `<span class="count">${st.comments.length}</span>` : ''}</button>`).join('')}</div></div>
         ${TABS[S.tab](id, d, st)}
@@ -518,7 +565,7 @@
   function onDpScroll() { $('[data-dp-head]', dpEl)?.classList.toggle('is-stuck', dpEl.scrollTop > 4) }
   dpEl.addEventListener('scroll', onDpScroll, { passive: true })
 
-  /* ── a dialog: the data input guide ── */
+  /* ── a dialog: the report's guide ── */
   function renderLayer() {
     const html = S.layer === 'guide' ? guideHTML() : ''
     const opening = !layer.innerHTML && html, shown = layer.dataset.shown
@@ -603,11 +650,11 @@
     if (S.sel === id) renderDp()
   }
 
-  /* ════════ the other pages: Home, Help center, Data input, Insights, Pollution, a target ════════
+  /* ════════ the other pages: Home, Help center, Insights, a target ════════
      Each page is a function in PAGES that returns its HTML from S; renderPage() draws the one open. */
   const pageEl = $('[data-page]')
   const reportEl = $('[data-report]')
-  const SECTION = { home: 'home', help: 'help', report: 'report', input: 'report', topic: 'report', target: 'target', metric: 'metric' }
+  const SECTION = { home: 'home', help: 'help', report: 'report', target: 'target', metric: 'metric' }
   // [page, skeuomorphic icon, name]
   const RAIL = [
     ['home', 'home', 'Home'],
@@ -616,35 +663,25 @@
     ['report', 'report', 'Report'],
   ]
   const RAIL_END = [['help', 'help', 'Help center']] // above the avatar
-  const spinner = () => '<svg class="ico spin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/></svg>'
   const plural = (n, w) => `${n} ${n === 1 ? w : `${w}s`}`
-  const pill = (status) => `<span class="pill pill--${status.toLowerCase().replace(/ /g, '-')}">${esc(status)}</span>`
-  // A dropdown on a page: one open at a time (S.pmenu); picking runs MENU[key](value)
-  const dropdown = (key, label, items, cur, cls = '') => `<div class="dd ${cls}"><button type="button" class="dd__btn" data-act="pmenu" data-arg="${key}" aria-haspopup="menu" aria-expanded="${S.pmenu === key}">${label}${icon('chevron-down')}</button>${S.pmenu === key ? `<div class="menu" role="menu">${items.map(([v, t]) => `<button type="button" class="menu__item" role="menuitemradio" aria-checked="${v === cur}" data-act="choose" data-arg="${key}:${esc(v)}">${t}${v === cur ? icon('check') : ''}</button>`).join('')}</div>` : ''}</div>`
-  const COUNTRY = { no: 'England', se: 'Scotland', dk: 'Ireland' }
+  const COUNTRY = { no: 'England', se: 'Scotland', dk: 'Ireland', wa: 'Wales' }
 
   Object.assign(S, {
     page: 'home', // the demo starts at Home
-    pmenu: undefined, // a page's open dropdown
     todo: new Set(),
     help: { q: '' },
-    guide: { step: 0, read: new Set([0]), seen: false, min: false },
-    inp: { open: new Set(['g-s1', 'g-s3']), more: false, edit: undefined, vals: {} },
+    guide: { step: 0, read: new Set([0]), min: false },
     metric: 'g-s1',
-    met: { range: '1q', on: new Set(['no', 'dk', 'se']), forecast: true, target: true, targets: {}, editTarget: false },
-    topic: { tab: 'people', q: '', role: 'all', open: new Set(['parent', 'p-hh']), reviewer: undefined, added: false, flash: undefined },
-    tgt: { show: { mile: true, interp: true, impact: true }, base: 200, miles: [[2025, 170], [2030, 140], [2040, 90], [2050, 40]], edit: undefined, actions: [true, true, false, false] },
+    met: { range: '1q', on: new Set(['no', 'dk', 'se', 'wa']), forecast: true, target: true, targets: {}, editTarget: false },
+    tgt: { show: { mile: true, interp: true, actual: true, impact: true }, base: 24600, miles: [[2025, 19400], [2027, 17300], [2030, 14268]], edit: undefined, actions: [true, true, false, false] },
   })
-  PEOPLE.ll = { name: 'Laura Lewis', ini: 'LL', c: 'e' }
 
   /* ── navigation ── */
   function go(p, set) {
     finishEdit()
-    S.menu = false; S.pmenu = undefined
+    S.menu = false; S.tocOpen = false
     S.page = p
     S.layer = undefined
-    // Data input's guide opens by itself the first time
-    if (p === 'input' && !S.guide.seen) { S.guide.seen = true; S.layer = 'guide' }
     if (set) set()
     renderAll(true)
   }
@@ -665,8 +702,8 @@
 
   /* ════ Home ════ */
   const TODO = [['tour', 'Take the product tour', 'Onboarding · 3 min'], ['invite', 'Invite your team', 'Isabel and Liam are waiting'], ['file', 'Upload last year’s report', 'So Celsia can fill in what it already knows'], ['target', 'Review the climate targets', 'Due Friday']]
-  // The report's topics and how far each has come: Climate and Pollution open, the rest are only on Home
-  const TOPICS = [['Climate', 82, 'report'], ['Pollution', 60, 'topic'], ['Water', 35], ['People', 48], ['Business conduct', 15]]
+  // The report's topics and how far each has come: Climate opens, the rest are only on Home
+  const TOPICS = [['Climate', 82, 'report'], ['Pollution', 60], ['Water', 35], ['People', 48], ['Business conduct', 15]]
   const SKILLS = [
     ['people', 'Celsia community', 'Ask others who report, and share what works', 'toast', 'The community opens in its own site'],
     ['sparkles', 'Ask AI', 'Get answers about reporting in plain words', 'toast', 'Ask AI isn’t in this demo'],
@@ -691,7 +728,7 @@
       <div class="h2row"><h2 class="h2">Report 2023</h2><small>Due 31 March</small></div>
       <div class="topics">${TOPICS.map(([n, p, to]) => `<button type="button" class="topic ${to ? '' : 'is-off'}" data-act="${to ? 'go' : 'toast'}" data-arg="${to ?? `${n} isn’t written in this demo`}"><span class="topic__name">${n}</span><span class="topic__bar" style="--p:${p}%"><i></i></span><span class="topic__pct">${p}%</span>${icon('arrow-narrow-right')}</button>`).join('')}</div>
       <h2 class="h2 h2--sect">Quick links</h2>
-      <div class="cards3">${[['input', 'table', 'Data input', 'Collect the numbers for your report'], ['report', 'report', 'Report', 'Write and review it with your team'], ['metric', 'insights', 'Insights', 'Follow your numbers against targets']]
+      <div class="cards3">${[['report', 'report', 'Report', 'Write and review it with your team'], ['target', 'target', 'Targets', 'Plan the actions that reach them'], ['metric', 'insights', 'Insights', 'Follow your numbers against targets']]
         .map(([p, i, t, sub]) => `<button type="button" class="qcard is-on" data-act="go" data-arg="${p}">${skeu(i)}<b>${t}</b><small>${sub}</small></button>`).join('')}</div>
       <h2 class="h2 h2--sect">Learn with Celsia</h2>
       <div class="cards3">${SKILLS.map(([i, t, sub, act, arg]) => `<button type="button" class="skill is-on" data-act="${act}" data-arg="${esc(arg)}"><span class="skill__art">${skeu(i)}</span><b>${t}</b><small>${sub}</small></button>`).join('')}</div>
@@ -725,104 +762,26 @@
       </div>
     </div>`
 
-  /* ════ Data input: the year's emissions, by company and by kind ════ */
-  // A value's source: calc (added up from the rows under it), sub (from one of the group's companies), link (from a
-  // document), manual (typed in here: click it to edit)
-  const SRC = { manual: ['pencil', 'Typed in'], calc: ['sum', 'Added up'], sub: ['building', 'From a company'], link: ['link', 'From a document'] }
-  const splitSubs = (id) => { const total = DPS[id].years.at(-1)[1]; let left = total; return SUBS.map((s, i) => { const v = i === SUBS.length - 1 ? left : Math.round(total * SHARES[i]); left -= v; return { key: `${id}:${i}`, name: s.name, src: 'sub', v } }) }
-  const INPUT = [
-    { id: 'g-s1', kids: splitSubs('g-s1') },
-    { id: 'g-s2', kids: splitSubs('g-s2') },
-    { id: 'g-s3', kids: [
-      { key: 'g-s3:goods', name: 'Goods and services we buy', src: 'link', v: 68444, com: 1, note: 'From Supplier survey 2023' },
-      { key: 'g-s3:transport', name: 'Transport', src: 'link', v: 11568, note: 'From the logistics company’s report' },
-      { key: 'g-s3:travel', name: 'Business travel', src: 'manual', v: 2410 },
-      { key: 'g-s3:waste', name: 'Waste', src: 'manual', v: 1880 },
-      { key: 'g-s3:other', name: 'Everything else', src: 'manual', v: 12098, com: 2 },
-    ] },
-    { id: 'g-tot', calc: () => sumOf('g-s1') + sumOf('g-s2') + sumOf('g-s3') },
-  ]
-  const MORE_INPUT = [
-    { key: 'x:bio', name: 'CO₂ from burning wood and biofuel', src: 'manual', v: 310 },
-    { key: 'x:rem', name: 'CO₂ removed from the air', src: 'manual', v: 0 },
-  ]
-  for (const r of INPUT) for (const k of r.kids ?? []) S.inp.vals[k.key] = k.v
-  for (const k of MORE_INPUT) S.inp.vals[k.key] = k.v
-  const sumOf = (id) => { const r = INPUT.find((x) => x.id === id); return r.kids ? r.kids.reduce((n, k) => n + S.inp.vals[k.key], 0) : r.calc() }
-  const valCell = (key, src, v, dec = 0) => {
-    const [ico, label] = SRC[src]
-    if (S.inp.edit === key) return `<span class="val"><span title="${label}">${icon(ico)}</span><input class="val__input" data-inp="${key}" value="${v}" inputmode="decimal" aria-label="Value" data-autofocus /></span>`
-    const text = num(v, dec)
-    return src === 'manual'
-      ? `<button type="button" class="val val--edit" data-act="inp-edit" data-arg="${key}" title="Typed in: click to change">${icon(ico)}<span>${text}</span></button>`
-      : `<span class="val val--${src}" title="${label}">${icon(ico)}<span>${text}</span></span>`
-  }
-  const comCell = (n, act, arg) => n ? `<button type="button" class="com" data-act="${act}" data-arg="${esc(arg)}" aria-label="${plural(n, 'comment')}">${icon('message')}${n}</button>` : '<span></span>'
-  function inputRows() {
-    const q = S.inp.q?.trim().toLowerCase() ?? ''
-    let out = ''
-    for (const r of INPUT) {
-      const d = DPS[r.id], open = S.inp.open.has(r.id)
-      const kids = (r.kids ?? []).filter((k) => !q || k.name.toLowerCase().includes(q) || d.name.toLowerCase().includes(q))
-      if (q && !d.name.toLowerCase().includes(q) && !kids.length) continue
-      out += `<div class="trow trow--parent ${r.kids ? '' : 'trow--total'}" role="row">
-        <span class="trow__name">${r.kids ? `<button type="button" class="iconbtn iconbtn--sm exp" data-act="inp-open" data-arg="${r.id}" aria-expanded="${open}" aria-label="${open ? 'Collapse' : 'Expand'}">${icon('chevron-down')}</button>` : '<span class="exp-gap"></span>'}<b>${esc(d.name)}</b></span>
-        ${valCell(r.id, 'calc', sumOf(r.id))}
-        ${comCell(S.dp[r.id].comments.length, 'inp-com', r.id)}
-        <button type="button" class="iconbtn" data-act="metric" data-arg="${r.id}" aria-label="Open ${esc(d.name)} in Insights" title="Open in Insights">${icon('chart-line')}</button>
-      </div>`
-      if (open || q) for (const k of kids) out += `<div class="trow trow--kid" role="row">
-        <span class="trow__name">${esc(k.name)}</span>
-        ${valCell(k.key, k.src, S.inp.vals[k.key])}
-        ${comCell(k.com ?? 0, 'toast', `Comments on ${k.name} open in its sidebar`)}
-        <span></span>
-      </div>`
-    }
-    if (S.inp.more) for (const k of MORE_INPUT.filter((k) => !q || k.name.toLowerCase().includes(q))) out += `<div class="trow trow--parent" role="row">
-        <span class="trow__name"><span class="exp-gap"></span><b>${esc(k.name)}</b></span>
-        ${valCell(k.key, k.src, S.inp.vals[k.key])}<span></span><span></span></div>`
-    return out || `<p class="empty trow-empty">Nothing matches “${esc(q)}”. <button type="button" class="link" data-act="inp-clear">Clear search</button></p>`
-  }
-  PAGES.input = () => `
-    <div class="wrap">
-      <h1 class="h1">Greenhouse gas emissions, 2023</h1>
-      <div class="toolbar">
-        <label class="search">${icon('search')}<input type="search" data-inp-q value="${esc(S.inp.q ?? '')}" placeholder="Search" aria-label="Search data points" /></label>
-        <span class="toolbar__right">
-          <button type="button" class="iconbtn" data-act="toast" data-arg="Importing from Excel isn’t in this demo" aria-label="Import" title="Import from Excel">${icon('upload')}</button>
-          <button type="button" class="iconbtn" data-act="guide-open" aria-label="Data input guide" title="Guide">${icon('help')}</button>
-        </span>
-      </div>
-      <div class="tcard" role="table" aria-label="Data points">
-        <div class="trow trow--head" role="row"><span></span><span>Tonnes CO₂e</span><span></span><span></span></div>
-        <div data-inp-rows>${inputRows()}</div>
-        ${S.inp.more ? '' : `<button type="button" class="btn btn--sm load-more" data-act="inp-more">Show 2 more</button>`}
-      </div>
-      <p class="legend">${['manual', 'calc', 'sub', 'link'].map((k) => `<span>${icon(SRC[k][0])}${SRC[k][1]}</span>`).join('')}</p>
-    </div>
-    ${S.guide.min ? `<button type="button" class="guide-chip" data-act="guide-open">${icon('book')}Guide<span class="muted">${S.guide.read.size} of ${GUIDE.length}</span></button>` : ''}`
-
-  /* the guide over Data input. Its pictures follow the Figma concept's onboarding ("Celsia app – Concepts 24-25",
-     2004:30632), redrawn from the demo's own screens: each is a crop of a screen (assets/guide-*.webp, made by taking
-     screenshots of the demo) on a coloured panel. */
+  /* The report's guide: it opens only from the product tour's card (on Home, and in the Help center), not when the
+     report does. Its pictures follow the Figma concept's onboarding ("Celsia app – Concepts 24-25", 2004:30632), redrawn
+     from the demo's own screens: each is a crop of a screen (assets/guide-*.webp, made by taking screenshots of the
+     demo) on a coloured panel. Hidden, it leaves a chip at the report's bottom left to pick it up again. */
   const GUIDE = [
-    { t: 'Welcome', art: 'report', h: 'This is where your numbers go', p: ['Collect the numbers and texts for your report here. Everything you enter flows straight into it.', 'The guide takes a minute. Hide it any time, and open it again from the question mark.'] },
-    { t: 'Your numbers', art: 'table', h: 'Where numbers come from', p: ['The small icon next to each number says where it came from:'],
-      items: ['manual', 'calc', 'sub', 'link'].map((k) => [SRC[k][0], SRC[k][1], { manual: 'You typed it in. Click it to change it.', calc: 'Added up from the rows under it.', sub: 'Sent by one of your companies.', link: 'Taken from a document, and kept up to date.' }[k]]) },
-    { t: 'Into the report', art: 'both', h: 'From numbers to report', p: ['Each number has its place in the report’s text. Change it here, and the report changes with it.', 'Texts work the same way: your companies write their answers, and Celsia helps you turn them into one.'] },
-    { t: 'Details', art: 'details', h: 'Details and comments', p: ['Click any number or text to see who owns it, its files and its comments.', 'Ask a colleague right there, instead of over email.'] },
+    { t: 'Welcome', art: 'report', h: 'This is your report', p: ['Write it and review it here, with your team. The highlighted numbers and texts come from your companies and documents, and stay up to date.', 'The guide takes a minute. Hide it any time, and pick it up again from the Guide button.'] },
+    { t: 'Details', art: 'details', h: 'Details and comments', p: ['Click any highlighted number or text to see who owns it, its files and its comments.', 'Ask a colleague right there, instead of over email.'] },
+    { t: 'Answers', art: 'write', h: 'One answer from many', p: ['Your companies answer the report’s questions in Celsia. Open a text, and Celsia writes one answer from theirs.', 'Read it, then put it in the report with one click.'] },
   ]
-  const shot = (name, w, h, cls = '', label = '') => `<span class="gart__shot ${cls}"><img src="assets/guide-${name}.webp" alt="" width="${w}" height="${h}" />${label ? `<span class="chip-label">${label}</span>` : ''}</span>`
+  const shot = (name, w, h, cls = '') => `<span class="gart__shot ${cls}"><img src="assets/guide-${name}.webp" alt="" width="${w}" height="${h}" /></span>`
   const ARTS = {
     report: () => shot('report', 720, 425),
-    table: () => shot('table', 1160, 600),
-    both: () => shot('input', 720, 425, 'gart__shot--a', 'Data input') + shot('report', 720, 425, 'gart__shot--b', 'Report'),
-    details: () => shot('input', 720, 425, 'gart__shot--a') + shot('dp', 320, 560, 'gart__shot--b'),
+    details: () => shot('report', 720, 425, 'gart__shot--a') + shot('dp', 320, 560, 'gart__shot--b'),
+    write: () => shot('report', 720, 425, 'gart__shot--a') + shot('write', 320, 560, 'gart__shot--b'),
   }
   const guideArt = (a) => `<div class="gart gart--${a}">${ARTS[a]()}</div>`
+  const guideChip = () => S.guide.min && S.layer !== 'guide' ? `<button type="button" class="guide-chip" data-act="guide-open">${icon('book')}Guide<span class="muted">${S.guide.read.size} of ${GUIDE.length}</span></button>` : ''
   function guideHTML() {
     const g = S.guide, step = GUIDE[g.step], last = g.step === GUIDE.length - 1
-    return `<div class="dialog dialog--guide" role="dialog" aria-modal="true" aria-label="Data input guide">
+    return `<div class="dialog dialog--guide" role="dialog" aria-modal="true" aria-label="Report guide">
       <nav class="guide__nav" aria-label="Guide"><p class="guide__label">Guide</p>${GUIDE.map((x, i) => `<button type="button" class="guide__step" data-act="guide-to" data-arg="${i}" ${i === g.step ? 'aria-current="step"' : ''}><span class="guide__tick ${g.read.has(i) ? 'is-read' : ''}">${icon(g.read.has(i) ? 'circle-check' : 'circle-dashed-check')}</span>${x.t}</button>`).join('')}</nav>
       <div class="guide__main">
         <button type="button" class="iconbtn guide__hide" data-act="guide-hide" aria-label="Hide the guide" title="Hide">${icon('x')}</button>
@@ -830,7 +789,6 @@
           ${guideArt(step.art)}
           <h3 class="guide__title">${step.h}</h3>
           ${step.p.map((t) => `<p>${t}</p>`).join('')}
-          ${step.items ? `<ul class="gitems">${step.items.map(([i, t, d]) => `<li><span class="gitems__ico">${icon(i)}</span><span><b>${t}</b>${d}</span></li>`).join('')}</ul>` : ''}
         </div>
         <div class="guide__foot">
           <span class="guide__dots">${GUIDE.map((_, i) => `<i ${i === g.step ? 'class="is-on"' : ''}></i>`).join('')}</span>
@@ -844,10 +802,11 @@
   }
 
   /* ════ Insights: a number's chart against its target, by country ════ */
-  const MET_C = [['no', 'England', 'var(--tone-1)'], ['se', 'Scotland', 'var(--tone-2)'], ['dk', 'Ireland', 'var(--tone-3)']]
-  const Q24 = { no: [1450, 1300, 1180, 1420], dk: [620, 560, 520, 610], se: [1180, 1060, 990, 1150] } // 2024, Q4 is the forecast
-  const YEARS = [[2020, 13900], [2021, 14100], [2022, 13280], [2023, 12480], [2024, 12040]]
-  const YSHARE = { no: 0.45, dk: 0.19, se: 0.36 }
+  const MET_C = [['no', 'England', 'var(--tone-1)'], ['se', 'Scotland', 'var(--tone-2)'], ['dk', 'Ireland', 'var(--tone-3)'], ['wa', 'Wales', 'var(--steel-1)']]
+  // 2024 by quarter, Q4 the forecast; each company's share as in the report's sidebar (SHARES), 12,040 t in all
+  const Q24 = { no: [1338, 1199, 1091, 1308], se: [881, 790, 718, 862], dk: [620, 556, 506, 606], wa: [424, 380, 346, 415] }
+  const YEARS = [[2020, 15000], [2021, 14100], [2022, 13280], [2023, 12480], [2024, 12040]] // as in the report
+  const YSHARE = { no: 0.41, se: 0.27, dk: 0.19, wa: 0.13 }
   const MONTHW = [0.35, 0.32, 0.33]
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const RANGES = [['1m', 'Months'], ['1q', 'Quarters'], ['5y', 'Years']]
@@ -909,7 +868,7 @@
     return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(DPS[S.metric].name)} by ${yearly() ? 'period' : 'year'}, against its target">${out}</svg>`
   }
   // A bar with its top corners rounded by r
-  const forecastTotal = () => metPeriods().reduce((n, p) => n + sumOn(p, new Set(['no', 'dk', 'se'])), 0)
+  const forecastTotal = () => metPeriods().reduce((n, p) => n + sumOn(p, new Set(MET_C.map(([c]) => c))), 0)
   function metAlert() {
     if (!yearly() || !S.met.forecast) return ''
     const d = DPS[S.metric], total = forecastTotal(), target = metTarget(), unit = d.unit === 't CO₂e' ? 't' : d.unit
@@ -925,7 +884,7 @@
     return `
     <div class="wrap met">
       <div class="met__head">
-        <div><h1 class="h1 h1--tight">${esc(d.name)}</h1><p class="muted">${esc(d.unit)}, ${yearly() ? '2024' : '2020 to 2024'}</p></div>
+        <div><h1 class="h1 h1--tight">${esc(d.name)}</h1><p class="muted">${esc(d.unit)}, ${yearly() ? '2024' : '2020 to 2024'}${S.metric === 'g-s1' || S.metric === 'g-s2' ? ` · Part of <button type="button" class="link" data-act="go" data-arg="target">our 2030 target</button>` : ''}</p></div>
         <div class="seg" role="group" aria-label="Period">${RANGES.map(([r, t]) => `<button type="button" aria-pressed="${S.met.range === r}" data-act="met-range" data-arg="${r}">${t}</button>`).join('')}</div>
       </div>
       <div class="met__chart">${metChart(576, 300)}</div>
@@ -937,148 +896,78 @@
     </div>`
   }
 
-  /* ════ Pollution: the topic's progress, its people, and a to-do list ════ */
-  const COMPANIES = [
-    { id: 'parent', name: 'Northfield Group', logo: ['F', 'var(--steel-1)'], people: [
-      { id: 'p-hh', who: 'hh', roles: ['Writes', 'Reviews'], tasks: [['Policies', 'Writes'], ['Targets', 'Reviews']] },
-      { id: 'p-ll', who: 'll', roles: ['Writes'], tasks: [['Actions', 'Writes'], ['Numbers', 'Writes']] },
-      { id: 'p-ib', who: 'ib', roles: ['Helps'], tasks: [['Policies', 'Helps']] },
-    ] },
-    { id: 'no', name: 'Northfield England', logo: ['E', 'var(--steel-2)'], people: [{ id: 'n-lm', who: 'lm', roles: ['Writes'], tasks: [['Numbers', 'Writes'], ['Actions', 'Writes']] }] },
-    { id: 'se', name: 'Northfield Scotland', logo: ['S', 'var(--steel-3)'], people: [{ id: 's-ib', who: 'ib', roles: ['Writes'], tasks: [['Numbers', 'Writes']] }, { id: 's-sd', who: 'sd', roles: ['Reviews'], tasks: [['Numbers', 'Reviews']] }] },
-    { id: 'dk', name: 'Northfield Ireland', logo: ['I', 'var(--steel-4)'], people: [{ id: 'd-sd', who: 'sd', roles: ['Writes'], tasks: [['Numbers', 'Writes']] }] },
-  ]
-  const TASK_START = { 'p-hh:0': 'To do', 'p-hh:1': 'To do', 'p-ll:0': 'In progress', 'p-ll:1': 'Done', 'p-ib:0': 'Done', 'n-lm:0': 'Done', 'n-lm:1': 'Done', 's-ib:0': 'Done', 's-sd:0': 'In progress', 'd-sd:0': 'Done' }
-  S.topic.tasks = { ...TASK_START }
-  const NEXT_STATUS = { 'To do': 'In progress', 'In progress': 'Done', Done: 'To do' }
-  const personStatus = (p) => { const ss = p.tasks.map((_, i) => S.topic.tasks[`${p.id}:${i}`]); return ss.every((s) => s === 'Done') ? 'Done' : ss.every((s) => s === 'To do') ? 'To do' : 'In progress' }
-  const companyStatus = (c) => { const ss = c.people.map(personStatus); return ss.every((s) => s === 'Done') ? 'Done' : ss.every((s) => s === 'To do') ? 'To do' : 'In progress' }
-  const topicProgress = () => { const v = Object.values(S.topic.tasks); return Math.round((v.filter((s) => s === 'Done').length / v.length) * 100) }
-  const ring = (pct) => { const r = 7, c = 2 * Math.PI * r; return `<svg class="ring" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="${r}" class="ring__bg"/><circle cx="9" cy="9" r="${r}" class="ring__fg" stroke-dasharray="${(pct / 100) * c} ${c}"/></svg>` }
-  const logo = ([l, c]) => `<span class="clogo" style="--c:${c}">${l}</span>`
-  const E2 = [['Policies', 100], ['Actions', 60], ['Targets', 40, 'target'], ['Air, water and soil', 80], ['Hazardous substances', 100], ['Costs and savings', 0]]
-  function rolesHTML() {
-    const t = S.topic, q = t.q.trim().toLowerCase()
-    const match = (c, p) => (t.role === 'all' || p.roles.includes(t.role)) && (!q || PEOPLE[p.who].name.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || p.tasks.some(([n]) => n.toLowerCase().includes(q)))
-    let out = ''
-    for (const c of COMPANIES) {
-      const ppl = c.people.filter((p) => match(c, p))
-      if (!ppl.length) continue
-      const open = t.open.has(c.id) || !!q
-      out += `<div class="rrow rrow--co"><button type="button" class="iconbtn iconbtn--sm exp" data-act="topic-open" data-arg="${c.id}" aria-expanded="${open}" aria-label="${open ? 'Collapse' : 'Expand'} ${esc(c.name)}">${icon('chevron-down')}</button>${logo(c.logo)}<span class="rrow__name">${esc(c.name)}</span><span class="rrow__role"></span><span class="stack">${c.people.map((p) => avatar(p.who)).join('')}</span>${pill(companyStatus(c))}</div>`
-      if (!open) continue
-      for (const p of ppl) {
-        const po = t.open.has(p.id) || !!q
-        out += `<div class="rrow rrow--person ${t.flash === p.id ? 'is-new' : ''}"><button type="button" class="iconbtn iconbtn--sm exp" data-act="topic-open" data-arg="${p.id}" aria-expanded="${po}" aria-label="${po ? 'Collapse' : 'Expand'}">${icon('chevron-down')}</button>${avatar(p.who, true)}<span class="rrow__name">${esc(PEOPLE[p.who].name)}</span><span class="rrow__role">${p.roles.join(' and ').toLowerCase().replace(/^./, (m) => m.toUpperCase())}</span><span class="stack"></span>${pill(personStatus(p))}</div>`
-        if (po) p.tasks.forEach(([n, r], i) => {
-          const k = `${p.id}:${i}`, st = t.tasks[k]
-          out += `<div class="rrow rrow--task">${n === 'Targets' ? `<button type="button" class="rrow__name link-row" data-act="go" data-arg="target">${n}${icon('arrow-up-right')}</button>` : `<span class="rrow__name">${n}</span>`}<span class="rrow__role">${r}</span><span class="stack"></span><button type="button" class="pill-btn" data-act="task" data-arg="${k}" title="Change the status">${pill(st)}</button></div>`
-        })
-      }
-    }
-    return out || '<p class="empty trow-empty">No one matches. <button type="button" class="link" data-act="topic-clear">Clear the filter</button></p>'
-  }
-  PAGES.topic = () => {
-    const t = S.topic, pct = topicProgress()
-    const mine = COMPANIES.flatMap((c) => c.people.filter((p) => p.who === ME).flatMap((p) => p.tasks.map(([n, r], i) => ({ k: `${p.id}:${i}`, n, r, c: c.name }))))
-    return `
-    <div class="wrap">
-      <h1 class="h1">Pollution</h1>
-      <div class="facts">
-        <div class="fact"><span class="fact__k">Done</span><span class="fact__v">${ring(pct)}${pct}%</span></div>
-        <div class="fact"><span class="fact__k">Owner</span><span class="fact__v">${avatar(ME, true)}${PEOPLE[ME].name}</span></div>
-        <div class="fact"><span class="fact__k">Reviewer</span>${dropdown('reviewer', t.reviewer ? `<span class="fact__v">${avatar(t.reviewer, true)}${PEOPLE[t.reviewer].name}</span>` : `<span class="fact__v fact__v--empty"><span class="assign">${icon('user')}</span>Choose someone</span>`, Object.entries(PEOPLE).filter(([k]) => k !== ME).map(([k, p]) => [k, `${avatar(k)}${p.name}`]), t.reviewer, 'dd--fact')}</div>
-      </div>
-      <div class="ptabs"><div class="tabs__list" role="tablist">${[['people', 'People'], ['progress', 'Progress'], ['todo', 'My tasks']].map(([k, n]) => `<button type="button" class="tab" role="tab" aria-selected="${t.tab === k}" data-act="topic-tab" data-arg="${k}">${n}${k === 'todo' ? `<span class="count">${mine.filter((m) => t.tasks[m.k] !== 'Done').length}</span>` : ''}</button>`).join('')}</div></div>
-      ${t.tab === 'people' ? `
-        <div class="toolbar">
-          <label class="search">${icon('search')}<input type="search" data-topic-q value="${esc(t.q)}" placeholder="Search people" aria-label="Search people" /></label>
-          ${dropdown('role', t.role === 'all' ? 'Everyone' : `${t.role}`, [['all', 'Everyone'], ['Writes', 'Writes'], ['Reviews', 'Reviews'], ['Helps', 'Helps']], t.role, 'dd--plain')}
-          <button type="button" class="btn btn--primary btn--sm toolbar__end" data-act="add-role" ${t.added ? 'disabled' : ''}>${icon('plus')}Add person</button>
-        </div>
-        <div class="roles" data-roles>${rolesHTML()}</div>` : ''}
-      ${t.tab === 'progress' ? `<div class="drs">${E2.map(([name, p, to]) => `<button type="button" class="dr" data-act="${to ? 'go' : 'toast'}" data-arg="${to ?? `${name} isn’t written in this demo`}"><span class="dr__name">${name}</span><span class="progress"><span class="progress__bar" style="--p:${p}%"><i></i></span><span class="muted">${p}%</span></span>${icon('arrow-narrow-right')}</button>`).join('')}</div>` : ''}
-      ${t.tab === 'todo' ? `<div class="todos">${mine.map((m) => { const done = t.tasks[m.k] === 'Done'; return `<div class="todo__row ${done ? 'is-done' : ''}"><button type="button" class="tick" role="checkbox" aria-checked="${done}" data-act="task-done" data-arg="${m.k}" aria-label="${m.n}">${icon(done ? 'circle-check' : 'circle-dashed-check')}</button><div class="todo__text"><b>${m.r === 'Reviews' ? 'Review' : 'Write'} the ${m.n.toLowerCase()}</b><small>${esc(m.c)} · ${t.tasks[m.k]}</small></div></div>` }).join('')}</div>` : ''}
-    </div>`
-  }
-
-  /* ════ A target: Reduce air pollution from our plants ════ */
-  const TGT_X = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2040, 2050]
-  const TGT_ACTIONS = [['Filters on the Leeds kilns', 18, 2025], ['Cleaner burners in Glasgow', 22, 2027], ['Electric heat at both plants', 45, 2030], ['Electric trucks', 25, 2040]]
+  /* ════ A target: the report's 2030 target for direct and energy emissions (t-s1), planned with the report's steps ════
+     The plan runs straight from 2020 through its milestones; what actually happened is drawn to 2023; from there the steps
+     picked each cut what's left of them, in a straight line, by their year. */
+  const TGT = DPS['t-s1']
+  const TGT_X = [2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
+  const TGT_NOW = TGT.actual.at(-1)
   const interp = (yr) => {
-    const pts = [[2023, S.tgt.base], ...S.tgt.miles]
+    const pts = [[2020, S.tgt.base], ...S.tgt.miles]
     for (let i = 1; i < pts.length; i++) if (yr <= pts[i][0]) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i]; return y0 + ((yr - x0) / (x1 - x0)) * (y1 - y0) }
     return pts.at(-1)[1]
   }
-  const impactAt = (yr) => S.tgt.base - TGT_ACTIONS.reduce((n, [, cut, y], i) => n + (S.tgt.actions[i] && yr >= y ? cut : 0), 0)
+  const impactAt = (yr) => TGT_NOW[1] - STEPS.reduce((n, [, cut, y, done], i) => n + (S.tgt.actions[i] ? (cut - done) * Math.max(0, Math.min(1, (yr - TGT_NOW[0]) / (y - TGT_NOW[0]))) : 0), 0)
   function tgtChart(W, H) {
-    const L = 8, R = 8, T = 14, B = 28, pw = W - L - R, ph = H - T - B, sh = S.tgt.show
+    const L = 34, R = 10, T = 14, B = 28, pw = W - L - R, ph = H - T - B, sh = S.tgt.show
     const x = (i) => L + (i / (TGT_X.length - 1)) * pw
-    const ymax = 220, y = (v) => T + ph - (v / ymax) * ph
+    const ymax = 30000, y = (v) => T + ph - (v / ymax) * ph
+    const line = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join('')
     let out = ''
-    TGT_X.forEach((yr, i) => { out += `<text class="tg-x ${S.tgt.miles.some((m) => m[0] === yr) || yr === 2023 ? 'is-mile' : ''}" x="${x(i)}" y="${H - 6}" text-anchor="middle">’${String(yr).slice(2)}</text>` })
-    for (let v = 0; v <= ymax; v += 55) out += `<line class="ch-grid ch-grid--solid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/>`
+    TGT_X.forEach((yr, i) => { out += `<text class="tg-x ${S.tgt.miles.some((m) => m[0] === yr) || yr === 2020 ? 'is-mile' : ''}" x="${x(i)}" y="${H - 6}" text-anchor="middle">’${String(yr).slice(2)}</text>` })
+    for (let v = 0; v <= ymax; v += 10000) out += `<line class="ch-grid ch-grid--solid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-axis" x="${L - 8}" y="${y(v) + 3}" text-anchor="end">${v ? `${v / 1000}k` : 0}</text>`
     // The plan as a soft area under its line
-    if (sh.interp) { const pts = TGT_X.map((yr, i) => [x(i), y(interp(yr))]); out += `<path class="tg-area" d="M${pts[0][0]} ${T + ph}${pts.map((p) => `L${p[0]} ${p[1]}`).join('')}L${pts.at(-1)[0]} ${T + ph}Z"/><path class="tg-line" d="${pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join('')}"/>` }
-    if (sh.impact) { const pts = TGT_X.map((yr, i) => [x(i), y(impactAt(yr))]); out += `<path class="tg-impact" d="${pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join('')}"/>` }
-    if (sh.mile) for (const [yr, v] of [[2023, S.tgt.base], ...S.tgt.miles]) { const i = TGT_X.indexOf(yr); if (i >= 0) out += `<circle class="tg-mile" cx="${x(i)}" cy="${y(v)}" r="4.5"><title>${yr}: ${num(v)} tonnes</title></circle>` }
-    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Air pollution: the plan, its milestones, and the effect of the chosen actions">${out}</svg>`
+    if (sh.interp) { const pts = TGT_X.map((yr, i) => [x(i), y(interp(yr))]); out += `<path class="tg-area" d="M${pts[0][0]} ${T + ph}${pts.map((p) => `L${p[0]} ${p[1]}`).join('')}L${pts.at(-1)[0]} ${T + ph}Z"/><path class="tg-line" d="${line(pts)}"/>` }
+    if (sh.actual) { const pts = TGT.actual.map(([yr, v]) => [x(TGT_X.indexOf(yr)), y(v)]); out += `<path class="tg-actual" d="${line(pts)}"/>${pts.map(([cx, cy], i) => `<circle class="tg-dot" cx="${cx}" cy="${cy}" r="3"><title>${TGT.actual[i][0]}: ${num(TGT.actual[i][1])} tonnes</title></circle>`).join('')}` }
+    if (sh.impact) { const from = TGT_X.indexOf(TGT_NOW[0]), pts = TGT_X.slice(from).map((yr, i) => [x(from + i), y(impactAt(yr))]); out += `<path class="tg-impact" d="${line(pts)}"/>` }
+    if (sh.mile) for (const [yr, v] of [[2020, S.tgt.base], ...S.tgt.miles]) { const i = TGT_X.indexOf(yr); if (i >= 0) out += `<circle class="tg-mile" cx="${x(i)}" cy="${y(v)}" r="4.5"><title>${yr}: ${num(v)} tonnes</title></circle>` }
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Direct and energy emissions: the plan, its milestones, what happened to 2023, and the effect of the chosen steps">${out}</svg>`
   }
   const tgtCell = (key, v) => S.tgt.edit === key
     ? `<input class="val__input val__input--wide" data-tgt="${key}" value="${v}" inputmode="numeric" aria-label="Value in tonnes" data-autofocus />`
     : `<button type="button" class="val val--edit" data-act="tgt-edit" data-arg="${key}" title="Click to change">${num(v)}${icon('pencil')}</button>`
   PAGES.target = () => {
-    const t = S.tgt, sh = t.show, final = t.miles.at(-1), reach = impactAt(2050)
-    const legend = [['interp', 'Plan', 'var(--steel-1)'], ['mile', 'Milestones', 'var(--text)'], ['impact', 'With our actions', 'var(--brand)']]
-    const rows = [[2023, t.base, 'base', 'Start'], ...t.miles.map(([yr, v], i) => [yr, v, `m${i}`, i === t.miles.length - 1 ? 'Goal' : ''])]
+    const t = S.tgt, sh = t.show, final = t.miles.at(-1), reach = Math.round(impactAt(final[0]))
+    const legend = [['interp', 'Plan', 'var(--steel-1)'], ['actual', 'So far', 'var(--text)'], ['mile', 'Milestones', 'var(--text)'], ['impact', 'With our steps', 'var(--brand)']]
+    const rows = [[2020, t.base, 'base', 'Start'], ...t.miles.map(([yr, v], i) => [yr, v, `m${i}`, i === t.miles.length - 1 ? 'Goal' : ''])]
     return `
     <div class="wrap">
-      <div class="tg-head"><div><h1 class="h1 h1--tight">Reduce air pollution from our plants</h1><p class="muted">From 200 to 40 tonnes a year by 2050</p></div></div>
+      <div class="tg-head"><div><h1 class="h1 h1--tight">${esc(TGT.name)}</h1><p class="muted">Direct emissions and those from the energy we buy, from ${num(t.base)} tonnes in 2020 to ${num(final[1])} by ${final[0]}. ${num(TGT_NOW[1])} in ${TGT_NOW[0]}.</p></div>
+        <button type="button" class="btn btn--sm" data-act="in-report" data-arg="t-s1">${icon('file-text')}In the report</button></div>
       <div class="tg-chart">${tgtChart(576, 210)}</div>
       <div class="tg-legend">${legend.map(([k, n, c]) => `<button type="button" class="key ${sh[k] ? '' : 'is-off'}" style="--c:${c}" role="checkbox" aria-checked="${sh[k]}" data-act="tgt-show" data-arg="${k}"><i class="key--${k}"></i>${n}</button>`).join('')}</div>
       <ol class="steps">
         <li class="step"><span class="step__n">1</span><div class="step__body">
-          <h2 class="h2">Milestones</h2><p class="muted">Where emissions should be, year by year. In tonnes.</p>
+          <h2 class="h2">Milestones</h2><p class="muted">Where emissions should be on the way. In tonnes of CO₂e.</p>
           <div class="gtable">${rows.map(([yr, v, key, tag]) => `<div class="gtable__row"><span class="gtable__y">${yr}${tag ? ` <span class="tag">${tag}</span>` : ''}</span><span>${tgtCell(key, v)}</span><span class="muted">${key === 'base' ? '' : signed(pct(t.base, v))}</span></div>`).join('')}</div>
         </div></li>
         <li class="step"><span class="step__n">2</span><div class="step__body">
-          <h2 class="h2">Actions</h2><p class="muted">Pick what will help. The dashed line on the chart shows their effect.</p>
-          <div class="acts">${TGT_ACTIONS.map(([n, cut, yr], i) => `<button type="button" class="act-row" role="checkbox" aria-checked="${t.actions[i]}" data-act="tgt-action" data-arg="${i}"><span class="cbox ${t.actions[i] ? 'is-on' : ''}">${icon('check')}</span><span class="act-row__n">${n}</span><span class="muted">−${cut} t from ${yr}</span></button>`).join('')}</div>
-          <p class="verdict ${reach <= final[1] ? 'is-ok' : ''}">${reach <= final[1] ? icon('circle-check') : icon('alert-triangle')}<span>${reach <= final[1] ? `These actions reach the goal: ${num(reach)} tonnes by 2050.` : `These actions get to ${num(reach)} tonnes by 2050, ${num(reach - final[1])} short of the goal.`}</span></p>
+          <h2 class="h2">Steps</h2><p class="muted">Pick what will help. The dashed line on the chart shows what’s left of them, from ${TGT_NOW[0]}.</p>
+          <div class="acts">${STEPS.map(([n, cut, yr, done], i) => `<button type="button" class="act-row" role="checkbox" aria-checked="${t.actions[i]}" data-act="tgt-action" data-arg="${i}"><span class="cbox ${t.actions[i] ? 'is-on' : ''}">${icon('check')}</span><span class="act-row__n">${n}</span><span class="muted">−${num(cut)} t by ${yr}${done ? `, ${Math.round((done / cut) * 100)}% done` : ''}</span></button>`).join('')}</div>
+          <p class="verdict ${reach <= final[1] ? 'is-ok' : ''}">${reach <= final[1] ? icon('circle-check') : icon('alert-triangle')}<span>${reach <= final[1] ? `These steps reach the goal: ${num(reach)} tonnes by ${final[0]}.` : `These steps get to ${num(reach)} tonnes by ${final[0]}, ${num(reach - final[1])} short of the goal.`}</span></p>
         </div></li>
         <li class="step"><span class="step__n">3</span><div class="step__body">
-          <h2 class="h2">Tracking</h2><p class="muted">Checked every year against the numbers in <button type="button" class="link" data-act="go" data-arg="input">Data input</button>.</p>
+          <h2 class="h2">Tracking</h2><p class="muted">Checked every quarter against the numbers in <button type="button" class="link" data-act="go" data-arg="metric">Insights</button>, and reported in <button type="button" class="link" data-act="in-report" data-arg="t-s1">Climate targets</button>.</p>
         </div></li>
       </ol>
     </div>`
   }
 
   /* ── the page actions ── */
-  const MENU = {
-    reviewer: (v) => { S.topic.reviewer = v; toast(`${PEOPLE[v].name} reviews Pollution now`) },
-    role: (v) => { S.topic.role = v },
-  }
   const PAGE_ACTIONS = {
     go: (p) => go(p),
-    pmenu: (k) => { S.pmenu = S.pmenu === k ? undefined : k; renderPage() },
-    choose: (arg) => { const i = arg.indexOf(':'); MENU[arg.slice(0, i)](arg.slice(i + 1)); S.pmenu = undefined; renderPage() },
     article: (t) => toast(`“${t}” opens in the help center`, 'book'),
     todo: (k) => { S.todo.has(k) ? S.todo.delete(k) : S.todo.add(k); renderPage(); if (S.todo.size === TODO.length) toast('All done for today') },
-    tour: () => { S.todo.add('tour'); S.guide = { ...S.guide, step: 0, min: false, seen: true }; go('input'); S.layer = 'guide'; renderLayer() },
+    tour: () => { S.todo.add('tour'); S.guide = { ...S.guide, step: 0, min: false }; go('report', () => { S.layer = 'guide' }) },
     metric: (id) => go('metric', () => { S.metric = id; S.met.editTarget = false }),
-    'inp-open': (id) => { S.inp.open.has(id) ? S.inp.open.delete(id) : S.inp.open.add(id); renderPage() },
-    'inp-clear': () => { S.inp.q = ''; renderPage() },
-    'topic-clear': () => { Object.assign(S.topic, { q: '', role: 'all' }); renderPage() },
-    'inp-more': () => { S.inp.more = true; renderPage() },
-    'inp-edit': (k) => { S.inp.edit = k; renderPage(); $(`[data-inp="${k}"]`, pageEl)?.select() },
-    'inp-com': (id) => { go('report', () => { S.report = REPORT_OF[id]; S.sel = id; S.tab = 'comments' }); applySel(); renderDp(true); reveal(id) },
-    'guide-open': () => { S.guide.min = false; S.layer = 'guide'; renderLayer(); renderPage() },
-    'guide-hide': () => { S.guide.min = true; S.layer = undefined; renderLayer(); renderPage() },
+    'in-report': (id) => { go('report', () => { S.report = REPORT_OF[id]; S.sel = id; S.tab = 'details' }); applySel(); renderDp(true); reveal(id) },
+    'guide-open': () => { S.guide.min = false; S.layer = 'guide'; renderLayer(); renderToc() },
+    'guide-hide': () => { S.guide.min = true; S.layer = undefined; renderLayer(); renderToc() },
     'guide-to': (i) => { S.guide.step = Number(i); renderLayer() },
     'guide-step': (n) => {
       const g = S.guide
       g.read.add(g.step)
-      if (Number(n) > 0 && g.step === GUIDE.length - 1) { g.min = false; S.layer = undefined; renderLayer(); renderPage(); return toast('You’ve finished the guide') }
+      if (Number(n) > 0 && g.step === GUIDE.length - 1) { g.min = false; S.layer = undefined; renderLayer(); renderToc(); return toast('You’ve finished the guide') }
       g.step = Math.max(0, Math.min(GUIDE.length - 1, g.step + Number(n))); renderLayer()
     },
     'met-range': (r) => { S.met.range = r; S.met.editTarget = false; renderPage() },
@@ -1086,24 +975,14 @@
     'met-show': (k) => { S.met[k] = !S.met[k]; renderPage() },
     'target-edit': () => { S.met.editTarget = true; renderPage() },
     'target-cancel': () => { S.met.editTarget = false; renderPage() },
-    'topic-tab': (k) => { S.topic.tab = k; renderPage() },
-    'topic-open': (id) => { const o = S.topic.open; o.has(id) ? o.delete(id) : o.add(id); renderPage() },
-    task: (k) => { S.topic.tasks[k] = NEXT_STATUS[S.topic.tasks[k]]; renderPage() },
-    'task-done': (k) => { S.topic.tasks[k] = S.topic.tasks[k] === 'Done' ? 'To do' : 'Done'; renderPage() },
-    'add-role': () => {
-      COMPANIES[0].people.push({ id: 'p-sd', who: 'sd', roles: ['Helps'], tasks: [['Numbers', 'Helps']] })
-      S.topic.tasks['p-sd:0'] = 'To do'; S.topic.added = true; S.topic.flash = 'p-sd'; S.topic.open.add('parent'); S.topic.role = 'all'; S.topic.q = ''
-      renderPage(); toast('Sophie Davis helps with Pollution now')
-    },
     'tgt-show': (k) => { S.tgt.show[k] = !S.tgt.show[k]; renderPage() },
     'tgt-edit': (k) => { S.tgt.edit = k; renderPage(); $(`[data-tgt="${k}"]`, pageEl)?.select() },
     'tgt-action': (i) => { S.tgt.actions[i] = !S.tgt.actions[i]; renderPage() },
   }
 
-  // Values typed on a page: Data input's manual values, the target's baseline and milestones, the metric's target
+  // Values typed on a page: the target's baseline and milestones, the metric's target
   function commitInput(el) {
     const v = Number(String(el.value).replace(/[^\d.]/g, ''))
-    if (el.dataset.inp) { if (Number.isFinite(v)) { S.inp.vals[el.dataset.inp] = v } S.inp.edit = undefined }
     if (el.dataset.tgt) {
       const k = el.dataset.tgt
       if (Number.isFinite(v) && v >= 0) { if (k === 'base') S.tgt.base = v; else S.tgt.miles[Number(k.slice(1))][1] = v }
@@ -1113,10 +992,10 @@
   }
   pageEl.addEventListener('keydown', (e) => {
     const t = e.target
-    if ((t.dataset.inp || t.dataset.tgt) && e.key === 'Enter') { e.preventDefault(); commitInput(t) }
-    if ((t.dataset.inp || t.dataset.tgt) && e.key === 'Escape') { e.stopPropagation(); S.inp.edit = undefined; S.tgt.edit = undefined; renderPage() }
+    if (t.dataset.tgt && e.key === 'Enter') { e.preventDefault(); commitInput(t) }
+    if (t.dataset.tgt && e.key === 'Escape') { e.stopPropagation(); S.tgt.edit = undefined; renderPage() }
   })
-  pageEl.addEventListener('focusout', (e) => { const t = e.target; if ((t.dataset.inp && S.inp.edit) || (t.dataset.tgt && S.tgt.edit)) commitInput(t) })
+  pageEl.addEventListener('focusout', (e) => { const t = e.target; if (t.dataset.tgt && S.tgt.edit) commitInput(t) })
   pageEl.addEventListener('submit', (e) => {
     if (!e.target.matches('[data-tform]')) return
     e.preventDefault()
@@ -1133,22 +1012,22 @@
       res.hidden = !has; $('[data-help-main]', pageEl).hidden = has
       res.innerHTML = has ? helpResults() : ''
     }
-    if (t.matches('[data-inp-q]')) { S.inp.q = t.value; $('[data-inp-rows]', pageEl).innerHTML = inputRows() }
-    if (t.matches('[data-topic-q]')) { S.topic.q = t.value; $('[data-roles]', pageEl).innerHTML = rolesHTML() }
   })
 
   const ACTIONS = {
     pick: (id) => pick(id),
     report: (rid) => {
       finishEdit()
-      if (S.report === rid) return
+      if (S.report === rid) { S.tocOpen = false; return renderToc() }
       // with the sidebar open, it stays open on the new section's first paragraph (on the same tab)
+      S.tocOpen = false
       S.report = rid; S.sel = S.sel ? order(rid)[0] : undefined; S.menu = false
       stage.scrollTop = 0
       renderToc(); renderStage(true); renderDp(true)
     },
     toggle: (gid) => { S.open.has(gid) ? S.open.delete(gid) : S.open.add(gid); renderToc() },
-    off: () => toast('Only Climate is written in this demo', 'info-square'),
+    toc: () => { S.tocOpen = !S.tocOpen; renderToc() },
+    off: () => toast('Only Climate targets is written in this demo', 'info-square'),
     close: () => { finishEdit(); S.sel = undefined; S.menu = false; applySel(); renderDp() },
     step: (n) => { const list = order(S.report); const next = list[list.indexOf(S.sel) + Number(n)]; if (next) { pick(next); reveal(next) } },
     tab: (k) => { if (!S.sel) return; S.tab = k; S.menu = false; applySel(); renderDp(); dpEl.scrollTop = Math.min(dpEl.scrollTop, $('.tabs', dpEl).offsetTop - 44) },
@@ -1179,12 +1058,6 @@
       toast('The answer is in the report')
     },
     toast: (text) => toast(text, 'info-square'),
-    download: async () => {
-      S.downloading = true; renderToc()
-      await wait(1400)
-      S.downloading = false; renderToc()
-      toast('Report 2023.pdf is ready', 'download')
-    },
   }
 
   Object.assign(ACTIONS, PAGE_ACTIONS)
@@ -1192,7 +1065,7 @@
   app.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]')
     if (S.menu && !e.target.closest('.menu, .who')) { S.menu = false; renderDp() }
-    if (S.pmenu && !e.target.closest('.dd')) { S.pmenu = undefined; renderPage() }
+    if (S.tocOpen && !e.target.closest('.toc')) { S.tocOpen = false; renderToc() }
     if (e.target === layer) return ACTIONS['close-layer']()
     if (!el) {
       // A click on the report's background lets go of the data point
@@ -1218,15 +1091,15 @@
     if ((t.matches('.v') || t.matches('.para')) && !t.closest('.is-editing') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); return pick(t.dataset.arg) }
     if (e.key === 'Escape') {
       if (S.layer) return ACTIONS['close-layer']()
-      if (S.pmenu) { S.pmenu = undefined; return renderPage() }
       if (S.page !== 'report') return
+      if (S.tocOpen) { S.tocOpen = false; renderToc(); return $('.toc__btn', toc)?.focus() }
       if (S.menu) { S.menu = false; return renderDp() }
       if (S.editing) { finishEdit(); return }
       if (S.sel) ACTIONS.close()
     }
   })
 
-  /* ── the walkthrough: Anastasia's cursor starts at Home, takes the product tour into Data input and its guide, then
+  /* ── the walkthrough: Anastasia's cursor starts at Home, takes the product tour into the report and its guide, then
      goes through the report, Insights and a target, and does on each what a visitor would (../walkthrough.js runs it,
      and gives way to the visitor). Each step finds what it presses when it gets there, and skips what's done: a second
      time round, the answer is written ── */
@@ -1234,13 +1107,13 @@
   if (!new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
     name: 'Anastasia',
     color: '#496aff',
-    // Each page's place in the tour; the Help center and Pollution sit after the page they're nearest
-    where: () => ({ home: 0, input: 1, help: 1.5, report: 2, topic: 2.5, metric: 3, target: 4 })[S.page],
+    // Each page's place in the tour; the Help center sits after the page it's nearest
+    where: () => ({ home: 0, help: 0.5, report: 1, metric: 2, target: 3 })[S.page],
     // Before it carries on: what the visitor left open closed
     tidy: async () => {
       if (S.editing) finishEdit()
       if (S.menu) { S.menu = false; renderDp() }
-      if (S.pmenu) { S.pmenu = undefined; renderPage() }
+      if (S.tocOpen) { S.tocOpen = false; renderToc() }
     },
     scenes: [
       // Home: a to-do ticked off, then the product tour
@@ -1252,31 +1125,42 @@
           await w.pause(600)
         },
       ] },
-      // Data input, from Home's product tour: its guide, two steps on, then hidden, and a row opened
+      // The report, from Home's product tour: its guide, a step on, then hidden; a target in the text; down through the
+      // section's table and charts and back; then a paragraph whose answer is written from the companies' answers, and
+      // put in the report
       { enter: async (w) => {
         if (S.page !== 'home') { await w.click(railItem('home')); await w.pause(700) }
         await w.click(() => $('[data-act="tour"]', pageEl))
       }, steps: [
         async (w) => {
-          if (S.layer !== 'guide') { await w.click(() => $('[data-act="guide-open"]', pageEl)); await w.pause(800) }
-          for (let i = 0; i < 2; i++) {
-            await w.pause(1600)
-            await w.click(() => $('[data-act="guide-step"][data-arg="1"]', layer))
-          }
+          if (S.layer !== 'guide') return
+          await w.pause(1600)
+          await w.click(() => $('[data-act="guide-step"][data-arg="1"]', layer))
           await w.pause(1600)
           await w.click(() => $('[data-act="guide-hide"]', layer))
           await w.pause(800)
-          const row = () => $('[data-act="inp-open"][aria-expanded="false"]', pageEl)
-          if (row()) { await w.click(row); await w.pause(1400) }
         },
-      ] },
-      // The report: a target in the text; then a paragraph whose answer is written from the companies' answers, and
-      // put in the report
-      { enter: (w) => w.click(railItem('report')), steps: [
         async (w) => {
-          if (S.report !== 'e1-4') { await w.click(() => $('[data-act="report"][data-arg="e1-4"]', toc)); await w.pause(900) }
+          if (S.report !== 'e1-4') {
+            if (!S.tocOpen) { await w.click(() => $('.toc__btn', toc)); await w.pause(600) }
+            await w.click(() => $('[data-act="report"][data-arg="e1-4"]', toc)); await w.pause(900)
+          }
           await w.click(() => $('.v[data-v="t-s1"]', stage))
           await w.pause(2200)
+        },
+        // Down through the section, as a reader would: the table, the chart of the path to 2030, the steps; then back up
+        async (w) => {
+          const to = (pid) => { const el = $(`[data-para="${pid}"]`, stage); return el ? el.getBoundingClientRect().top - stage.getBoundingClientRect().top - 72 : 0 }
+          await w.hover(() => $('[data-para="e14-table"]', stage), { x: 300, y: 60 })
+          await w.pause(500)
+          for (const [pid, at] of [['e14-table', { x: 330, y: 90 }], ['e14-path', { x: 440, y: 150 }], ['e14-steps', { x: 300, y: 190 }]]) {
+            await w.scroll(stage, to(pid))
+            await w.pause(500)
+            await w.hover(() => $(`[data-para="${pid}"]`, stage), at)
+            await w.pause(1500)
+          }
+          await w.scroll(stage, -stage.scrollTop)
+          await w.pause(900)
         },
         async (w) => {
           if (S.report !== 'e1-4' || S.sums['e14-how']) return

@@ -2,8 +2,9 @@
 
 /* "You": while the pointer is over a work card's picture or demo (not the space around it or the text under it), it
    shows as a multiplayer cursor named You, in the same look as the demos' walkthrough cursor (Anastasia,
-   public/demos/walkthrough.js). Over a demo's live page the pointer belongs to the demo's frame, so this one hides
-   there and the demo draws its own You, at the same size on screen. Only for a mouse: a touch has no pointer to show.
+   public/demos/walkthrough.js). It's one cursor over the whole card, demo and all: over a demo's live page the pointer
+   belongs to the demo's frame, so the demo (walkthrough.js) hides it there and tells this one where it is, in the
+   page's pixels ("you-cursor"). Only for a mouse: a touch has no pointer to show.
    The CSS is .walk in app/site.css. */
 
 import { useEffect, useRef } from "react";
@@ -27,27 +28,41 @@ export function YouCursor() {
     document.body.append(el);
     root.classList.add("has-you");
 
-    const hide = () => el.classList.remove("is-on");
-    const move = (e: PointerEvent) => {
-      const on = e.target as Element;
-      // Only over a card's picture or demo, and not over a demo's live page (it draws its own there)
-      if (e.pointerType !== "mouse" || on.tagName === "IFRAME" || !on.closest(".q-car-media")) return hide();
-      el.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-      el.classList.toggle("is-left", e.clientX > innerWidth - 100);
-      el.classList.toggle("is-up", e.clientY > innerHeight - 44);
+    let leaving = 0;
+    const hide = () => { clearTimeout(leaving); el.classList.remove("is-on"); };
+    const put = (x: number, y: number) => {
+      clearTimeout(leaving);
+      el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      el.classList.toggle("is-left", x > innerWidth - 100);
+      el.classList.toggle("is-up", y > innerHeight - 44);
       el.classList.add("is-on");
+    };
+    const move = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return hide();
+      const on = e.target as Element;
+      // Over a demo's live page the demo says where the pointer is (below); only a card's picture or demo shows You
+      if (on.tagName === "IFRAME") return;
+      if (!on.closest(".q-car-media")) return hide();
+      put(e.clientX, e.clientY);
+    };
+    // From a demo: where the pointer is over it, or null when it's left the demo. Leaving a demo is usually onto its
+    // own card, which takes over at once, so wait a moment before hiding: no blink at the demo's edge
+    const fromDemo = (e: Event) => {
+      const at = (e as CustomEvent<{ x: number; y: number } | null>).detail;
+      if (at) return put(at.x, at.y);
+      clearTimeout(leaving);
+      leaving = window.setTimeout(hide, 80);
     };
     root.addEventListener("pointermove", move);
     root.addEventListener("pointerdown", move);
     root.addEventListener("pointerleave", hide);
-    // Over a demo's live page, the frame takes the pointer and the parent hears it leave
-    const out = (e: PointerEvent) => { if ((e.relatedTarget as Element | null)?.tagName === "IFRAME") hide(); };
-    root.addEventListener("pointerout", out);
+    addEventListener("you-cursor", fromDemo);
     return () => {
       root.removeEventListener("pointermove", move);
       root.removeEventListener("pointerdown", move);
       root.removeEventListener("pointerleave", hide);
-      root.removeEventListener("pointerout", out);
+      removeEventListener("you-cursor", fromDemo);
+      clearTimeout(leaving);
       root.classList.remove("has-you");
       el.remove();
     };

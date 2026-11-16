@@ -413,8 +413,10 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .walk { position: fixed; left: 0; top: 0; z-index: 2147483001; pointer-events: none; opacity: 0; will-change: transform; }
 .walk.is-on { opacity: 1; }
 .walk__in { position: absolute; left: 0; top: 0; transform: scale(.77); transform-origin: 0 0; }
-.walk__arrow { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; overflow: visible; fill: var(--walk); stroke: rgb(255 255 255 / .7); stroke-width: 2.8; stroke-linejoin: round; paint-order: stroke; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .25)); }
-.walk__name { position: absolute; left: 15px; top: 13px; padding: 4px 9px; border-radius: 6px; background: var(--walk); color: #fff; font: 500 15px/1.3 "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: 0; white-space: nowrap; box-shadow: 0 0 0 1.5px rgb(255 255 255 / .7), 0 1px 3px rgb(0 0 0 / .25); }
+.walk__arrow { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; overflow: visible; fill: var(--walk); stroke: #fff; stroke-width: 1.2; stroke-linejoin: round; paint-order: stroke; }
+.walk__name { position: absolute; left: 15px; top: 13px; padding: 2px 7px; border-radius: 9px; background: var(--walk); color: #fff; font: 500 15px/1.3 "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: 0; white-space: nowrap; box-shadow: 0 0 0 .65px #fff; } /* .65px and the arrow's 1.2 stroke are .5px on screen, after the .77 scale (half the stroke is under the fill) */
+/* A squircle where the browser can draw one (its corners need a larger radius to look as round); elsewhere the rounded 9px */
+@supports (corner-shape: squircle) { .walk__name { border-radius: 13px; corner-shape: squircle; } }
 .walk.is-left .walk__name { left: auto; right: 8px; }
 .walk.is-up .walk__name { top: auto; bottom: 10px; }
 .q-car.is-dragging iframe { pointer-events: none; }
@@ -971,14 +973,14 @@ html.q-dark {
 }
 html[data-dock-mini] .q-consent:not([data-open]) { scale: 0.7; transition-duration: 420ms; transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
 .q-consent[data-open] .q-dock-bg { background: var(--dock-glass-thick); }
-.v-quiet .q-consent-text { position: relative; margin-right: 16px; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--dock-muted); white-space: nowrap; }
+.v-quiet .q-consent-text { position: relative; margin-right: 16px; font-size: 13px; font-weight: 400; line-height: 20px; color: var(--q-text); /* the main text colour */ white-space: nowrap; }
 .q-consent-actions { position: relative; display: flex; align-items: center; gap: 1px; }
 .v-quiet .q-consent-btn {
   all: unset;
   height: 32px; /* slimmer than the 40px dock buttons, so the filled shape doesn't make the pill look taller than the dock */
   background: var(--dock-fg);
   color: var(--dock-bg);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 32px;
   cursor: pointer;
@@ -1008,7 +1010,7 @@ html[data-dock-mini] .q-consent:not([data-open]) { scale: 0.7; transition-durati
 }
 .q-consent-menu .q-dock-bg { background: var(--dock-glass-thick); }
 @keyframes q-consent-menu-in { from { opacity: 0; transform: translateY(6px) scale(0.96); filter: blur(3px); } }
-.v-quiet .q-consent-row { all: unset; position: relative; z-index: 1; padding: 8px 14px; border-radius: 16px; color: var(--dock-muted); font-size: 14px; font-weight: 500; line-height: 20px; cursor: pointer; transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1), scale 180ms cubic-bezier(0.22, 1, 0.36, 1); }
+.v-quiet .q-consent-row { all: unset; position: relative; z-index: 1; padding: 8px 14px; border-radius: 16px; color: var(--q-text); font-size: 13px; font-weight: 500; line-height: 20px; cursor: pointer; transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1), scale 180ms cubic-bezier(0.22, 1, 0.36, 1); }
 .v-quiet .q-consent-row:hover { color: var(--dock-fg); }
 .q-consent-row:active { scale: 0.96; }
 .v-quiet .q-consent-row:focus-visible { outline: 2px solid var(--dock-fg); outline-offset: -3px; }
