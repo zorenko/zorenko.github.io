@@ -1,7 +1,8 @@
+import { CookieSettings } from "@/components/consent";
 import { Experience } from "@/components/experience";
 import { enter } from "@/lib/dom";
 import { SHOW } from "@/lib/flags";
-import { pageMeta } from "@/lib/site";
+import { GTM_ID, pageMeta } from "@/lib/site";
 
 export const metadata = pageMeta("About", "Designing digital products for over 10 years, specialised in complex B2B products, mostly devtools. Now working with companies as a digital designer.");
 
@@ -26,6 +27,12 @@ export default function About() {
           <p className="q-prose">Six years ago I moved to Norway to join Cognite, and it&apos;s been home ever since. Living here gave me a new perspective on life, work and design as a practice. In my free time I explore the city, get my usual ramen at Koie, and train on Zwift so I can finally crush those <s className="q-strike">damned</s> Norwegian hills.</p>
           <p className="q-prose">I love visiting new places and have been to 40 countries so far. Favourites include the French Alps, plus quick trips to Copenhagen and Amsterdam. Next year I&apos;m planning my third trip to Japan.</p>
         </section>
+      )}
+
+      {GTM_ID && (
+        <div className="q-sec">
+          <CookieSettings className="q-cookie-link" />
+        </div>
       )}
     </main>
   );

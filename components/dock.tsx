@@ -140,6 +140,11 @@ export function Dock() {
   // Navigating closes the menu
   useEffect(() => setOpen(false), [path, setOpen]);
 
+  // Other floating islands (the analytics consent pill) shrink with the dock by keying off this attribute
+  useEffect(() => {
+    document.documentElement.toggleAttribute("data-dock-mini", mini);
+  }, [mini]);
+
   useEffect(() => {
     const nav = navRef.current!;
     const onPointerDown = (e: PointerEvent) => {

@@ -4,6 +4,8 @@ export const EMAIL = "zorenkoa@gmail.com";
 export const LINKEDIN = "https://www.linkedin.com/in/anastasiazorenko/";
 export const GITHUB = "https://github.com/zorenko";
 export const OG_IMAGE = "/assets/img/work/celsia-slide-01.jpg";
+/** Google Tag Manager container ID ("GTM-…"); Google Analytics is set up inside the container. Empty turns analytics and the cookie banner off. */
+export const GTM_ID = "GTM-PJ7ZHZNP";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const toDate = (iso: string) => new Date(`${iso}T12:00:00`);
