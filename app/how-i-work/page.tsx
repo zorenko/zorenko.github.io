@@ -6,7 +6,12 @@ import { enter } from "@/lib/dom";
 import { SHOW } from "@/lib/flags";
 import { formatDate, pageMeta } from "@/lib/site";
 
-export const metadata = pageMeta("How I work", "How Anastasia Zorenko works: the steps and tools for product, branding and growth work, and what is changing.");
+// The tabs that are switched on (lib/flags.ts): Product always, Branding and Growth behind flags
+const tabs = TABS.filter((t) => (t.id === "branding" ? SHOW.branding : t.id === "growth" ? SHOW.growth : true));
+// "product", "product and growth", "product, branding and growth"
+const kinds = tabs.map((t) => t.label.toLowerCase()).join(", ").replace(/, ([^,]*)$/, " and $1");
+
+export const metadata = pageMeta("How I work", `How Anastasia Zorenko works: the steps and tools for ${kinds} work, and what is changing.`);
 
 // While Writing is switched off (lib/flags.ts) the page links to no posts: none under the steps, and no
 // Versions section (it's the dates of the update notes, which are posts)
@@ -24,10 +29,13 @@ export default function HowIWork() {
     <main className="q" id="q-main">
       <header className="q-phead" {...enter(1)}>
         <h1>How I work</h1>
-        <p className="q-plead">The tools I use at each step of my work, for the three kinds of work I do. Some are settled, some I’m trying out, and some are on their way out.</p>
+        <p className="q-plead">
+          {tabs.length > 1 ? `My process and the tools I use at each step of my work, for the ${tabs.length === 2 ? "two" : "three"} kinds of work I do.` : `My process and the tools I use at each step of my ${kinds} work.`}{" "}
+          Some are settled, some I’m trying out, and some are on their way out.
+        </p>
       </header>
 
-      <StackTabs tabs={TABS} postsByStep={postsByStep} />
+      <StackTabs tabs={tabs} postsByStep={postsByStep} />
 
       {SHOW.writing && (
         <section className="q-sec q-ts-log" {...enter(4)} aria-labelledby="q-ts-log">

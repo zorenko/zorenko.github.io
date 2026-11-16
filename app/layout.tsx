@@ -12,7 +12,7 @@ const faculty = Faculty_Glyphic({ subsets: ["latin"], weight: "400", variable: "
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: `${NAME} | Digital Designer`, template: `%s | ${NAME}` },
-  description: "Independent digital designer with 10 years of experience in product development: product, brand and design engineering.",
+  description: "Digital designer with 10 years of experience in product development: product, brand and design engineering.",
   openGraph: { images: OG_IMAGE },
 };
 
