@@ -124,7 +124,7 @@ img { display: block; }
 
 /* the bar at the bottom while pictures wait for a sort */
 .floatbar { position: absolute; left: 0; right: 0; bottom: 16px; z-index: 5; display: flex; justify-content: center; pointer-events: none; }
-.floatbar__in { pointer-events: auto; display: flex; align-items: center; gap: 2px; height: 40px; padding: 0 4px 0 12px; border-radius: 12px; background: #fff; box-shadow: 0 0 0 1px var(--edge), 0 4px 16px rgb(0 0 0 / .12); animation: rise .3s var(--ease-out); font-variant-numeric: tabular-nums; }
+.floatbar__in { pointer-events: auto; display: flex; align-items: center; gap: 2px; height: 34px; padding: 0 3px 0 12px; border-radius: 11px; background: #fff; box-shadow: 0 0 0 1px var(--edge), 0 4px 16px rgb(0 0 0 / .12); animation: rise .3s var(--ease-out); font-variant-numeric: tabular-nums; }
 .floatbar__text { display: flex; align-items: center; gap: 8px; padding-right: 8px; white-space: nowrap; }
 .floatbar__text.is-muted { color: var(--muted); }
 .floatbar.is-leaving .floatbar__in { animation: sink .2s var(--ease-out) forwards; }
@@ -254,21 +254,8 @@ img { display: block; }
 .btn--bar .ico--chev { width: 12px; height: 12px; color: var(--muted); margin-left: -2px; }
 .menu-anchor { position: relative; }
 .menu--up { top: auto; bottom: calc(100% + 10px); left: 0; right: auto; transform-origin: bottom left; }
-.menu--wide { width: 290px; }
 .menu__label { margin: 0; padding: 4px 8px 4px; font-size: 12px; color: var(--muted); }
-.menu button.menu__two { height: auto; padding: 6px 8px; align-items: flex-start; }
-.menu__two span { flex: 1; display: flex; flex-direction: column; gap: 1px; }
-.menu__two b { font-weight: 500; }
-.menu__two small { font-size: 12px; color: var(--muted); line-height: 1.35; }
-.menu__two .ico { margin-top: 2px; }
-.bar-input { width: 150px; height: 28px; margin: 0 2px; padding: 0 8px; border: 0; border-radius: 7px; outline: none; background: #fff; box-shadow: inset 0 0 0 1px var(--n4); font: 13px var(--f); }
-.bar-input:focus { box-shadow: inset 0 0 0 1px var(--n6), 0 0 0 3px rgb(0 0 0 / .06); }
 
-/* a bucket's page: its sections, then Ask on the right, each side scrolls on its own */
-.bucket-ask { flex: none; width: 288px; overflow-y: auto; border-left: 1px solid var(--edge); }
-.bucket-ask .ask { padding: 14px; }
-.bsec { margin-bottom: 18px; }
-.bsec__head { display: flex; align-items: baseline; gap: 6px; margin: 0 0 8px; font-size: 13px; font-weight: 500; }
 
 /* dialogs over the window: Settings and Search */
 .layer:empty { display: none; }
@@ -385,11 +372,11 @@ button.dock__app:active .ai { filter: brightness(.7); }
 .gnode:focus-visible .gnode__hit { stroke: var(--ring, #8a8a8a); }
 .gnode__ring { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
 .gnode__dot { fill: var(--ink); stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
-/* Each kind has its color: What, which has the most tags and pictures, in the brand's yellow green; Style in violet,
-   its complement; Subject in coral, the third of a triad with them */
+/* Each kind is a shade of the brand's yellow green: What, which has the most tags and pictures, in the brand's own;
+   Style a step darker, an olive; Subject darker again */
 .gnode__dot--what { fill: #d2dc00; }
-.gnode__dot--style { fill: oklch(0.6 0.2 295); }
-.gnode__dot--subject { fill: oklch(0.68 0.17 25); }
+.gnode__dot--style { fill: oklch(0.74 0.17 112); }
+.gnode__dot--subject { fill: oklch(0.56 0.13 112); }
 .gnode text { dominant-baseline: central; fill: var(--muted); stroke: #fff; stroke-width: 4; stroke-linejoin: round; paint-order: stroke; user-select: none; transition: fill .15s; }
 .gnode text.is-mid { fill: rgb(37 37 37 / .75); }
 .gnode text.is-dark { fill: var(--ink); }
@@ -423,18 +410,31 @@ div.prow__head { cursor: default; padding-left: 2px; }
 .btn--sm { height: 26px; padding: 0 9px; font-size: 12.5px; border-radius: 7px; }
 .btn .ico { width: 14px; height: 14px; }
 .brief-pane { flex: none; width: 320px; overflow-y: auto; border-left: 1px solid var(--edge); }
-.brief { display: flex; flex-direction: column; gap: 12px; padding: 12px 14px 40px; }
-.brief__head { display: flex; align-items: center; justify-content: space-between; }
-.brief__head h3 { margin: 0; font-size: 14px; font-weight: 500; }
-.brief__tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 2px; }
-.brief__tabs [role="tab"] { height: 24px; padding: 0 8px; border: 0; border-radius: 6px; background: none; color: var(--muted); font-size: 12.5px; cursor: pointer; }
-.brief__tabs [role="tab"]:hover { color: var(--ink); }
-.brief__tabs [role="tab"][aria-selected="true"] { background: var(--n3); color: var(--ink); }
-.brief__gen { display: flex; align-items: center; gap: 8px; }
-.brief__note { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); line-height: 1.35; }
-.brief__note .ico { width: 13px; height: 13px; flex: none; }
-.bpart { display: flex; flex-direction: column; gap: 8px; }
-.bpart h4 { margin: 4px 0 0; font-size: 13px; font-weight: 500; }
+.brief { display: flex; flex-direction: column; padding: 12px 16px 40px; }
+.brief__head { display: flex; align-items: center; justify-content: space-between; margin-right: -6px; font-size: 12px; color: var(--muted); }
+/* The brief as a Notion page: the company's name as its title, then parts that fold, each with a hairline under it */
+.brief__title { display: block; width: 100%; margin: 14px -4px 14px; padding: 2px 4px; border: 0; border-radius: 6px; background: none; font: inherit; font-size: 20px; font-weight: 600; line-height: 1.3; letter-spacing: -.01em; color: var(--ink); resize: none; overflow: hidden; outline: none; box-sizing: content-box; }
+.brief__title:hover, .brief__title:focus { background: var(--n2); }
+.brief__title::placeholder { color: var(--n5); }
+.bparts { display: flex; flex-direction: column; gap: 6px; }
+/* Each part is a grey card that folds; open, its fields sit on the same grey */
+.bpart { border-radius: 10px; background: #f4f4f4; transition: background-color .15s; }
+.bpart:not(.is-open):hover { background: #ededed; }
+.bpart__head { display: flex; align-items: center; gap: 4px; min-height: 40px; padding: 0 6px 0 4px; }
+.bpart__toggle { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 6px; border: 0; background: none; font: inherit; font-size: 13.5px; font-weight: 500; color: var(--ink); text-align: left; cursor: pointer; }
+.bpart__toggle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bpart__chev { flex: none; width: 14px; height: 14px; color: var(--faint); transform: rotate(-90deg); transition: transform .2s var(--ease-out); }
+.bpart__toggle[aria-expanded="true"] .bpart__chev { transform: none; }
+.bpart__note { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bpart__note .ico { width: 13px; height: 13px; flex: none; }
+.bpart__head .iconbtn--xs { width: 24px; height: 24px; border-radius: 6px; }
+.bpart__head .iconbtn:hover { background: rgb(0 0 0 / .05); }
+.bpart__head .iconbtn:disabled { opacity: .4; cursor: default; }
+.bpart .bq textarea:hover, .bpart .bq textarea:focus { background: rgb(0 0 0 / .04); }
+.bpart__body { display: flex; flex-direction: column; gap: 12px; padding: 2px 14px 16px; animation: page-in .2s var(--ease-out); }
+.brief__add { display: flex; align-items: center; gap: 6px; height: 28px; margin: 4px 0 0 4px; padding: 0 6px; border: 0; border-radius: 6px; background: none; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; align-self: flex-start; transition: background-color .15s, color .15s; }
+.brief__add:hover { background: var(--n2); color: var(--ink); }
+.brief__add .ico { width: 14px; height: 14px; }
 .bq { display: flex; flex-direction: column; gap: 2px; }
 .bq span { font-size: 12px; color: var(--muted); line-height: 1.35; }
 /* A field with no border, as on a Notion page; it grows with its text */
@@ -460,5 +460,6 @@ div.prow__head { cursor: default; padding-left: 2px; }
 .btn--ghost.is-walk-hover { background: var(--n3); color: var(--ink); }
 .btn--line.is-walk-hover { background: var(--n2); }
 .tile.is-walk-hover img { filter: brightness(.94); }
-.brief__tabs [role="tab"].is-walk-hover { color: var(--ink); }
+.bpart:has(.bpart__toggle.is-walk-hover):not(.is-open) { background: #ededed; }
+.brief__add.is-walk-hover { background: var(--n2); }
 .swatch.is-walk-hover:not([aria-disabled="true"]) { transform: scale(1.04); }

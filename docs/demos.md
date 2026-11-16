@@ -28,7 +28,7 @@ nearest existing demo: the files are the real reference, this is the map.
 | Demo | What it is | Framing |
 | --- | --- | --- |
 | `public/demos/visuals/` | Made by hand: about 1,000 lines of plain HTML, CSS and JS, no build. Follows the real app's screens and words. | `?app`: only the app's window, filling the frame (used on the site). No query: a Mac desktop with the window, Safari and the Dock. |
-| `public/demos/celsia/` | Made by hand, like Visuals, from Figma frames (some only concepts), rebranded away from the production app because the work is under NDA, and simplified so anyone can follow it: plain words instead of the standards' codes, none of the production app's specialist set-up (disclosure checklists, table blocks), and a made-up company, Northfield. Dark, in soft greys with one pale lemon accent, Geist, Lucide icons, and skeuomorphic icons in the sidebar and on Home. It starts at Home; the app's sidebar moves between Home, Data input with its guide, a report whose numbers and texts open in a sidebar, Insights, the Pollution topic, a target and the Help center. The guide's and the tour's pictures are crops of the demo's own screens on a dotted dark panel: take them again when the screens change. | Only the app's window. `?glass`: see-through around its panel, for a glass card (no longer used: the site shows it at 1180 × 753 in a browser window). |
+| `public/demos/celsia/` | Made by hand, like Visuals, from Figma frames (some only concepts), rebranded away from the production app because the work is under NDA, and simplified so anyone can follow it: plain words instead of the standards' codes, none of the production app's specialist set-up (disclosure checklists, table blocks), and a made-up company, Northfield. Dark, in soft greys with one pale lemon accent, Geist, Lucide icons, and skeuomorphic icons in the sidebar and on Home. It starts at Home; the app's sidebar moves between Home, a report with its guide whose numbers and texts open in a sidebar, Insights, a target and the Help center. The guide's and the tour's pictures are crops of the demo's own screens on a dotted dark panel: take them again when the screens change. | Only the app's window. `?glass`: see-through around its panel, for a glass card (no longer used: the site shows it at 1180 × 753 in a browser window). |
 | `public/demos/sanna/` | Made by hand like Visuals, from Sanna's screens in Figma (no repo to run): the timeline, a task with Hege's panel, All tasks complete. The flow between the screens is made up. | No query: a Mac desktop with Sanna's web app in Safari (used on the site). `?app`: only the app. |
 | `public/demos/muster/` | A copy of the Muster landing page (its own repo). | `?embed`: only the landing page's Mac desktop. Its head comment says how to copy it again. |
 
@@ -58,8 +58,8 @@ desktop around it when the demo needs it, such as a story that crosses apps: a b
      - a fake wait (`wait(ms)`, shortened with reduced motion) stands in for the app's real work, such as Claude
        answering; streamed answers are written a few characters at a time;
      - the walkthrough (every demo): Anastasia's cursor, a multiplayer one, goes through the pages and does on each
-       what a visitor would (Visuals: Sort, Ask, the tag graph, Colors (beige, then blue), Generate; Celsia: Home, the data
-       input guide, a target in the report, an answer written from the companies' answers, Insights and a target's
+       what a visitor would (Visuals: Sort, Ask, the tag graph, Colors (beige, then blue), Generate; Celsia: Home, the report's
+       guide, a target in the report, down through its table and charts and back, an answer written from the companies' answers, Insights and a target's
        actions; Sanna: the task, press by press (`nextTarget`); Muster: Sort and a fix in Safari, a folder in the menu bar, a
        fix in Terminal). Visuals, Celsia and Muster go round again (Muster resets its demo first); Sanna's story ends
        at All tasks complete, so its tour does too (`loop: false`). The cursor shows the way, so no demo has a ring
@@ -73,13 +73,15 @@ desktop around it when the demo needs it, such as a story that crosses apps: a b
        in the middle card (the others are `inert`): it starts when its card first comes to the middle, stops and fades
        out when the card moves to the side, and fades back in where it was and carries on when it's back (0.3 s after the card passes halfway, as it settles). It's off with reduced
        motion, on touch screens, and with `?nowalk`. After a round it starts again after 1.5 seconds. Over the carousel the
-       visitor's own pointer over a card's picture or demo (not the space around it or the text under it) is a cursor in the same look, named You (`components/you-cursor.tsx` outside the demos,
-       `walkthrough.js` inside them, at the same size on screen);
+       visitor's own pointer over a card's picture or demo (not the space around it or the text under it) is a cursor in the same look, named You: one cursor over the whole card, drawn by the site
+       (`components/you-cursor.tsx`), so it isn't cut off at a demo's edge. Inside a demo, `walkthrough.js` hides the
+       pointer and passes its place on to the site (a `you-cursor` event, in the page's pixels);
      - a change inside a tile (Visuals' slider) updates the tile in place: redrawing it and focusing again can jump to
        one of the loop's copies and scroll the grid.
 3. **Follow the app's current version.** Check its version and design doc before each change: Visuals' brand
    projects, tag graph and palette changed between 0.9 and 0.16. Port the real logic where it's small (the tag graph's
-   layout is `tag-graph.ts`, ported to plain JS).
+   layout started as `tag-graph.ts`, ported to plain JS; the demo now draws only a tree of the strongest ties, from a
+   radial start, so it reads clearly at its small size).
 4. **Pictures and content.** Use real pictures the person picks, with credit: Visuals' are posts from X and one
    Pinterest pin, listed in `pictures.js` (one entry per post: its link, its files, then a title, tags, colors and what
    Ask says of it, written by hand from looking at each picture). Keep copies in the demo's folder (WebP, 800px wide at

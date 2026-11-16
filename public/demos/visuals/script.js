@@ -30,7 +30,6 @@
     spin: '<path d="M21 12a9 9 0 1 1-6.219-8.56"/>',
     inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
     plug: '<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>',
-    box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
     copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
     again: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
     move: '<path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-1.73"/><path d="M2 13h10"/><path d="m9 16 3-3-3-3"/>',
@@ -43,7 +42,6 @@
     comment: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
     pipette: '<path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>',
     stop: '<rect x="6" y="6" width="12" height="12" rx="1"/>',
-    list: '<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
   }
   const icon = (name, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true">${PATHS[name]}</svg>`
   const spinner = () => icon('spin', 'spin')
@@ -83,11 +81,11 @@
   const kindOf = (t) => TAG_KIND[t] ?? 'style'
 
   /* ── the tag graph, as Visuals draws it (tag-graph.ts): a dot is a tag, larger and darker on more pictures; a line joins
-     two tags on the same pictures, each tag's 3 strongest. Every tag is a circle, and its color says its kind: What
-     in the brand's yellow green, Style and Subject in colors that go with it (styles.css). The dots are a little
-     smaller than the app's. The layout is a few hundred steps of
-     forces from a spiral, with no randomness, so the same tags give the same graph ── */
-  const G = { width: 428, edge: 16, lowest: 160, small: 3, large: 8.5, steps: 300, labelSteps: 60, gap: 6, bend: 0.12 }
+     two tags on the same pictures, only the strongest ties, as a tree (tagGraph). Every tag is a circle, and its
+     color says its kind, in shades of the brand's yellow green (styles.css). The dots are a little smaller than the
+     app's. The layout starts as a radial tree around its middle and then takes a few hundred steps of forces, with no randomness, so
+     the same tags give the same graph ── */
+  const G = { width: 428, edge: 16, lowest: 160, small: 3, large: 8.5, steps: 300, labelSteps: 60, gap: 6, bend: 0.12, extra: 0, ring: 90 }
   const NAME_SIZE = { large: 12.5, middle: 12, small: 11.5 }
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
   const r1 = (v) => Math.round(v * 10) / 10
@@ -101,7 +99,42 @@
     const pairs = links.flatMap((l) => (index.has(l.first) && index.has(l.second) ? [{ from: index.get(l.first), to: index.get(l.second), strength: l.strength }] : []))
     const degrees = tags.map((_, i) => pairs.filter((p) => p.from === i || p.to === i).length)
     const mid = { x: G.width / 2, y: 0 }
-    const bodies = tags.map((_, i) => { const a = i * 2.399963; const d = 30 * Math.sqrt(i); return { x: mid.x + Math.cos(a) * d, y: Math.sin(a) * d, vx: 0, vy: 0 } })
+    // It starts as a radial tree: the most linked tag in the middle, and each branch in a slice as wide as its tags
+    const near = tags.map(() => [])
+    pairs.forEach(({ from, to }) => { near[from].push(to); near[to].push(from) })
+    const start = tags.map(() => undefined)
+    const kids = tags.map(() => [])
+    const order = []
+    // The middle is the tag with the shortest way to every other, so the branches stay short
+    const reach = tags.map((_, r) => {
+      const seen = new Map([[r, 0]]), queue = [r]
+      while (queue.length) { const i = queue.shift(); for (const j of near[i]) if (!seen.has(j)) { seen.set(j, seen.get(i) + 1); queue.push(j) } }
+      return Math.max(...seen.values())
+    })
+    for (const r of tags.map((_, i) => i).sort((a, b) => reach[a] - reach[b] || degrees[b] - degrees[a] || tags[b].count - tags[a].count)) {
+      if (start[r]) continue
+      start[r] = { depth: 0 }
+      const queue = [r]
+      while (queue.length) {
+        const i = queue.shift(); order.push(i)
+        for (const j of near[i]) if (!start[j]) { start[j] = { depth: start[i].depth + 1 }; kids[i].push(j); queue.push(j) }
+      }
+    }
+    const leaves = tags.map(() => 1)
+    for (const i of [...order].reverse()) if (kids[i].length) leaves[i] = kids[i].reduce((n, j) => n + leaves[j], 0)
+    const roots = order.filter((i) => start[i].depth === 0)
+    const all = roots.reduce((n, i) => n + leaves[i], 0)
+    const place = (i, from, to) => {
+      start[i].angle = (from + to) / 2
+      let at = from
+      for (const j of kids[i]) { const span = ((to - from) * leaves[j]) / leaves[i]; place(j, at, at + span); at += span }
+    }
+    let at = 0
+    for (const r of roots) { const span = (2 * Math.PI * leaves[r]) / all; place(r, at, at + span); at += span }
+    const bodies = tags.map((_, i) => {
+      const { depth, angle } = start[i]
+      return { x: mid.x + Math.cos(angle) * depth * G.ring * 0.7, y: Math.sin(angle) * depth * G.ring, vx: 0, vy: 0 }
+    })
     const cx = (b, i) => b.x + (boxes[i].right - boxes[i].left) / 2
     const inside = (b, i) => { b.x = clamp(b.x, G.edge + boxes[i].left, G.width - G.edge - boxes[i].right) }
     const separate = (i, j, share) => {
@@ -176,65 +209,36 @@
   const PICS = POSTS.filter((p) => !PLATES.includes(p))
   const byId = (id) => S.pics.find((p) => p.id === id) ?? PLATES.find((p) => p.id === id)
 
-  /* ── buckets: the pictures of a project. A template gives a new bucket its sections, which say what each picture is
-     for, so Ask takes from each picture only that part ── */
-  const TEMPLATES = {
-    none: { name: 'No sections', sections: [] },
-    product: { name: 'Product design', sections: ['Layout', 'Typography', 'Color', 'Components', 'Illustration style', 'Motion'] },
-    branding: { name: 'Branding project', sections: ['Logo', 'Typography', 'Color', 'Imagery', 'Layout', 'Illustration style'] },
-    website: { name: 'Website', sections: ['Hero', 'Layout', 'Typography', 'Color', 'Imagery', 'Motion'] },
-  }
-  const PART = { Logo: 'look', Typography: 'type', Color: 'palette', Imagery: 'look', Layout: 'layout', 'Illustration style': 'look', Components: 'look', Hero: 'layout', Motion: 'look' }
-  let bucketSeq = 0
-  const makeBucket = (name, template, fill = {}, loose = []) => {
-    const sections = TEMPLATES[template].sections.map((s) => ({ name: s, ids: [...(fill[s] ?? [])] }))
-    return { id: `b${++bucketSeq}`, name, sections, ids: [...loose, ...sections.flatMap((s) => s.ids)] }
-  }
-  const sectionOf = (b, id) => b.sections.find((s) => s.ids.includes(id))
-  const looseOf = (b) => b.ids.filter((id) => !sectionOf(b, id))
-  const orderOf = (b) => [...b.sections.flatMap((s) => s.ids), ...looseOf(b)]
-
-  /* ── brand projects (Visuals 0.16): a bucket with a brief. Its page is one grid, a row for each section and a column for
-     each direction, with the pictures in no direction at the bottom. The panel on the right is the brief, in tabs:
-     Overview, Constraints and wishes, then each direction. Generate asks Claude Code to fill in a tab's empty fields,
-     never over the person's text. A picture has a comment: what the person likes in it and what they don't ── */
+  /* ── brand projects (Visuals 0.16): pictures with a brief. Its page is one grid, a row for each section and a column for
+     each direction, with the pictures in no direction at the bottom. The panel on the right is the brief, a page with
+     the company's name as its title and parts that fold: Overview, Constraints and wishes, then each direction.
+     Generate, in a part's head, asks Claude Code to fill in that part's empty fields, never over the person's text. A picture has a comment: what the person likes in it and what they don't ── */
   const FIRST_SECTION = 'Illustration and imagery'
   const MORE_SECTIONS = ['Logo', 'Typography', 'Color and texture', 'Layout', 'Photography', 'Iconography', 'Motion']
   const Q = (id, label, placeholder) => ({ id, label, placeholder })
+  // A short brief: a few questions for each part, and no headings inside them
   const BRIEF_PARTS = [
-    { name: 'The company', qs: [Q('company', 'What it does', "What it does, for whom, what's different, what stage. One paragraph."), Q('surprise', 'The thing a customer would be surprised to learn', 'A fact about the business that few people know.'), Q('name', 'Name', 'Final, or a working name')] },
-    { name: 'Audience', qs: [Q('audience', 'Who the brand must win over first', 'Buyers, investors, hires…'), Q('belief', 'What they believe today, and what they should believe after one look', 'Today they think… After one look, they think…')] },
-    { name: 'What the brand has to do', qs: [Q('first', 'First', 'The most important job of the brand'), Q('second', 'Second', 'The next job'), Q('personality', 'Personality', '3–5 words'), Q('never', 'Never', '3–5 words')] },
-    { name: 'What exists already', qs: [Q('keep', 'Keep', 'Logo, colour, typeface, symbol, photography, or "nothing"'), Q('free', 'Free to change', 'What can change')] },
-    { name: 'The world it draws from', qs: [Q('world', 'Real things from this business that could appear in the pictures', 'One on each line: an object, a place, a process, a document, a material')] },
-    { name: 'Constraints and wishes', qs: [Q('stay-away', 'Stay away from', 'Competitors, and what about them'), Q('must-be-happy', 'Must be happy', 'Who, and what they want'), Q('type', 'Type', 'Free fonts only? Anything loved or banned'), Q('languages', 'Languages', 'English, German…'), Q('applications', 'First applications', 'Website hero, social post, report cover, signage…'), Q('never-say', 'Never say', 'Words or topics the brand avoids')] },
+    { name: 'Overview', qs: [Q('name', 'Name', 'Company name'), Q('company', 'What it does', 'What it does, for whom, and what stage it is at'), Q('audience', "Who it's for", 'Who the brand must win over first'),
+      Q('goal', 'What the brand has to do', 'Its most important job'), Q('personality', 'Personality', '3–5 words'), Q('world', 'What could appear in the pictures', 'Objects, places, materials from this business')] },
+    { name: 'Constraints and wishes', qs: [Q('keep', 'What stays', 'Logo, colour, type, or nothing'), Q('avoid', 'Stay away from', 'Competitors, words, looks'), Q('applications', 'First uses', 'Website, posters, signage…')] },
   ]
-  const DIRECTION_QS = [Q('drawn', "What's drawn", 'The objects, people or scenes'), Q('angle', 'From what angle', 'Isometric, front-on, aerial, close-up'), Q('line', 'Line', 'Weight, colour, or none'),
-    Q('colours', 'Colours, and which one is the accent', 'Two greens, and a red accent'), Q('texture', 'Texture', 'Paper grain, gradients, shaders, or none'), Q('layout', 'Layout', 'One object centred in lots of space'),
-    Q('never-appears', 'Never appears', 'What the pictures never show'), Q('feels-like', 'Feels like', 'Like X, not Y')]
+  const DIRECTION_QS = [Q('drawn', "What's drawn", 'The objects, people or scenes'), Q('style', 'Style', 'Angle, line and texture'), Q('colours', 'Colours', 'Two greens, and a red accent'),
+    Q('layout', 'Layout', 'One object centred in lots of space'), Q('feels-like', 'Feels like', 'Like X, not Y')]
   // What Generate writes in the demo: Claude Code's answers from the brief and the references
   const GENERATED = {
-    surprise: 'Most of the collection is drawings of things that were never built: only one in ten was ever made.',
     audience: 'People in Oslo from 25 to 45 who go to galleries, but not to design museums.',
-    belief: "Today they think it's a quiet place for experts. After one look, they think it's where you see how things get made.",
-    first: 'Make people want to visit the new building.',
-    second: 'Show the collection as working drawings, not as relics.',
+    goal: 'Make people want to visit the new building, and show the collection as working drawings, not relics.',
     personality: 'Curious, exact, generous, calm',
-    never: 'Stiff, nostalgic, loud, corporate',
-    keep: 'Nothing',
-    free: 'Everything: the name, the mark, the colours and the type',
-    world: 'Axonometric drawings\nPlaster models\nThe archive drawers\nPoster proofs\nThe concrete of the new building',
-    'stay-away': "Other museums' white-cube minimalism, and tech brands' gradients",
-    'must-be-happy': 'The director, who wants the collection at the centre, not the building',
-    type: 'Free fonts only. A serif is welcome.',
-    applications: 'Opening posters, the website hero, signs in the building, the ticket',
-    'never-say': 'Iconic, timeless, world-class',
-    d1: { drawn: 'Creatures and objects from the collection, cast in silver', angle: 'Front-on and close up', line: 'None: the form comes from light on metal', colours: 'Black and silver, with a vermilion accent',
-      texture: 'Polished chrome, soft reflections', layout: 'One subject fills the frame, and a small label points at it', 'never-appears': 'People, and photographs of the building', 'feels-like': 'Like a reliquary, not a sci-fi game' },
-    d2: { drawn: 'Buildings as axonometric drawings, and type set large', angle: 'Axonometric and front-on', line: 'Hairline, black', colours: 'Paper white and black, with an orange accent',
-      texture: 'Paper grain', layout: 'An editorial grid with a lot of margin', 'never-appears': 'Gradients and 3D renders', 'feels-like': 'Like an archive, not a startup' },
-    other: { drawn: 'Objects from the collection, one at a time', angle: 'Front-on', line: 'Fine, black', colours: 'Two neutrals and one accent from the palette',
-      texture: 'None', layout: 'One object centred in a lot of space', 'never-appears': 'Stock photography', 'feels-like': 'Like a catalogue, not an advert' },
+    world: 'Axonometric drawings, plaster models, the archive drawers, poster proofs, the concrete of the new building',
+    keep: 'Nothing: the name, mark, colours and type can all change',
+    avoid: "Other museums' white-cube minimalism, tech gradients, and the words iconic and timeless",
+    applications: 'Opening posters, the website, signs in the building, the ticket',
+    d1: { drawn: 'Creatures and objects from the collection, cast in silver', style: 'Front-on and close up, no line: the form comes from light on polished chrome', colours: 'Black and silver, with a vermilion accent',
+      layout: 'One subject fills the frame, and a small label points at it', 'feels-like': 'Like a reliquary, not a sci-fi game' },
+    d2: { drawn: 'Buildings as axonometric drawings, and type set large', style: 'Axonometric, hairline black lines on paper grain', colours: 'Paper white and black, with an orange accent',
+      layout: 'An editorial grid with a lot of margin', 'feels-like': 'Like an archive, not a startup' },
+    other: { drawn: 'Objects from the collection, one at a time', style: 'Front-on, fine black lines, no texture', colours: 'Two neutrals and one accent from the palette',
+      layout: 'One object centred in a lot of space', 'feels-like': 'Like a catalogue, not an advert' },
   }
   const makeProject = (id, name, sections, directions, place, answers = {}) => ({
     id, name, answers, directions, sections: sections.map((n) => ({ name: n, folded: false })),
@@ -246,34 +250,30 @@
   /* ── state ── */
   const S = {
     front: 'app',
-    page: 'pictures', // pictures | tag | tags | colors | project | bucket
+    page: 'pictures', // pictures | tag | tags | colors | project
     tag: undefined, // the tag of the tag page
-    bucket: undefined, // the id of the bucket page
     project: undefined, // the id of the brand project page
     projects: [
       makeProject('p1', 'Museum brand', [FIRST_SECTION, 'Logo', 'Typography', 'Color and texture', 'Layout'], [
         { id: 'd1', name: 'Silver myth', answers: {}, palette: [['#111215', 8], ['#b9bcc2', 6], ['#c8402e', 3], ['#d39a3c', 2]] },
         { id: 'd2', name: 'Paper and stone', answers: {}, palette: [['#f2efe8', 7], ['#1c1c1c', 5], ['#e8622c', 3], ['#b8a58c', 2]] },
       ], {
-        sishen: [FIRST_SECTION, 'd1'], golden: [FIRST_SECTION, 'd1'], garden: [FIRST_SECTION, 'd1'], ando: [FIRST_SECTION, 'd2'],
-        dynamic: ['Logo', 'd1'], guide: ['Logo', 'd2'], agu: ['Typography', 'd1'], answer: ['Typography', 'd2'],
-        polar: ['Color and texture', 'd1'], sun: ['Color and texture', 'd2'], iso: ['Layout', 'd1'], achievable: ['Layout', 'd2'], lines: [FIRST_SECTION, undefined],
+        sishen: [FIRST_SECTION, 'd1'], golden: [FIRST_SECTION, 'd1'], garden: [FIRST_SECTION, 'd1'], ando: [FIRST_SECTION, 'd2'], redink: [FIRST_SECTION, 'd2'],
+        dynamic: ['Logo', 'd1'], rays: ['Logo', 'd1'], guide: ['Logo', 'd2'], agu: ['Typography', 'd1'], answer: ['Typography', 'd2'],
+        polar: ['Color and texture', 'd1'], cassette: ['Color and texture', 'd1'], sun: ['Color and texture', 'd2'], cyano: ['Color and texture', 'd2'],
+        iso: ['Layout', 'd1'], spacefund: ['Layout', 'd1'], achievable: ['Layout', 'd2'], isosite: ['Layout', 'd2'], lines: [FIRST_SECTION, undefined],
       }, {
         company: 'A museum of design and architecture in Oslo: drawings, models and posters from 1900 until now. It opens a new building by the fjord in 2027.',
-        name: 'Formhuset, a working name',
-        languages: 'Norwegian and English',
+        name: 'Formhuset',
       }),
     ],
-    briefTab: 'overview', // overview | constraints | a direction's id
+    briefOpen: new Set(['overview']), // the brief's open parts: overview | constraints | a direction's id
     gen: undefined, // Generate, while it runs: { tab, busy }
     comments: { sishen: { like: 'The silver, and the one red block', dislike: '' } },
     commentOpen: undefined, // the picture whose comment is open
     hoverTag: undefined, // the tag under the pointer in the graph
     sectionMenu: false,
     pics: PICS,
-    buckets: [
-      makeBucket('App redesign', 'product', { Layout: ['drones', 'storage'], Color: ['nightshift'], Components: ['widgets', 'cards'], Motion: ['microtext', 'motionsection'] }),
-    ],
     favs: ['poster', 'brand system', 'interface', '3d'],
     useful: new Set(),
     notUseful: new Set(),
@@ -282,7 +282,7 @@
     open: undefined, // id of the open picture
     openList: [],
     ask: { mode: 'summary', busy: false },
-    answers: {}, // picture | bucket: { asked, text, shown, busy }
+    answers: {}, // picture: { asked, text, shown, busy }
     tagDraft: false,
     tagSel: undefined,
     colorSel: 'red.2', // Colors always shows one color's pictures
@@ -290,15 +290,12 @@
     slides: {}, // the picture that a post's tile shows: its index
     sel: new Set(), // selected tiles
     selLast: undefined,
-    barMenu: undefined, // add | move | template
-    draft: undefined, // a new bucket: { name, template }
+    barMenu: undefined, // add | move | dir
     layer: undefined, // search | paste
     saved: new Set(),
     arriving: new Set(),
   }
-  const bucketById = (id) => S.buckets.find((b) => b.id === id)
   const projectById = (id) => S.projects.find((b) => b.id === id)
-  const holderById = (id) => projectById(id) ?? bucketById(id)
 
   const desk = $('[data-desk]')
   const side = $('[data-side]')
@@ -343,8 +340,6 @@
       <div class="side__group"><div class="side__head">Brand projects <span class="count">${S.projects.length}</span>
           <button type="button" class="iconbtn iconbtn--xs side__add" data-act="new-project" aria-label="New brand project" title="New brand project">${icon('plus')}</button></div>
         ${S.projects.map((b) => row('project', b.id, 'shapes', b.name, b.ids.length, S.page === 'project' && S.project === b.id)).join('')}</div>
-      ${S.buckets.length ? `<div class="side__group"><div class="side__head">Buckets <span class="count">${S.buckets.length}</span></div>
-        ${S.buckets.map((b) => row('bucket', b.id, 'box', b.name, b.ids.length, S.page === 'bucket' && S.bucket === b.id)).join('')}</div>` : ''}
       <div class="side__group side__foot"><span class="row is-static" aria-disabled="true" title="Not in this demo">${icon('settings')}<span class="row__name">Settings</span></span></div>`
   }
 
@@ -436,43 +431,28 @@
     box.addEventListener('scroll', () => loopScroll(box), { passive: true })
   }
   const panelWidth = () => panel.clientWidth || 760
-  const ASK_W = 288
   const BRIEF_W = 320
 
   // The bar at the bottom: the selected tiles' toolbar, or else, on All pictures, the new pictures' bar
   const chev = icon('chev', 'ico--chev')
   function selBarHTML() {
     const n = S.sel.size
-    if (S.draft) {
-      const t = S.draft.template
-      return `<div class="floatbar__in" role="toolbar" aria-label="New bucket"><span class="floatbar__text">${n} selected</span>
-        <input class="bar-input" data-draft-name value="${esc(S.draft.name)}" placeholder="Such as: Bakery brand" aria-label="Name of the new bucket" />
-        <span class="menu-anchor"><button type="button" class="btn btn--ghost btn--bar" data-act="bar-menu" data-arg="template" aria-expanded="${S.barMenu === 'template'}">${icon('list')}${TEMPLATES[t].name}${chev}</button>
-          ${S.barMenu === 'template' ? `<div class="menu menu--up menu--wide" role="menu"><p class="menu__label">Start with sections</p>${Object.entries(TEMPLATES).map(([k, v]) => `<button type="button" role="menuitemradio" aria-checked="${k === t}" class="menu__two" data-act="template" data-arg="${k}"><span><b>${v.name}</b>${v.sections.length ? `<small>${v.sections.join(', ')}</small>` : ''}</span>${k === t ? icon('check') : ''}</button>`).join('')}</div>` : ''}</span>
-        <button type="button" class="btn btn--brand" data-act="make-bucket">Make bucket</button>
-        <button type="button" class="btn btn--ghost" data-act="cancel-bucket">Cancel</button></div>`
-    }
     const pr = S.page === 'project' ? projectById(S.project) : undefined
     if (pr) {
-      const others = [...S.projects, ...S.buckets].filter((x) => x !== pr)
+      const others = S.projects.filter((x) => x !== pr)
       return `<div class="floatbar__in" role="toolbar" aria-label="Selected pictures"><span class="floatbar__text">${n} selected</span>
         ${pr.directions.length ? `<span class="menu-anchor"><button type="button" class="btn btn--ghost btn--bar" data-act="bar-menu" data-arg="dir" aria-expanded="${S.barMenu === 'dir'}">${icon('columns')}Move to direction${chev}</button>
           ${S.barMenu === 'dir' ? `<div class="menu menu--up" role="menu">${pr.directions.map((d) => `<button type="button" role="menuitem" data-act="move-dir" data-arg="${d.id}">${esc(d.name)}</button>`).join('')}<hr /><button type="button" role="menuitem" data-act="move-dir" data-arg="">Not in a direction</button></div>` : ''}</span>` : ''}
         <span class="menu-anchor"><button type="button" class="btn btn--ghost btn--bar" data-act="bar-menu" data-arg="move" aria-expanded="${S.barMenu === 'move'}">${icon('move')}Move to section${chev}</button>
           ${S.barMenu === 'move' ? `<div class="menu menu--up" role="menu">${pr.sections.map((x) => `<button type="button" role="menuitem" data-act="move-to" data-arg="${esc(x.name)}">${esc(x.name)}</button>`).join('')}<hr /><button type="button" role="menuitem" data-act="move-to" data-arg="">Not in a section</button></div>` : ''}</span>
-        <span class="menu-anchor"><button type="button" class="btn btn--ghost btn--bar" data-act="bar-menu" data-arg="add" aria-expanded="${S.barMenu === 'add'}">${icon('box')}Add to bucket${chev}</button>
-          ${S.barMenu === 'add' ? `<div class="menu menu--up" role="menu">${others.map((x) => `<button type="button" role="menuitem" data-act="add-to" data-arg="${x.id}">${icon(x.place ? 'shapes' : 'box')}${esc(x.name)}<span class="count" style="margin-left:auto">${x.ids.length}</span></button>`).join('')}</div>` : ''}</span>
-        <button type="button" class="btn btn--ghost btn--bar" data-act="remove-from-bucket">${icon('minus')}Remove</button>
+        ${others.length ? `<span class="menu-anchor"><button type="button" class="btn btn--ghost btn--bar" data-act="bar-menu" data-arg="add" aria-expanded="${S.barMenu === 'add'}">${icon('shapes')}Add to project${chev}</button>
+          ${S.barMenu === 'add' ? `<div class="menu menu--up" role="menu">${others.map((x) => `<button type="button" role="menuitem" data-act="add-to" data-arg="${x.id}">${icon('shapes')}${esc(x.name)}<span class="count" style="margin-left:auto">${x.ids.length}</span></button>`).join('')}</div>` : ''}</span>` : ''}
+        <button type="button" class="btn btn--ghost btn--bar" data-act="remove-from-project">${icon('minus')}Remove</button>
         <button type="button" class="btn btn--ghost btn--bar" data-act="clear-sel">Clear</button></div>`
     }
-    const b = S.page === 'bucket' ? bucketById(S.bucket) : undefined
-    const others = [...S.projects, ...S.buckets].filter((x) => x !== b)
     return `<div class="floatbar__in" role="toolbar" aria-label="Selected pictures"><span class="floatbar__text">${n} selected</span>
-      ${b?.sections.length ? `<span class="menu-anchor"><button type="button" class="btn btn--ghost btn--bar" data-act="bar-menu" data-arg="move" aria-expanded="${S.barMenu === 'move'}">${icon('move')}Move to section${chev}</button>
-        ${S.barMenu === 'move' ? `<div class="menu menu--up" role="menu">${b.sections.map((s) => `<button type="button" role="menuitem" data-act="move-to" data-arg="${esc(s.name)}">${esc(s.name)}<span class="count" style="margin-left:auto">${s.ids.length}</span></button>`).join('')}<hr /><button type="button" role="menuitem" data-act="move-to" data-arg="">Not in a section</button></div>` : ''}</span>` : ''}
-      <span class="menu-anchor"><button type="button" class="btn btn--ghost btn--bar" data-act="bar-menu" data-arg="add" aria-expanded="${S.barMenu === 'add'}">${icon('box')}Add to bucket${chev}</button>
-        ${S.barMenu === 'add' ? `<div class="menu menu--up" role="menu">${others.map((x) => `<button type="button" role="menuitem" data-act="add-to" data-arg="${x.id}">${icon(x.place ? 'shapes' : 'box')}${esc(x.name)}<span class="count" style="margin-left:auto">${x.ids.length}</span></button>`).join('')}${others.length ? '<hr />' : ''}<button type="button" role="menuitem" data-act="new-bucket">${icon('plus')}New bucket…</button></div>` : ''}</span>
-      ${b ? `<button type="button" class="btn btn--ghost btn--bar" data-act="remove-from-bucket">${icon('minus')}Remove from bucket</button>` : ''}
+      <span class="menu-anchor"><button type="button" class="btn btn--ghost btn--bar" data-act="bar-menu" data-arg="add" aria-expanded="${S.barMenu === 'add'}">${icon('shapes')}Add to project${chev}</button>
+        ${S.barMenu === 'add' ? `<div class="menu menu--up" role="menu">${S.projects.map((x) => `<button type="button" role="menuitem" data-act="add-to" data-arg="${x.id}">${icon('shapes')}${esc(x.name)}<span class="count" style="margin-left:auto">${x.ids.length}</span></button>`).join('')}</div>` : ''}</span>
       <button type="button" class="btn btn--ghost btn--bar" data-act="clear-sel">Clear</button></div>`
   }
   function barHTML() {
@@ -496,7 +476,6 @@
     }
     bar.classList.remove('is-leaving')
     bar.innerHTML = html
-    $('[data-draft-name]', bar)?.focus()
   }
 
   function tagHeadHTML(tag) {
@@ -511,17 +490,6 @@
           <button type="button" role="menuitem" data-act="not-useful" data-arg="${esc(tag)}">${icon('down')}Not useful: take it off all</button>
           <hr /><p class="menu__note">Visuals learns from both, and the next sort follows it.</p></div>` : ''}
       </div></div>`
-  }
-
-  function bucketHTML(b, width) {
-    const grid = (ids) => gridHTML(ids.map(byId), width, 112)
-    const head = `<div class="thead"><h2>${esc(b.name)}</h2><span class="count">${b.ids.length}</span></div>`
-    if (!b.ids.length) return `${head}<p class="empty-line">No pictures yet. Select pictures on any page, then press Add to bucket.${b.sections.length ? ' Then Move to section says what each one is for.' : ''}</p>`
-    if (!b.sections.length) return head + grid(b.ids)
-    const loose = looseOf(b)
-    return head + b.sections.map((s) => `<section class="bsec" aria-label="${esc(s.name)}"><h3 class="bsec__head">${esc(s.name)} <span class="count">${s.ids.length}</span></h3>
-        ${s.ids.length ? grid(s.ids) : '<p class="empty-line">No pictures. Select pictures, then press Move to section.</p>'}</section>`).join('')
-      + (loose.length ? `<section class="bsec" aria-label="Not in a section"><h3 class="bsec__head">Not in a section <span class="count">${loose.length}</span></h3>${grid(loose)}</section>` : '')
   }
 
   function projectHTML(pr, width) {
@@ -551,25 +519,36 @@
     const loose = pr.directions.length ? pr.ids.filter((id) => !pr.place[id].d) : []
     const bottom = loose.length ? `<section class="prow" aria-label="Not in a direction"><div class="prow__head">Not in a direction <span class="count">${loose.length}</span></div>
       <div class="cell">${gridHTML(loose.map(byId), width - 16, 112, true)}</div></section>` : ''
-    const empty = pr.ids.length ? '' : '<p class="empty-line">No pictures yet. Select pictures on any page, then press Add to bucket.</p>'
+    const empty = pr.ids.length ? '' : '<p class="empty-line">No pictures yet. Select pictures on any page, then press Add to project.</p>'
     return head + dirRow + empty + rows + bottom
   }
   const tabsOf = (pr) => [['overview', 'Overview'], ['constraints', 'Constraints and wishes'], ...pr.directions.map((d) => [d.id, d.name])]
-  const questionsOf = (pr, tab) => (tab === 'overview' ? BRIEF_PARTS.slice(0, -1) : tab === 'constraints' ? BRIEF_PARTS.slice(-1) : [{ name: undefined, qs: DIRECTION_QS }])
+  // The company's name is the brief's title, so it isn't a field in Overview too
+  const questionsOf = (pr, tab) => (tab === 'overview' ? BRIEF_PARTS[0].qs.filter((q) => q.id !== 'name') : tab === 'constraints' ? BRIEF_PARTS[1].qs : DIRECTION_QS)
   const answersOf = (pr, tab) => (tab === 'overview' || tab === 'constraints' ? pr.answers : pr.directions.find((d) => d.id === tab).answers)
+  const emptyOf = (pr, tab) => questionsOf(pr, tab).filter((q) => !answersOf(pr, tab)[q.id]?.trim()).length
+  // A part's head: its name, which folds it, then how many fields are empty and Generate, or Stop while it writes
+  function partHead(pr, tab) {
+    const name = tabsOf(pr).find(([id]) => id === tab)[1]
+    const empty = emptyOf(pr, tab)
+    const end = S.gen?.tab === tab && S.gen.project === pr.id
+      ? `<span class="bpart__note">${spinner()}Writing…</span><button type="button" class="btn btn--ghost btn--xs" data-act="stop-gen">Stop</button>`
+      : empty
+        ? `<span class="bpart__note">${empty} empty</span><button type="button" class="iconbtn iconbtn--xs" data-act="generate" data-arg="${tab}" ${S.gen ? 'disabled' : ''} aria-label="Generate ${esc(name)}" title="${S.gen ? 'Another part generates now' : `Fill in the ${plural(empty, 'empty field')} from the brief and the references`}">${icon('sparkles')}</button>`
+        : ''
+    return `<div class="bpart__head"><button type="button" class="bpart__toggle" data-act="brief-part" data-arg="${tab}" aria-expanded="${S.briefOpen.has(tab)}">${icon('chev', 'bpart__chev')}<span>${esc(name)}</span></button>${end}</div>`
+  }
   function briefHTML(pr) {
-    const tab = S.briefTab
-    const answers = answersOf(pr, tab)
-    const gen = S.gen?.tab === tab && S.gen.project === pr.id
-    const empty = questionsOf(pr, tab).flatMap((x) => x.qs).filter((q) => !answers[q.id]?.trim()).length
-    return `<div class="brief"><div class="brief__head"><h3>Brief</h3><button type="button" class="iconbtn iconbtn--sm" data-act="copy-brief" aria-label="Copy brief" title="Copy the brief, as Markdown">${icon('copy')}</button></div>
-      <div class="brief__tabs" role="tablist" aria-label="Parts of the brief">${tabsOf(pr).map(([id, name]) => `<button type="button" role="tab" aria-selected="${tab === id}" data-act="brief-tab" data-arg="${id}">${esc(name)}</button>`).join('')}
-        <button type="button" class="iconbtn iconbtn--xs" data-act="new-direction" aria-label="New direction" title="New direction">${icon('plus')}</button></div>
-      <div class="brief__gen">${gen
-        ? `<button type="button" class="btn btn--line btn--sm" data-act="stop-gen">${icon('stop')}Stop</button><span class="brief__note">${spinner()}Claude Code fills the empty fields…</span>`
-        : `<button type="button" class="btn btn--line btn--sm" data-act="generate" ${empty && !S.gen ? '' : 'disabled'}>${icon('sparkles')}Generate</button><span class="brief__note">${S.gen ? 'Another tab generates now.' : empty ? `Fills in the ${plural(empty, 'empty field')} from the brief and the references.` : 'Every field has an answer.'}</span>`}</div>
-      ${questionsOf(pr, tab).map((part) => `<section class="bpart">${part.name ? `<h4>${esc(part.name)}</h4>` : ''}
-        ${part.qs.map((q) => `<label class="bq"><span>${esc(q.label)}</span><textarea rows="1" data-q="${q.id}" placeholder="${esc(q.placeholder)}">${esc(answers[q.id] ?? '')}</textarea></label>`).join('')}</section>`).join('')}</div>`
+    const field = (tab, q, answers) => `<label class="bq"><span>${esc(q.label)}</span><textarea rows="1" data-tab="${tab}" data-q="${q.id}" placeholder="${esc(q.placeholder)}">${esc(answers[q.id] ?? '')}</textarea></label>`
+    const part = ([tab]) => {
+      const open = S.briefOpen.has(tab)
+      const answers = answersOf(pr, tab)
+      return `<section class="bpart${open ? ' is-open' : ''}" data-sec="${tab}">${partHead(pr, tab)}${open ? `<div class="bpart__body">${questionsOf(pr, tab).map((q) => field(tab, q, answers)).join('')}</div>` : ''}</section>`
+    }
+    return `<div class="brief"><div class="brief__head"><span>Brief</span><button type="button" class="iconbtn iconbtn--sm" data-act="copy-brief" aria-label="Copy brief" title="Copy the brief, as Markdown">${icon('copy')}</button></div>
+      <textarea class="brief__title" rows="1" data-tab="overview" data-q="name" placeholder="Company name" aria-label="Company name">${esc(pr.answers.name ?? '')}</textarea>
+      <div class="bparts">${tabsOf(pr).map(part).join('')}
+        <button type="button" class="brief__add" data-act="new-direction">${icon('plus')}New direction</button></div></div>`
   }
   // A brief's field grows with its text, a field of one line too
   const grow = (t) => { t.style.height = 'auto'; t.style.height = `${t.scrollHeight}px` }
@@ -594,12 +573,26 @@
       const shown = [...new Set(p.tags)].filter((t) => names.has(t)).sort()
       shown.forEach((a, i) => { for (const b of shown.slice(i + 1)) { const k = `${a}\n${b}`; const c = counts.get(k) ?? { first: a, second: b, count: 0 }; c.count++; counts.set(k, c) } })
     }
-    const kept = new Map()
-    const strong = [...counts.values()].sort((a, b) => b.count - a.count || `${a.first}${a.second}`.localeCompare(`${b.first}${b.second}`)).filter(({ first, second }) => {
-      const ok = (kept.get(first) ?? 0) < 3 || (kept.get(second) ?? 0) < 3
-      if (ok) { kept.set(first, (kept.get(first) ?? 0) + 1); kept.set(second, (kept.get(second) ?? 0) + 1) }
-      return ok
+    // The links: a tree of the strongest ties, which joins every tag with as few lines as it can, and then the few
+    // strongest of the rest, for tags that share most of their pictures
+    const sorted = [...counts.values()].sort((a, b) => b.count - a.count || `${a.first}${a.second}`.localeCompare(`${b.first}${b.second}`))
+    const root = new Map()
+    const find = (t) => { while (root.has(t) && root.get(t) !== t) t = root.get(t); return t }
+    const tree = sorted.filter(({ first, second }) => {
+      const a = find(first), b = find(second)
+      if (a === b) return false
+      root.set(a, b); root.set(b, b)
+      return true
     })
+    const degree = new Map()
+    const add = (t) => degree.set(t, (degree.get(t) ?? 0) + 1)
+    tree.forEach((l) => { add(l.first); add(l.second) })
+    const extra = sorted.filter((l) => {
+      if (tree.includes(l) || (degree.get(l.first) ?? 0) >= 3 || (degree.get(l.second) ?? 0) >= 3) return false
+      add(l.first); add(l.second)
+      return true
+    }).slice(0, G.extra)
+    const strong = [...tree, ...extra]
     const most = Math.max(1, ...strong.map((l) => l.count))
     const graph = graphOf(tags.map(([name, count]) => ({ key: name, name, count, kind: kindOf(name) })), strong.map((l) => ({ ...l, strength: l.count / most })))
     graphMemo = { key, graph }
@@ -636,7 +629,7 @@
   }
   const renderGraph = () => { const el = $('[data-graph]', panel); if (el) el.outerHTML = graphHTML() }
 
-  const pageKey = () => `${S.page}:${S.tag ?? ''}:${S.bucket ?? ''}:${S.project ?? ''}`
+  const pageKey = () => `${S.page}:${S.tag ?? ''}:${S.project ?? ''}`
   function renderPanel() {
     // A page drawn again for a change on it keeps its scroll, and doesn't fade in again
     const key = pageKey()
@@ -654,11 +647,6 @@
       const pr = projectById(S.project)
       html = `<div class="split${anim}"><div class="scroll scroll--project" data-scroll>${projectHTML(pr, w - BRIEF_W - 32)}</div>
         <aside class="brief-pane" data-scroll data-brief aria-label="Brief">${briefHTML(pr)}</aside></div>`
-    } else if (S.page === 'bucket') {
-      const b = bucketById(S.bucket)
-      const hasAsk = b.ids.length > 0
-      html = `<div class="split${anim}"><div class="scroll" data-scroll>${bucketHTML(b, w - (hasAsk ? ASK_W : 0) - 32)}</div>
-        ${hasAsk ? `<aside class="bucket-ask" data-scroll aria-label="Ask about this bucket">${askHTML('bucket')}</aside>` : ''}</div>`
     } else if (S.page === 'tags') {
       // One tag is always selected: the one picked last, or else the largest
       if (!countOf(S.tagSel)) S.tagSel = allTags()[0]?.[0]
@@ -682,41 +670,33 @@
       }).join('')}</div></div>
         <div class="split__right" data-scroll>${sel ? `<div class="chead"><i style="background:${swatchHex(sel)};box-shadow:inset 0 0 0 1px rgb(0 0 0 / .1)"></i>${swatchName(sel)} <span class="count">${list.length}</span></div>${gridHTML(list, w * 0.54 - 32)}` : '<p class="empty-line">Press a color with a dot to see its pictures. Sort finds the colors of each picture.</p>'}</div></div>`
     }
-    const title = S.page === 'tag' ? S.tag : S.page === 'bucket' ? bucketById(S.bucket).name : S.page === 'project' ? projectById(S.project).name : { pictures: 'All pictures', tags: 'Tags', colors: 'Colors' }[S.page]
+    const title = S.page === 'tag' ? S.tag : S.page === 'project' ? projectById(S.project).name : { pictures: 'All pictures', tags: 'Tags', colors: 'Colors' }[S.page]
     panel.innerHTML = `<h1 class="sr-only">${esc(title)}</h1>${html}<div class="floatbar" data-bar>${barHTML()}</div>`
     panel.dataset.key = key
     panel.querySelectorAll('[data-scroll]').forEach((el, i) => { if (scrolls[i]) el.scrollTop = scrolls[i] })
     setupLoop(fresh)
     $('[data-brief]', panel)?.querySelectorAll('textarea').forEach(grow)
     placeComment()
-    $('[data-draft-name]', panel)?.focus()
     renderOpen()
   }
 
-  /* ── Ask Claude Code: a pane on an open picture, and on a bucket's page ── */
+  /* ── Ask Claude Code: a pane on an open picture ── */
   const PLACEHOLDERS = {
     summary: 'Such as: the style for a landing page. Palette, type and layout.',
     skill: 'Such as: a skill for posters in this style.',
     prompt: 'Such as: a prompt for a pricing page in this style.',
   }
-  const BUCKET_PLACEHOLDERS = {
-    summary: 'Such as: the brand guide. Logo, type, color and imagery.',
-    skill: 'Such as: a skill for the menu and the website.',
-    prompt: 'Such as: a prompt for the museum’s landing page.',
-  }
   function askHTML(kind) {
     const a = S.answers[kind]
-    const holders = kind === 'bucket' ? BUCKET_PLACEHOLDERS : PLACEHOLDERS
     const modes = `<div class="seg" role="group" aria-label="What to ask for" style="align-self:flex-start">${['summary', 'skill', 'prompt'].map((m) => `<button type="button" data-act="ask-mode" data-arg="${m}" aria-pressed="${S.ask.mode === m}" ${a ? 'disabled' : ''}>${m[0].toUpperCase() + m.slice(1)}</button>`).join('')}</div>`
     let body
     if (!a) {
       const waits = S.ask.busy
-      body = `<textarea data-ask-text="${kind}" placeholder="${holders[S.ask.mode]}" aria-label="Ask about ${kind === 'bucket' ? 'this bucket' : 'this picture'}"></textarea>
+      body = `<textarea data-ask-text="${kind}" placeholder="${PLACEHOLDERS[S.ask.mode]}" aria-label="Ask about this picture"></textarea>
         <div><button type="button" class="btn btn--brand" data-act="send" data-arg="${kind}" ${waits ? 'disabled' : ''}>Send</button></div>
-        ${waits ? '<p class="ask__note">One question runs at a time: Send waits for the other one.</p>' : ''}
-        ${kind === 'bucket' ? '<p class="ask__note">Each section says what its pictures are for: Claude Code takes only that part, such as the type from a picture in Typography.</p>' : ''}`
+        ${waits ? '<p class="ask__note">One question runs at a time: Send waits for the other one.</p>' : ''}`
     } else if (a.busy) {
-      body = `<p class="ask__asked">You asked: ${esc(a.asked)}</p><div class="answer__who">${spinner()}Claude Code looks at ${kind === 'bucket' ? `the ${plural(bucketById(S.bucket).ids.length, 'picture')}` : 'the picture'}…</div>`
+      body = `<p class="ask__asked">You asked: ${esc(a.asked)}</p><div class="answer__who">${spinner()}Claude Code looks at the picture…</div>`
     } else {
       const done = a.shown >= a.text.length
       body = `<p class="ask__asked">You asked: ${esc(a.asked)}</p><pre class="answer${done ? '' : ' caret'}" data-stream="${kind}">${esc(a.text.slice(0, a.shown))}</pre>
@@ -741,40 +721,19 @@
     if (mode === 'prompt') return `Make ${ask || 'a landing page'} in this style: ${look}. Use ${palette}. Type: ${type}. Layout: ${layout}.`
     return `# ${p.title}\n\n## Palette\n- ${cap(palette)}.\n\n## Type\n- ${cap(type)}.\n\n## Layout\n- ${cap(layout)}.\n\n## The feel\n- ${cap(look)}.`
   }
-  // Each section gives only its part: the type from a picture in Typography, not its palette
-  function bucketAnswer(b, mode, ask) {
-    const parts = []
-    for (const s of b.sections) {
-      const ps = s.ids.map(byId)
-      const key = PART[s.name] ?? 'look'
-      const lines = key === 'palette'
-        ? [uniq(ps.flatMap((p) => p.colors)).map(swatchName).join(', ')]
-        : ps.map((p) => p.about[key]).filter((v) => v && !v.startsWith('none'))
-      if (ps.length && lines.length) parts.push([s.name, lines])
-    }
-    const loose = looseOf(b).map(byId)
-    if (loose.length) parts.push([b.sections.length ? 'From the other pictures' : 'The style', loose.map((p) => p.about.look)])
-    const body = parts.map(([n, lines]) => `## ${n}\n${lines.map((l) => `- ${cap(l)}.`).join('\n')}`).join('\n\n')
-    if (mode === 'skill') {
-      const slug = b.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-      return `---\nname: ${slug}\ndescription: Use for ${ask || 'any page or print'} of ${b.name}.\n---\n\n${body}`
-    }
-    if (mode === 'prompt') return `Make ${ask || 'a one-page brand guide'} for ${b.name}. ${parts.map(([n, lines]) => `${n}: ${lines.join('; ')}.`).join(' ')}`
-    return `# Visual direction: ${b.name}\n\n${body}`
-  }
   async function send(kind) {
     if (S.ask.busy) return
     const field = $(`[data-ask-text="${kind}"]`, panel)
     const asked = field?.value.trim() || field?.placeholder.replace(/^Such as: /, '') || ''
-    const subject = kind === 'bucket' ? bucketById(S.bucket) : byId(S.open)
+    const subject = byId(S.open)
     if (!subject) return
-    const still = () => (kind === 'bucket' ? S.page === 'bucket' && S.bucket === subject.id : S.open === subject.id)
-    const text = kind === 'bucket' ? bucketAnswer(subject, S.ask.mode, field?.value.trim()) : pictureAnswer(subject, S.ask.mode, field?.value.trim())
+    const still = () => S.open === subject.id
+    const text = pictureAnswer(subject, S.ask.mode, field?.value.trim())
     const a = { asked: cap(asked), text, shown: 0, busy: true }
     S.answers[kind] = a
     S.ask.busy = true
     renderAsk(kind)
-    await wait(kind === 'bucket' ? 1300 : 900)
+    await wait(900)
     a.busy = false
     if (still()) renderAsk(kind)
     while (a.shown < text.length && still() && S.answers[kind] === a) {
@@ -786,17 +745,12 @@
     a.shown = text.length
     S.ask.busy = false
     if (still()) renderAsk(kind)
-    // Another pane that waited can send now
-    const other = kind === 'bucket' ? 'picture' : 'bucket'
-    if (!S.answers[other]) renderAsk(other)
-
   }
 
   /* ── Generate: Claude Code fills in the tab's empty fields, one after another, written as it answers. It never writes
      over the person's text: a field that they filled while it ran stays theirs ── */
-  async function generate() {
+  async function generate(tab) {
     const pr = projectById(S.project)
-    const tab = S.briefTab
     if (S.gen) return
     const run = { project: pr.id, tab, busy: true }
     S.gen = run
@@ -804,7 +758,7 @@
     await wait(1100)
     const answers = answersOf(pr, tab)
     const from = tab === 'overview' || tab === 'constraints' ? GENERATED : GENERATED[tab] ?? GENERATED.other
-    for (const q of questionsOf(pr, tab).flatMap((x) => x.qs)) {
+    for (const q of questionsOf(pr, tab)) {
       if (S.gen !== run) break
       if (answers[q.id]?.trim() || !from[q.id]) continue
       const text = from[q.id]
@@ -812,7 +766,7 @@
       while (shown < text.length && S.gen === run) {
         shown = Math.min(text.length, shown + 3)
         answers[q.id] = text.slice(0, shown)
-        const field = S.page === 'project' && S.project === pr.id && S.briefTab === tab && $(`[data-q="${q.id}"]`, panel)
+        const field = S.page === 'project' && S.project === pr.id && $(`[data-tab="${tab}"][data-q="${q.id}"]`, panel)
         if (field && document.activeElement !== field) { field.value = answers[q.id]; grow(field) }
         await new Promise((r) => setTimeout(r, reduced ? 0 : 14))
       }
@@ -885,7 +839,7 @@
     if (!S.layer) { layer.innerHTML = ''; return }
     if (S.layer === 'search') {
       layer.innerHTML = `<div class="scrim" data-act="close-layer"></div><div class="dialog dialog--search" role="dialog" aria-label="Search">
-        <div class="search__field">${icon('search')}<input data-search placeholder="Search tags, buckets and pictures" aria-label="Search" autocomplete="off" /></div>
+        <div class="search__field">${icon('search')}<input data-search placeholder="Search tags, projects and pictures" aria-label="Search" autocomplete="off" /></div>
         <div class="results" data-results></div></div>`
       renderResults('')
       $('[data-search]', layer).focus()
@@ -904,11 +858,9 @@
     const s = q.trim().toLowerCase()
     const tags = allTags().filter(([t]) => !s || t.includes(s)).slice(0, s ? 5 : 3)
     const projects = S.projects.filter((b) => !s || b.name.toLowerCase().includes(s)).slice(0, 3)
-    const buckets = S.buckets.filter((b) => !s || b.name.toLowerCase().includes(s)).slice(0, 3)
     const pics = S.pics.filter((p) => !s || p.title.toLowerCase().includes(s) || p.tags.some((t) => t.includes(s))).slice(0, 4)
     box.innerHTML = (tags.length ? `<h4>Tags</h4>${tags.map(([t, n]) => `<button type="button" class="result" data-act="tag" data-arg="${esc(t)}">${icon('tag')}${esc(t)}<span class="count">${n}</span></button>`).join('')}` : '')
       + (projects.length ? `<h4>Brand projects</h4>${projects.map((b) => `<button type="button" class="result" data-act="project" data-arg="${b.id}">${icon('shapes')}${esc(b.name)}<span class="count">${b.ids.length}</span></button>`).join('')}` : '')
-      + (buckets.length ? `<h4>Buckets</h4>${buckets.map((b) => `<button type="button" class="result" data-act="bucket" data-arg="${b.id}">${icon('box')}${esc(b.name)}<span class="count">${b.ids.length}</span></button>`).join('')}` : '')
       + (pics.length ? `<h4>Pictures</h4>${pics.map((p) => `<button type="button" class="result" data-act="open-all" data-arg="${p.id}"><img src="${p.src}" alt="" />${esc(p.title)}<span class="count">${esc(p.site)}</span></button>`).join('')}` : '')
       || '<p class="empty-line" style="padding:12px 8px">Nothing found. Try “poster” or “museum”.</p>'
     box.querySelector('.result')?.classList.add('is-active')
@@ -933,7 +885,6 @@
     S.sel.clear()
     S.selLast = undefined
     S.barMenu = undefined
-    S.draft = undefined
   }
   function go(page, arg) {
     S.page = page
@@ -942,12 +893,8 @@
     S.tagDraft = false
     delete S.answers.picture
     if (page === 'tag') S.tag = arg
-    if (page === 'bucket') {
-      if (S.bucket !== arg) delete S.answers.bucket
-      S.bucket = arg
-    }
     if (page === 'project') {
-      if (S.project !== arg) S.briefTab = 'overview'
+      if (S.project !== arg) S.briefOpen = new Set(['overview'])
       S.project = arg
       S.commentOpen = undefined
       S.sectionMenu = false
@@ -966,7 +913,6 @@
   }
   const currentList = () => {
     if (S.page === 'tag') return S.pics.filter((p) => p.tags.includes(S.tag)).map((p) => p.id)
-    if (S.page === 'bucket') return orderOf(bucketById(S.bucket))
     if (S.page === 'project') {
       const pr = projectById(S.project)
       const dirs = pr.directions.length ? pr.directions.map((d) => d.id) : [undefined]
@@ -986,12 +932,12 @@
     } else if (S.sel.has(id)) S.sel.delete(id)
     else S.sel.add(id)
     S.selLast = id
-    if (!S.sel.size) { S.draft = undefined; S.barMenu = undefined }
+    if (!S.sel.size) S.barMenu = undefined
     renderPanel()
   }
   const uniqueName = (name) => {
     let n = name
-    for (let i = 2; S.buckets.some((b) => b.name.toLowerCase() === n.toLowerCase()); i++) n = `${name} ${i}`
+    for (let i = 2; S.projects.some((b) => b.name.toLowerCase() === n.toLowerCase()); i++) n = `${name} ${i}`
     return n
   }
 
@@ -1109,13 +1055,12 @@
   const ACTIONS = {
     page: (a) => go(a),
     tag: (a) => { S.tagSel = a; go('tag', a) },
-    bucket: (a) => go('bucket', a),
     project: (a) => go('project', a),
     'new-project': () => {
       const pr = makeProject(`p${S.projects.length + 1}${Date.now() % 1000}`, uniqueName('New brand project'), [FIRST_SECTION], [], {})
       S.projects.push(pr)
       go('project', pr.id)
-      toast('Made a brand project. Select pictures on any page, then Add to bucket.')
+      toast('Made a brand project. Select pictures on any page, then Add to project.')
     },
     fold: (a) => { const x = projectById(S.project).sections.find((y) => y.name === a); x.folded = !x.folded; renderPanel() },
     'section-menu': () => { S.sectionMenu = !S.sectionMenu; renderPanel() },
@@ -1124,9 +1069,9 @@
       const pr = projectById(S.project)
       const id = `d${pr.directions.length + 1}${Date.now() % 1000}`
       pr.directions.push({ id, name: `Direction ${pr.directions.length + 1}`, answers: {}, palette: [] })
-      S.briefTab = id
+      S.briefOpen.add(id)
       renderPanel()
-      toast('Made a direction: a column of its own, and a tab in the brief. Select pictures, then Move to direction.')
+      toast('Made a direction: a column of its own, and a part of the brief. Select pictures, then Move to direction.')
     },
     'move-dir': (a) => {
       const pr = projectById(S.project)
@@ -1146,8 +1091,8 @@
       if (S.page === 'project') renderPanel()
       if (d) toast(`Found the main colors in ${esc(d.name)}'s pictures, in their pixels. No question to Claude.`)
     },
-    'brief-tab': (a) => { S.briefTab = a; renderBrief() },
-    generate: () => generate(),
+    'brief-part': (a) => { if (!S.briefOpen.delete(a)) S.briefOpen.add(a); renderBrief() },
+    generate: (a) => { S.briefOpen.add(a); generate(a) },
     'stop-gen': () => { S.gen = undefined; renderBrief() },
     'copy-brief': () => {
       navigator.clipboard?.writeText(briefMarkdown(projectById(S.project))).catch(() => {})
@@ -1215,7 +1160,7 @@
     'ask-mode': (a) => {
       S.ask.mode = a
       for (const b of panel.querySelectorAll('[data-act="ask-mode"]')) b.setAttribute('aria-pressed', String(b.dataset.arg === a))
-      for (const t of panel.querySelectorAll('[data-ask-text]')) t.placeholder = (t.dataset.askText === 'bucket' ? BUCKET_PLACEHOLDERS : PLACEHOLDERS)[a]
+      for (const t of panel.querySelectorAll('[data-ask-text]')) t.placeholder = PLACEHOLDERS[a]
     },
     send: (a) => send(a),
     copy: (a, e) => {
@@ -1229,63 +1174,28 @@
     'bar-menu': (a) => { S.barMenu = S.barMenu === a ? undefined : a; updateBar() },
     'clear-sel': () => { clearSelection(); renderPanel() },
     'add-to': (a) => {
-      const b = holderById(a)
+      const b = projectById(a)
       const ids = [...S.sel].filter((id) => !b.ids.includes(id))
       b.ids.unshift(...ids)
-      if (b.place) for (const id of ids) b.place[id] = { s: undefined, d: undefined }
+      for (const id of ids) b.place[id] = { s: undefined, d: undefined }
       clearSelection()
       renderSide(); renderPanel()
-      toast(`Added ${plural(ids.length, 'picture')} to <button type="button" class="link" data-act="${b.place ? 'project' : 'bucket'}" data-arg="${b.id}">${esc(b.name)}</button>.`)
-    },
-    'new-bucket': () => { S.draft = { name: '', template: 'product' }; S.barMenu = undefined; updateBar() },
-    template: (a) => { S.draft.template = a; S.barMenu = undefined; updateBar() },
-    'cancel-bucket': () => { S.draft = undefined; S.barMenu = undefined; updateBar() },
-    'make-bucket': () => {
-      const name = uniqueName(S.draft.name.trim() || 'New brand')
-      const b = makeBucket(name, S.draft.template, {}, [...S.sel])
-      S.buckets.unshift(b)
-      const n = S.sel.size
-      go('bucket', b.id)
-      toast(`Made “${esc(name)}” with ${plural(n, 'picture')}.${b.sections.length ? ' Select some, then Move to section.' : ''}`)
+      toast(`Added ${plural(ids.length, 'picture')} to <button type="button" class="link" data-act="project" data-arg="${b.id}">${esc(b.name)}</button>.`)
     },
     'move-to': (a) => {
-      if (S.page === 'project') {
-        const pr = projectById(S.project)
-        for (const id of S.sel) pr.place[id].s = a || undefined
-        const n = S.sel.size
-        clearSelection(); renderPanel()
-        toast(a ? `Moved ${plural(n, 'picture')} to ${esc(a)}.` : `${plural(n, 'picture')} in no section now.`)
-        return
-      }
-      const b = bucketById(S.bucket)
-      for (const id of S.sel) {
-        for (const s of b.sections) s.ids = s.ids.filter((x) => x !== id)
-        if (a) b.sections.find((s) => s.name === a).ids.push(id)
-      }
+      const pr = projectById(S.project)
+      for (const id of S.sel) pr.place[id].s = a || undefined
       const n = S.sel.size
-      clearSelection()
-      delete S.answers.bucket
-      renderPanel()
+      clearSelection(); renderPanel()
       toast(a ? `Moved ${plural(n, 'picture')} to ${esc(a)}.` : `${plural(n, 'picture')} in no section now.`)
     },
-    'remove-from-bucket': () => {
-      if (S.page === 'project') {
-        const pr = projectById(S.project)
-        pr.ids = pr.ids.filter((id) => !S.sel.has(id))
-        for (const id of S.sel) delete pr.place[id]
-        const n = S.sel.size
-        clearSelection(); renderSide(); renderPanel()
-        toast(`Took ${plural(n, 'picture')} out of ${esc(pr.name)}. They stay in All pictures.`)
-        return
-      }
-      const b = bucketById(S.bucket)
-      b.ids = b.ids.filter((id) => !S.sel.has(id))
-      for (const s of b.sections) s.ids = s.ids.filter((id) => !S.sel.has(id))
+    'remove-from-project': () => {
+      const pr = projectById(S.project)
+      pr.ids = pr.ids.filter((id) => !S.sel.has(id))
+      for (const id of S.sel) delete pr.place[id]
       const n = S.sel.size
-      clearSelection()
-      delete S.answers.bucket
-      renderSide(); renderPanel()
-      toast(`Took ${plural(n, 'picture')} out of ${esc(b.name)}. They stay in All pictures.`)
+      clearSelection(); renderSide(); renderPanel()
+      toast(`Took ${plural(n, 'picture')} out of ${esc(pr.name)}. They stay in All pictures.`)
     },
     search: () => { S.layer = 'search'; renderLayer() },
     paste: () => { S.layer = 'paste'; renderLayer() },
@@ -1308,11 +1218,13 @@
   })
   desk.addEventListener('input', (e) => {
     if (e.target.matches('[data-search]')) renderResults(e.target.value)
-    if (e.target.matches('[data-draft-name]') && S.draft) S.draft.name = e.target.value
     if (e.target.matches('[data-q]')) {
       const pr = projectById(S.project)
-      answersOf(pr, S.briefTab)[e.target.dataset.q] = e.target.value
+      answersOf(pr, e.target.dataset.tab)[e.target.dataset.q] = e.target.value
       grow(e.target)
+      // The count of empty fields in the part's head follows what's typed
+      const head = !S.gen && e.target.closest('[data-sec]')?.querySelector('.bpart__head')
+      if (head) head.outerHTML = partHead(pr, e.target.dataset.tab)
     }
     if (e.target.matches('[data-cmt]')) {
       const c = (S.comments[e.target.dataset.arg] ??= { like: '', dislike: '' })
@@ -1326,6 +1238,8 @@
   panel.addEventListener('pointerleave', () => hoverTag(undefined))
   desk.addEventListener('keydown', (e) => {
     const t = e.target
+    // The brief's title is one line: Enter ends it
+    if (t.matches('.brief__title') && e.key === 'Enter') { e.preventDefault(); t.blur(); return }
     if (t.matches('[data-node]') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); ACTIONS['pick-tag'](t.dataset.node); $(`[data-node="${t.dataset.node}"]`, panel)?.focus(); return }
     if (t.matches('[data-tag-input]')) {
       if (e.key === 'Enter') {
@@ -1337,12 +1251,6 @@
         const chips = panel.querySelectorAll('.chip')
         if (v) chips[chips.length - 1]?.classList.add('is-new')
       } else if (e.key === 'Escape') { S.tagDraft = false; renderOpen() }
-      e.stopPropagation()
-      return
-    }
-    if (t.matches('[data-draft-name]')) {
-      if (e.key === 'Enter') ACTIONS['make-bucket']()
-      else if (e.key === 'Escape') ACTIONS['cancel-bucket']()
       e.stopPropagation()
       return
     }
@@ -1385,7 +1293,7 @@
   let resizeTimer
   addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (S.front === 'app') renderPanel() }, 120) })
 
-  /* ── the walkthrough: Anastasia's cursor goes through the pages (Tags, Colors, the brand project, the bucket), and does on each what a
+  /* ── the walkthrough: Anastasia's cursor goes through the pages (Tags, Colors, the brand project), and does on each what a
      visitor would (../walkthrough.js runs it, and gives way to the visitor). Each step finds what it presses when it gets
      there, and skips what's no longer there to press: a second time round, Sort is gone and the brief is filled ── */
   const scrollBox = () => $('[data-scroll]', panel)
@@ -1411,8 +1319,9 @@
     const box = $('[data-brief]', panel)
     if (!box) return
     for (const t of box.querySelectorAll('textarea')) {
-      if (seen.get(t.dataset.q) === t.value) continue
-      seen.set(t.dataset.q, t.value)
+      const key = `${t.dataset.tab}:${t.dataset.q}`
+      if (seen.get(key) === t.value) continue
+      seen.set(key, t.value)
       const below = t.getBoundingClientRect().bottom - (box.getBoundingClientRect().bottom - 24)
       if (below > 0) box.scrollBy({ top: below + 40, behavior: 'smooth' })
     }
@@ -1423,7 +1332,6 @@
     // Each page's place in the tour; one that isn't in it sits after the one it's nearest
     where: () => {
       if (S.page === 'project') return S.project === 'p1' ? 3 : 3.5
-      if (S.page === 'bucket') return S.bucket === 'b1' ? 4 : 4.5
       return { pictures: 0, tags: 1, tag: 1.5, colors: 2 }[S.page]
     },
     // Before it carries on: back in Visuals, with what the visitor left open closed
@@ -1486,7 +1394,7 @@
           }
         },
       ] },
-      // The brand project: a look at its grid, then Generate fills a tab of the brief that has empty fields
+      // The brand project: a look at its grid, then Generate fills a part of the brief that has empty fields
       { enter: (w) => w.click(sideRow('project', 'p1')), steps: [
         async (w) => {
           await w.hover(() => $('.scroll--project [data-tile]', panel))
@@ -1494,25 +1402,15 @@
         },
         async (w) => {
           const pr = projectById('p1')
-          const empty = (tab) => questionsOf(pr, tab).flatMap((x) => x.qs).some((q) => !answersOf(pr, tab)[q.id]?.trim())
+          const empty = (tab) => questionsOf(pr, tab).some((q) => !answersOf(pr, tab)[q.id]?.trim())
           const tab = [...pr.directions.map((d) => d.id), 'overview', 'constraints'].find(empty)
           if (!tab) return
-          if (S.briefTab !== tab) { await w.click(() => $(`[data-act="brief-tab"][data-arg="${tab}"]`, panel)); await w.pause(700) }
-          if (!(await w.click(() => $('[data-act="generate"]:not(:disabled)', panel)))) return
+          if (!S.briefOpen.has(tab)) { await w.click(() => $(`[data-act="brief-part"][data-arg="${tab}"]`, panel)); await w.pause(700) }
+          if (!(await w.click(() => $(`[data-act="generate"][data-arg="${tab}"]:not(:disabled)`, panel)))) return
           await w.aside()
           const seen = new Map()
           await w.until(() => { followBrief(seen); return !S.gen }, 30000)
           await w.pause(2000)
-        },
-      ] },
-      // The bucket: ask Claude Code about it, from what each section is for
-      { enter: (w) => w.click(sideRow('bucket', 'b1')), steps: [
-        async (w) => {
-          if ($('[data-act="ask-again"][data-arg="bucket"]', panel)) { await w.click(() => $('[data-act="ask-again"][data-arg="bucket"]', panel)); await w.pause(500) }
-          if (!(await w.click(() => $('[data-act="send"][data-arg="bucket"]:not(:disabled)', panel)))) return
-          await w.aside()
-          await w.until(answered('bucket'), 20000)
-          await w.pause(2800)
         },
       ] },
     ],

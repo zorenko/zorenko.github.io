@@ -49,7 +49,7 @@ export const WORK: WorkItem[] = [
     title: "Visuals",
     icons: ["visuals"],
     year: "2026",
-    description: "Personal project. A home for the design references you save and never use: Claude sorts and tags them, learns your preferences and turns collections into a brief.",
+    description: "Building a home for the design references you save and never use: Claude sorts and tags them, learns your taste and turns a collection into a brief.",
     media: {
       type: "demo",
       src: "/demos/visuals/index.html?app",
@@ -68,7 +68,7 @@ export const WORK: WorkItem[] = [
     icons: ["celsia"],
     sites: ["https://celsia.io/"],
     year: "2022–2026",
-    description: "Design lead. Celsia is software that helps companies collect data and write their EU sustainability (CSRD) reports. Acquired by ISS-Corporate in 2024.",
+    description: "Design lead at Celsia, software that helps companies collect data and write their sustainability reports. Acquired by ISS-Corporate in 2024.",
     href: "/work/celsia/",
     media: {
       type: "demo",
@@ -76,7 +76,7 @@ export const WORK: WorkItem[] = [
       // In a Safari window like the earlier work's, so laid out at the window page's shape (902 × 576)
       width: 1180,
       height: 753,
-      title: "Celsia demo: the reporting module, with data input, insights and targets",
+      title: "Celsia demo: the reporting module, with its report, insights and targets",
       browser: {
         url: "app.celsia.io",
         // dark, like the app: Safari's dark toolbar on a soft grey wallpaper, lighter at the top left, grey all over (no
@@ -92,7 +92,7 @@ export const WORK: WorkItem[] = [
     title: "Muster",
     icons: ["muster"],
     year: "2026",
-    description: "Personal project. Muster sorts the skills installed in Claude Code and Codex, keeps them updated, and flags the ones that clash, repeat or never run.",
+    description: "Building Muster, an app that sorts the skills installed in Claude Code and Codex, keeps them up to date, and flags the ones that clash, repeat or never run.",
     href: "https://musteryourskills.com/",
     media: {
       type: "demo",
@@ -111,7 +111,7 @@ export const WORK: WorkItem[] = [
     icons: ["yandex-cloud", "cognite"],
     sites: ["https://yandex.cloud/en", "https://www.cognite.com/"],
     year: "2019–2022",
-    description: "Product designer. Developer tools for the cloud and industrial data: consoles, dashboards and app builders that help developers work with complex systems and act on them.",
+    description: "Product designer of developer tools for the cloud and industrial data: consoles, dashboards and app builders that help developers make sense of complex systems and act on them.",
     href: "/work/earlier-work/",
     // The screens of the "portfolio – cv" Figma file's Section 3 (node 453:10709), in its order, exported at 2x
     // and scaled to 2000 px wide. Each `url` is what the address bar shows with it.
@@ -142,7 +142,7 @@ export const WORK: WorkItem[] = [
     icons: ["sanna"],
     sites: ["https://www.sanna.no/"],
     year: "2026",
-    description: "Contract work. Sanna is an accounting firm that automates the routine work and gives each company its own accountant at a fixed monthly price.",
+    description: "Design engineer for Sanna, an accounting firm that automates the routine work and gives each company its own accountant at a fixed monthly price.",
     href: "/work/sanna/",
     media: {
       // A Mac desktop with Sanna's client app in Safari. With ?app it's only the app.

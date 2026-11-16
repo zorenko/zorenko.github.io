@@ -20,8 +20,9 @@
    :hover rules.
 
    "You": in the site's work carousel, the visitor's own pointer over a card's picture or demo is a cursor in the same
-   look, named You. This file draws it inside a demo; components/you-cursor.tsx draws it over the rest of the cards,
-   with the same CSS (app/site.css). Both cursors are the same size on screen as the site's, whatever the scale the demo is shown at. */
+   look, named You. components/you-cursor.tsx draws it, once, over the whole card; inside a demo this file hides the
+   pointer and passes its place on to the site. The walkthrough's cursor is the same size on screen as You, whatever
+   the scale the demo is shown at. */
 (() => {
   const STOP = Symbol('stop')
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
@@ -29,21 +30,21 @@
   // What a visitor could press: the cursor shows its hover on it
   const PRESSABLE = 'button, a, [role="button"], [role="tab"], [role="checkbox"], [data-act]'
   const ARROW = '<svg class="walk__arrow" viewBox="0 0 24 24"><path d="M3.5 2.6 20.6 9.3a.6.6 0 0 1-.05 1.13l-7.3 2.3-2.3 7.3a.6.6 0 0 1-1.13.05L3.1 3a.33.33 0 0 1 .4-.4Z"/></svg>'
-  const YOU = '#ef2b08' // components/you-cursor.tsx has the same
   // Drawn at 1 in a demo of its own; in the site's frame, at .77 of that on screen, as the site draws You
   const ON_SCREEN = 0.77
   const CSS = `
     .walk { position: fixed; left: 0; top: 0; z-index: 2147483000; pointer-events: none; opacity: 0; transition: opacity .3s cubic-bezier(.23, 1, .32, 1); will-change: transform; }
     .walk.is-on { opacity: 1; }
     .walk__in { position: absolute; left: 0; top: 0; transform: scale(var(--walk-scale, 1)); transform-origin: 0 0; }
-    .walk__arrow { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; overflow: visible; fill: var(--walk); stroke: rgb(255 255 255 / .7); stroke-width: 2.8; stroke-linejoin: round; paint-order: stroke; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .25)); transform-origin: 3px 3px; transition: transform .12s cubic-bezier(.23, 1, .32, 1); }
+    .walk__arrow { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; overflow: visible; fill: var(--walk); stroke: #fff; stroke-width: .92; stroke-linejoin: round; paint-order: stroke; transform-origin: 3px 3px; transition: transform .12s cubic-bezier(.23, 1, .32, 1); }
     .walk.is-pressing .walk__arrow { transform: scale(.84); }
-    .walk__name { position: absolute; left: 15px; top: 13px; padding: 4px 9px; border-radius: 6px; background: var(--walk); color: #fff; font: 500 15px/1.3 "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: 0; white-space: nowrap; box-shadow: 0 0 0 1.5px rgb(255 255 255 / .7), 0 1px 3px rgb(0 0 0 / .25); }
+    .walk__name { position: absolute; left: 15px; top: 13px; padding: 2px 7px; border-radius: 9px; background: var(--walk); color: #fff; font: 500 15px/1.3 "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: 0; white-space: nowrap; box-shadow: 0 0 0 .5px #fff; }
+    /* A squircle where the browser can draw one (its corners need a larger radius to look as round); elsewhere the rounded 9px */
+    @supports (corner-shape: squircle) { .walk__name { border-radius: 13px; corner-shape: squircle; } }
     .walk.is-left .walk__name { left: auto; right: 8px; }
     .walk.is-up .walk__name { top: auto; bottom: 10px; }
     .walk__ring { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; border: 2px solid var(--walk); border-radius: 50%; animation: walk-ring .5s cubic-bezier(.23, 1, .32, 1) forwards; }
     @keyframes walk-ring { from { opacity: .9; transform: scale(.3); } to { opacity: 0; transform: scale(1.4); } }
-    .walk--you { z-index: 2147483001; transition: none; }
     html.has-you, html.has-you * { cursor: none !important; }`
   let styled = false
   const addStyle = () => { if (styled) return; styled = true; const st = document.createElement('style'); st.textContent = CSS; document.head.append(st) }
@@ -62,10 +63,10 @@
   const holder = frame?.closest('.q-demo-frame')
   const centred = () => !holder?.inert
   // A cursor: an arrow and a name, over everything, never in the way of a click
-  function makeCursor(name, color, extra = '') {
+  function makeCursor(name, color) {
     addStyle()
     const el = document.createElement('div')
-    el.className = `walk ${extra}`
+    el.className = 'walk'
     el.setAttribute('aria-hidden', 'true')
     el.style.setProperty('--walk', color)
     el.innerHTML = `<div class="walk__in">${ARROW}<span class="walk__name"></span></div>`
@@ -82,15 +83,23 @@
     }
   }
 
-  /* ── You: the visitor's pointer, in a demo in the site's carousel. Only for a mouse: a touch has no pointer to show ── */
+  /* ── You: the visitor's pointer, in a demo in the site's carousel. The site draws it (components/you-cursor.tsx), one
+     cursor over the whole card, so it isn't cut off at the demo's edge: the demo hides the pointer and tells the site
+     where it is, in the site's pixels. Only for a mouse: a touch has no pointer to show ── */
   if (frame?.closest('.q-car') && matchMedia('(pointer: fine)').matches) {
-    const put = makeCursor('You', YOU, 'walk--you')
-    const you = put(-100, -100)
+    addStyle()
     document.documentElement.classList.add('has-you')
-    const show = (e) => { if (e.pointerType === 'mouse') put(e.clientX, e.clientY).classList.add('is-on') }
+    const site = frame.ownerDocument.defaultView
+    const tell = (at) => site.dispatchEvent(new site.CustomEvent('you-cursor', { detail: at }))
+    const show = (e) => {
+      if (e.pointerType !== 'mouse') return
+      const r = frame.getBoundingClientRect()
+      const k = r.width / (frame.offsetWidth || innerWidth) || 1
+      tell({ x: r.left + (frame.clientLeft + e.clientX) * k, y: r.top + (frame.clientTop + e.clientY) * k })
+    }
     addEventListener('pointermove', show, { passive: true, capture: true })
     addEventListener('pointerdown', show, { passive: true, capture: true })
-    document.addEventListener('mouseout', (e) => { if (!e.relatedTarget) you.classList.remove('is-on') })
+    document.addEventListener('mouseout', (e) => { if (!e.relatedTarget) tell(null) })
   }
 
   window.Walkthrough = function Walkthrough({ name, color, scenes, where, tidy = async () => {}, loop = true, start = 1400, idle = 5000, away = 1500, rest = 1500 }) {
