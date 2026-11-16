@@ -24,9 +24,9 @@
   --q-morph-text: #f9f9f9;
   --q-ok: #30a46c;
   --q-try: #0090ff;
-  /* The page column, on every page, and the width of the work carousel's middle card, so the text lines up with it at
-     any window size: 56% of the window, but 600px or more (up to 86% on narrow windows and phones) and 1000px at most */
-  --q-col: min(max(56vw, 600px), 86vw, 1000px);
+  /* The page column, on every page: the home intro's 40em measure (640px), 86% of the window on phones. The work
+     carousel's cards are wider (--car-w); their title and description sit back in this column. */
+  --q-col: min(640px, 86vw);
   --q-gap: 96px; /* space between sections */
   --q-ease: cubic-bezier(0.23, 1, 0.32, 1);
   --q-ease-modal: cubic-bezier(0.16, 1, 0.3, 1);
@@ -273,7 +273,7 @@ html.q-dark .q-frame img { filter: brightness(0.9); }
    same grid cell and is moved into place with a transform each frame. Pictures are 1180 × 696, the demos' size. */
 body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar included */
 .q-car {
-  --car-w: var(--q-col); /* card width: the page column, so the middle card lines up with the text above */
+  --car-w: min(max(56vw, 600px), 86vw, 1000px); /* card width: wider than the text column, so the work gets room */
   --car-gap: 3vw;
   position: relative;
   width: 100vw;
@@ -392,7 +392,7 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
    land on the card instead (a click there brings it to the middle) */
 .q-car-card:not(.is-active) iframe { pointer-events: none; }
 /* Title on the left, description on the right */
-.q-car-info { display: grid; grid-template-columns: 1fr 54%; column-gap: 32px; align-items: start; padding-top: 20px; font-size: 14px; line-height: 20px; } /* stays 14px while the rest of the site is 16px */
+.q-car-info { display: grid; grid-template-columns: 1fr 54%; column-gap: 32px; align-items: start; width: min(var(--q-col), 100%); margin-inline: auto; /* the text column, centred under the wider card */ padding-top: 20px; font-size: 14px; line-height: 20px; } /* stays 14px while the rest of the site is 16px */
 .v-quiet .q-car-title { margin: 0; font-size: 14px; font-weight: 400; line-height: inherit; color: var(--q-title); }
 .v-quiet .q-car-title a { color: inherit; text-decoration: underline; text-decoration-color: var(--q-underline); text-underline-offset: 4px; transition: text-decoration-color 200ms var(--q-ease); }
 .v-quiet .q-car-title a:hover { text-decoration-color: currentColor; }
@@ -442,6 +442,11 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .q-phead p, .q-phead time { color: var(--q-muted); }
 /* A paragraph on its own in a section, set like the page's lead */
 .q-prose { line-height: 24px; max-width: 34em; }
+.v-quiet .q-prose + .q-prose { margin-top: 12px; }
+/* A visible section title on a sub-page (About), set like the case-study headings */
+.v-quiet .q-sec-title { margin-bottom: 16px; font-size: 16px; font-weight: 500; line-height: 24px; color: var(--q-title); }
+.q-about .q-plead, .q-about .q-prose { max-width: none; } /* About: text fills the column */
+.q-strike { color: color-mix(in srgb, var(--q-text) 40%, var(--q-bg)); } /* a crossed-out aside, faded toward the background (works in dark mode too) */
 .q-plead { margin-top: 12px !important; line-height: 24px; color: var(--q-text) !important; max-width: 34em; }
 
 /* A live demo (components/demo.tsx), in a carousel card or at the top of a project page. The page is laid out at its

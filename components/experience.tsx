@@ -1,16 +1,17 @@
 /* Experience list: on the home page (under the work carousel) and the About page */
 
 const EXPERIENCE: { role: string; company: string; note?: string; year: number }[] = [
-  { role: "Design Engineer", company: "Sanna", year: 2026 },
-  { role: "Design Manager, VP", company: "ISS-Corporate", year: 2024 },
+  { role: "Independent Designer", company: "Sanna, Eider", year: 2026 },
+  { role: "Design Manager (VP)", company: "ISS-Corporate", year: 2024 },
   { role: "Lead Designer", company: "Celsia", note: "acquired by ISS-Corporate", year: 2022 },
-  { role: "Product Designer", company: "Cognite", year: 2021 },
+  { role: "Product Designer", company: "Cognite", year: 2020 },
   { role: "Product Designer", company: "Yandex Cloud", year: 2019 },
-  { role: "UX/UI Designer", company: "Nexign", year: 2017 },
-  { role: "Product Designer", company: "Kaspersky", year: 2015 },
+  { role: "UX/UI Designer", company: "Nexign", year: 2018 },
+  { role: "UX/UI Designer", company: "Kaspersky", year: 2017 },
+  { role: "UX/UI Designer", company: "Freelance", year: 2015 },
 ];
 
-/* No visible title; each page labels the section for screen readers */
+/* No title of its own; each page titles or labels the section */
 export function Experience() {
   return (
     <ul className="q-list" role="list">
