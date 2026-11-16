@@ -43,7 +43,7 @@ export function Demo({ demo, className = "", inert, tabIndex }: {
   );
   return (
     <div className={`q-demo ${className}`} data-demo="" data-glass={demo.glass ? "" : undefined} style={style}>
-      {browser ? <Browser background={browser.background} url={browser.url}>{frame}</Browser> : frame}
+      {browser ? <Browser background={browser.background} url={browser.url} dark={browser.dark}>{frame}</Browser> : frame}
     </div>
   );
 }

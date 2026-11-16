@@ -8,39 +8,64 @@
   const skeu = (name) => `<svg class="sk" viewBox="0 0 24 24" aria-hidden="true">${SKEU[name] ?? ''}</svg>`
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
   const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 40) : ms))
+  /* A rounded rectangle for the charts' SVG, with squircle corners like the CSS ones (styles.css, --sq): each corner a
+     curve that hugs it (a superellipse, in one cubic Bézier), its radius grown by the same 1.6. `flat` leaves the bottom
+     square, for a bar standing on the axis or on the bar below. */
+  const sqPath = (x, y, w, h, r, flat) => {
+    r = Math.max(0, Math.min(r * 1.6, w / 2, flat ? h : h / 2)); const c = r * 0.09, f = (n) => +n.toFixed(2)
+    const b = flat ? `V${f(y + h)}H${f(x)}` : `V${f(y + h - r)}C${f(x + w)} ${f(y + h - c)} ${f(x + w - c)} ${f(y + h)} ${f(x + w - r)} ${f(y + h)}H${f(x + r)}C${f(x + c)} ${f(y + h)} ${f(x)} ${f(y + h - c)} ${f(x)} ${f(y + h - r)}`
+    return `M${f(x)} ${f(y + r)}C${f(x)} ${f(y + c)} ${f(x + c)} ${f(y)} ${f(x + r)} ${f(y)}H${f(x + w - r)}C${f(x + w - c)} ${f(y)} ${f(x + w)} ${f(y + c)} ${f(x + w)} ${f(y + r)}${b}Z`
+  }
 
-  /* The progress bars' pixel grid (styles.css .progress__bar), drawn in whole device pixels at the size the page is
-     really shown: the site scales the demo down to fit a card, and a 3px grid at 0.68× lands cells and gaps on
-     fractions of a pixel, so some gaps vanish and the rows look uneven. Here every cell and gap is the same whole number
-     of device pixels. Checked again now and then, since the card's size changes with the window. */
-  const DITHER = [[0, 0], [2, 0], [3, 0], [6, 0], [1, 1], [2, 1], [4, 1], [8, 1], [0, 2], [1, 2], [3, 2], [5, 2]] // [column, row]: the scatter after a bar's fill, thinning out
+  /* The size the page is really shown at, in device pixels per CSS pixel: the site scales the demo down to fit a card,
+     so the halftone panels below are drawn for that. Checked again now and then, since the card's size changes with
+     the window. */
   let gridK = 0
   function sizeGrid() {
     let scale = 1
     try { const f = window.frameElement; if (f) scale = f.getBoundingClientRect().width / innerWidth || 1 } catch {}
     const k = scale * devicePixelRatio
+    snapBars()
     if (Math.abs(k - gridK) < 0.01) return
     gridK = k
-    const pitch = Math.max(2, Math.round(3 * k)), gap = Math.max(1, Math.round(k)), cell = pitch - gap // 2px cells on a 3px grid at 1×
-    const svg = (w, h, rects) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${rects}</svg>`)}")`
-    const rect = ([c, r]) => `<rect x='${c * pitch}' y='${r * pitch}' width='${cell}' height='${cell}'/>`
-    const st = document.documentElement.style
-    st.setProperty('--grid', svg(pitch, pitch, rect([0, 0])))
-    st.setProperty('--dither', svg(10 * pitch, 3 * pitch, DITHER.map(rect).join('')))
-    st.setProperty('--pitch', `${pitch / k}px`)
-    st.setProperty('--bar-h', `${(3 * pitch - gap) / k}px`)
-    requestAnimationFrame(() => findPanels(true))
+    // the progress bars are a whole number of device pixels tall (4px at 1×), so they all come out the same
+    document.documentElement.style.setProperty('--bar-h', `${Math.max(2, Math.round(4 * k)) / k}px`)
+    requestAnimationFrame(() => { findPanels(true); snapBars() })
   }
+  /* …and each sits on a whole device pixel: rows 36px apart land on different fractions of a pixel at the card's
+     scale, which smears one bar over 5 rows and the next over 6. Each is nudged (by less than a pixel) onto the grid,
+     again after every render and scroll. The grid is that of the layer the browser draws the demo into: the site's
+     card (will-change: transform), which it then places on the screen as a whole, so every bar moves alike. */
+  let cardLayer
+  function snapBars() {
+    let scale = 1, top0 = 0
+    try {
+      const f = window.frameElement
+      if (f) {
+        if (cardLayer === undefined) { cardLayer = null; for (let e = f.parentElement; e; e = e.parentElement) if (getComputedStyle(e).willChange.includes('transform')) { cardLayer = e; break } }
+        const r = f.getBoundingClientRect(); scale = r.width / innerWidth || 1; top0 = r.top - (cardLayer ? cardLayer.getBoundingClientRect().top : 0)
+      }
+    } catch {}
+    const dpr = devicePixelRatio, k = scale * dpr
+    document.querySelectorAll('.progress__bar, .topic__bar').forEach((el) => {
+      const was = +(el.dataset.dy || 0), y = (top0 + (el.getBoundingClientRect().top - was) * scale) * dpr
+      const dy = +((Math.round(y) - y) / k).toFixed(3)
+      if (dy !== was) { el.style.translate = `0 ${dy}px`; el.dataset.dy = dy }
+    })
+  }
+  let snapQueued = false
+  const queueSnap = () => { if (snapQueued) return; snapQueued = true; requestAnimationFrame(() => { snapQueued = false; snapBars() }) }
+  addEventListener('scroll', queueSnap, { capture: true, passive: true })
 
   /* The picture panels (.gart in the guide, .tour__shot on Home and Help) are a halftone of styles.css's --panel
-     gradient, like print: a grid of dots on near-white, each as big as the gradient is dark there and in its colour,
-     deepened. Drawn on a canvas in whole device pixels for each panel's size (again when it changes, or the scale
+     gradient, like print in reverse: a grid of dots on near-black, each as big as the gradient is light there and in its
+     colour, brightened. Drawn on a canvas in whole device pixels for each panel's size (again when it changes, or the scale
      does); --panel stays underneath as the fallback. */
   const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
   const mix = (a, b, t) => a.map((x, i) => x + (b[i] - x) * t)
   const clamp01 = (x) => Math.max(0, Math.min(1, x))
-  const P_FROM = hex('#e6ebf6'), P_TO = hex('#ccd7f2'), P_INDIGO = hex('#b4bbf7'), P_LIGHT = hex('#fbfcfe'), P_PAPER = '#fafbfd'
-  // --panel's colour at (u, v), 0–1 across and down: the 135° base, the indigo glow at the bottom left, the light at the top right
+  const P_FROM = hex('#34363e'), P_TO = hex('#2b2d34'), P_INDIGO = hex('#8a8962'), P_LIGHT = hex('#43464f'), P_PAPER = '#25262b'
+  // --panel's colour at (u, v), 0–1 across and down: the 135° base, the accent's glow at the bottom left, the lift at the top right
   function panelColor(u, v, W, H) {
     let c = mix(P_FROM, P_TO, clamp01((u * W + v * H) / (W + H)))
     c = mix(c, P_INDIGO, clamp01(1 - Math.hypot(u / 0.9, (v - 1) / 1.2) / 0.65))
@@ -62,13 +87,13 @@
       g.fillStyle = P_PAPER; g.fillRect(0, 0, pw, ph)
       const dots = []; let lo = 1, hi = 0
       for (let y = pitch / 2; y < ph; y += pitch) for (let x = pitch / 2; x < pw; x += pitch) {
-        const c = panelColor(x / pw, y / ph, W, H), d = 1 - (c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11) / 255
+        const c = panelColor(x / pw, y / ph, W, H), d = (c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11) / 255
         dots.push([x, y, c, d]); lo = Math.min(lo, d); hi = Math.max(hi, d)
       }
       for (const [x, y, c, d] of dots) {
-        // spread over this panel's range, so the lightest corner keeps the finest dots and the darkest stays open
+        // spread over this panel's range, so the darkest corner keeps the finest dots and the lightest stays open
         const t = 0.05 + 0.6 * clamp01((d - lo) / (hi - lo || 1) + (noise(x, y) - 0.5) * 0.14)
-        g.fillStyle = `rgb(${c.map((v) => Math.round(Math.max(0, v - 1.1 * (255 - v)))).join(' ')})`
+        g.fillStyle = `rgb(${c.map((v) => Math.round(Math.min(255, v * 1.6 + 16))).join(' ')})`
         g.beginPath(); g.arc(x, y, (pitch / 2) * Math.sqrt(t) * 1.05, 0, Math.PI * 2); g.fill()
       }
       url = cv.toDataURL()
@@ -85,7 +110,7 @@
     })
   }
   let panelsQueued = false
-  new MutationObserver(() => { if (panelsQueued) return; panelsQueued = true; requestAnimationFrame(() => { panelsQueued = false; findPanels() }) })
+  new MutationObserver(() => { queueSnap(); if (panelsQueued) return; panelsQueued = true; requestAnimationFrame(() => { panelsQueued = false; findPanels() }) })
     .observe(document.body, { childList: true, subtree: true })
 
   sizeGrid()
@@ -96,17 +121,17 @@
      In plain words, for someone new to sustainability reporting: no standard's codes or paragraph numbers, and none
      of the production app's specialist set-up (its disclosure checklists, table blocks and reporting rules). */
   const PEOPLE = {
-    hh: { name: 'Hans Hansen', ini: 'HH', c: '' },
-    ib: { name: 'Ingrid Berg', ini: 'IB', c: 'b' },
-    lm: { name: 'Lars Moe', ini: 'LM', c: 'c' },
-    sd: { name: 'Sofie Dahl', ini: 'SD', c: 'd' },
+    hh: { name: 'Hannah Hayes', ini: 'HH', c: '' },
+    ib: { name: 'Isabel Brooks', ini: 'IB', c: 'b' },
+    lm: { name: 'Liam Moore', ini: 'LM', c: 'c' },
+    sd: { name: 'Sophie Davis', ini: 'SD', c: 'd' },
   }
   const ME = 'hh'
   const SUBS = [
-    { name: 'Fjordal Norge', by: 'lm' },
-    { name: 'Fjordal Sverige', by: 'ib' },
-    { name: 'Fjordal Danmark', by: 'sd' },
-    { name: 'Fjordal Suomi', by: 'hh' },
+    { name: 'Northfield England', by: 'lm' },
+    { name: 'Northfield Scotland', by: 'ib' },
+    { name: 'Northfield Ireland', by: 'sd' },
+    { name: 'Northfield Wales', by: 'hh' },
   ]
   const SHARES = [0.41, 0.27, 0.19] // numbers: each company's share; the last one gets the rest
   const AI_NOTE = 'Written by AI from the attached document.'
@@ -123,23 +148,23 @@
       comments: [{ by: 'ib', when: '2 days ago', text: 'Can we say which parts of the business we looked at? The auditors asked last year.' }],
       subs: [
         'We set our targets together with the group in 2021, using science-based guidance and our 2020 emissions.',
-        'We followed the group. The Gothenburg plant added its own target for process heat after its 2022 energy check.',
+        'We followed the group. The Glasgow plant added its own target for process heat after its 2022 energy check.',
         null,
         'The group set the targets. Our site helped through the workshop on what matters most, and by collecting supplier data.',
       ],
-      summary: 'Fjordal set its climate targets as a group in 2021, using science-based guidance and our 2020 emissions as the starting point. Each company helped through a workshop on what matters most and by collecting data from suppliers, and the Gothenburg plant added its own target for process heat after its 2022 energy check.' },
+      summary: 'Northfield set its climate targets as a group in 2021, using science-based guidance and our 2020 emissions as the starting point. Each company helped through a workshop on what matters most and by collecting data from suppliers, and the Glasgow plant added its own target for process heat after its 2022 energy check.' },
     'e14-targets': { name: 'Our emission targets', ask: 'Give your emission targets: how much, by when, and from which starting year.' },
     't-s1': { kind: 'target', name: 'Cut direct emissions per product by 35% by 2025', unit: 't CO₂e per unit', actual: [[2020, 0.84], [2021, 0.8], [2022, 0.74], [2023, 0.69]], goal: [2025, 0.546], dec: 2, source: 'From a target', owner: 'lm', files: ['Direct_emissions_2023.pdf'], edited: '2.10.2023',
-      note: 'The Gothenburg plant we bought changes 2020 by less than 5%, so the starting point stays.',
+      note: 'The Glasgow plant we bought changes 2020 by less than 5%, so the starting point stays.',
       ask: 'Give the target as a number, the year it should be reached, and the year it is measured from.',
       comments: [
-        { by: 'ib', when: 'Yesterday', text: 'Does buying the Gothenburg plant change our 2020 starting point?' },
+        { by: 'ib', when: 'Yesterday', text: 'Does buying the Glasgow plant change our 2020 starting point?' },
         { by: 'lm', when: 'Yesterday', text: 'Barely, by less than 5%. I added a note.' },
       ] },
     't-s23': { kind: 'target', name: 'Cut indirect emissions per product by 25% by 2030', unit: 't CO₂e per unit', actual: [[2020, 6.2], [2021, 6.1], [2022, 5.8], [2023, 5.6]], goal: [2030, 4.65], dec: 2, source: 'From a target', owner: 'sd', ask: 'Give the target as a number, the year it should be reached, and the year it is measured from.' },
     'e14-material': { name: 'Where our biggest impacts are', ask: 'Explain how the targets match the areas where the company affects the climate most.',
       subs: [
-        'Our largest impacts are electricity at the Bergen plant and trucking in raw materials.',
+        'Our largest impacts are electricity at the Leeds plant and trucking in raw materials.',
         'Gas-fired process heat and the aluminium we buy matter most for us.',
         'Delivering to customers in Germany and the Netherlands is our largest source of emissions.',
         null,
@@ -147,14 +172,14 @@
       summary: 'Our 2023 review found the biggest climate impacts in electricity and gas-fired heat at our plants, the aluminium we buy, and trucking materials and products. Our targets focus on these areas.' },
     'e14-risks': { name: 'How climate risks shape our targets', ask: 'Explain how the ways climate change could affect the business were used when setting the targets.', edited: '21.09.2023', owner: 'ib' },
     'e14-levers': { name: 'What we are doing to get there', ask: 'List the main things the company is doing to reach its targets.',
-      comments: [{ by: 'sd', when: '3 days ago', text: 'Add the heat pumps in Gothenburg here?' }],
+      comments: [{ by: 'sd', when: '3 days ago', text: 'Add the heat pumps in Glasgow here?' }],
       subs: [
         'Department heads have a bonus tied to saving energy. We are putting solar panels on the roof in 2024.',
-        'We are replacing the gas boilers in Gothenburg with heat pumps by 2027.',
+        'We are replacing the gas boilers in Glasgow with heat pumps by 2027.',
         null,
         'All our electricity has been renewable since 2022.',
       ],
-      summary: 'Teams are rewarded for saving energy, and we invest in research to cut emissions further. Our main steps are replacing the gas-fired heat in Gothenburg with heat pumps by 2027, solar panels on the roof in Bergen in 2024, and renewable electricity, which already powers our Finnish site.' },
+      summary: 'Teams are rewarded for saving energy, and we invest in research to cut emissions further. Our main steps are replacing the gas-fired heat in Glasgow with heat pumps by 2027, solar panels on the roof in Leeds in 2024, and renewable electricity, which already powers our Finnish site.' },
     'e14-achievable': { name: 'Why the targets are realistic', ask: 'Say whether the targets are based on science, and why they can be reached.' },
     // Energy use
     'e15-total': { name: 'Total energy use', ask: 'Give how much energy the company used, and how much of it was renewable.' },
@@ -179,11 +204,11 @@
   // The report's sections. A value in a paragraph is [[data point|its words]].
   const REPORTS = [
     { id: 'e1-1', title: 'Our climate plan', paras: {
-      'e11-plan': 'We adopted our climate plan in March 2023. It sets out how Fjordal will reach [[t-nz|net zero emissions across our value chain by 2045]], in line with keeping global warming to 1.5°C: by using less energy, heating with electricity instead of gas, buying renewable power and working with our largest suppliers.',
-      'e11-gov': 'The Board approved the plan, and the management team checks its progress every quarter. Most of the emissions we can’t easily avoid come from the gas-fired heat at our Bergen and Gothenburg plants, which we plan to switch to electricity by 2027.',
+      'e11-plan': 'We adopted our climate plan in March 2023. It sets out how Northfield will reach [[t-nz|net zero emissions across our value chain by 2045]], in line with keeping global warming to 1.5°C: by using less energy, heating with electricity instead of gas, buying renewable power and working with our largest suppliers.',
+      'e11-gov': 'The Board approved the plan, and the management team checks its progress every quarter. Most of the emissions we can’t easily avoid come from the gas-fired heat at our Leeds and Glasgow plants, which we plan to switch to electricity by 2027.',
     } },
     { id: 'e1-4', title: 'Climate targets', paras: {
-      'e14-how': 'At Fjordal, we take our impact on the climate seriously. We set our emission targets through a careful process, using scientific guidance and looking closely at how our own business works.',
+      'e14-how': 'At Northfield, we take our impact on the climate seriously. We set our emission targets through a careful process, using scientific guidance and looking closely at how our own business works.',
       'e14-targets': 'Following the Science Based Targets initiative, we aim to [[t-s1|cut our direct emissions per product by 35% by 2025, compared with 2020]]. We also aim to [[t-s23|cut the emissions from the energy we buy and from our suppliers by 25% per product by 2030]].',
       'e14-material': 'We chose these targets after a careful review of where our business affects the climate most. It looked at our whole value chain and found the biggest impacts in electricity use, transport and the materials we buy.',
       'e14-risks': 'Every year we also look at how climate change could affect our business. This shows us where we can cut the most emissions, and where we are most at risk.',
@@ -192,7 +217,7 @@
     } },
     { id: 'e1-5', title: 'Energy use', paras: {
       'e15-total': 'In 2023, our sites and vehicles used [[e-total|48,210 MWh]] of energy, and [[e-ren|61%]] of it came from renewable sources, mostly hydropower.',
-      'e15-fossil': 'We used [[e-fossil|18,800 MWh]] of energy from fossil fuels, mainly natural gas for heat at the Bergen and Gothenburg plants. We plan to switch both to electricity by 2027.',
+      'e15-fossil': 'We used [[e-fossil|18,800 MWh]] of energy from fossil fuels, mainly natural gas for heat at the Leeds and Glasgow plants. We plan to switch both to electricity by 2027.',
       'e15-int': 'We used [[e-int|0.21 MWh for every thousand euros]] we earned, down from 0.24 in 2022, as sales grew faster than our energy use.',
     } },
     { id: 'e1-6', title: 'Emissions', paras: {
@@ -303,7 +328,7 @@
       const n = d.years.length, slot = pw / n, bw = Math.min(36, slot * 0.42)
       d.years.forEach(([yr, v], i) => {
         const cx = L + slot * (i + 0.5), now = i === n - 1
-        out += `<rect class="ch-bar ${now ? 'ch-bar--now' : ''}" x="${cx - bw / 2}" y="${y(v)}" width="${bw}" height="${T + ph - y(v)}" rx="3"/>`
+        out += `<path class="ch-bar ${now ? 'ch-bar--now' : ''}" d="${sqPath(cx - bw / 2, y(v), bw, T + ph - y(v), 3, true)}"/>`
         out += `<text class="ch-axis" x="${cx}" y="${y(v) - 5}" text-anchor="middle">${short(v)}${d.unit === '%' ? '%' : ''}</text><text class="ch-axis" x="${cx}" y="${H - 4}" text-anchor="middle">${yr}</text>`
       })
     }
@@ -428,7 +453,7 @@
         const [by, bv] = d.actual[0], [ly, lv] = d.actual.at(-1), [gy, gv] = d.goal
         const done = Math.max(0, Math.min(100, ((bv - lv) / (bv - gv)) * 100))
         value = sect('Progress', `
-          <div class="progress progress--big"><span class="progress__bar" style="--p:${done}%"><i></i>${done > 0 ? '<b></b>' : ''}</span><span>${num(done)}%</span></div>
+          <div class="progress progress--big"><span class="progress__bar" style="--p:${done}%"><i></i></span><span>${num(done)}%</span></div>
           ${kv(`Start, ${by}`, num(bv, d.dec))}
           ${kv(`Now, ${ly}`, `${num(lv, d.dec)} <span class="muted">${signed(pct(bv, lv))}</span>`, true)}
           ${kv(`Goal, ${gy}`, `${num(gv, d.dec)} <span class="muted">${signed(pct(bv, gv))}</span>`, true)}
@@ -596,13 +621,13 @@
   const pill = (status) => `<span class="pill pill--${status.toLowerCase().replace(/ /g, '-')}">${esc(status)}</span>`
   // A dropdown on a page: one open at a time (S.pmenu); picking runs MENU[key](value)
   const dropdown = (key, label, items, cur, cls = '') => `<div class="dd ${cls}"><button type="button" class="dd__btn" data-act="pmenu" data-arg="${key}" aria-haspopup="menu" aria-expanded="${S.pmenu === key}">${label}${icon('chevron-down')}</button>${S.pmenu === key ? `<div class="menu" role="menu">${items.map(([v, t]) => `<button type="button" class="menu__item" role="menuitemradio" aria-checked="${v === cur}" data-act="choose" data-arg="${key}:${esc(v)}">${t}${v === cur ? icon('check') : ''}</button>`).join('')}</div>` : ''}</div>`
-  const COUNTRY = { no: 'Norway', se: 'Sweden', dk: 'Denmark' }
+  const COUNTRY = { no: 'England', se: 'Scotland', dk: 'Ireland' }
 
   Object.assign(S, {
     page: 'home', // the demo starts at Home
     pmenu: undefined, // a page's open dropdown
     todo: new Set(),
-    help: { q: '', all: new Set() },
+    help: { q: '' },
     guide: { step: 0, read: new Set([0]), seen: false, min: false },
     inp: { open: new Set(['g-s1', 'g-s3']), more: false, edit: undefined, vals: {} },
     metric: 'g-s1',
@@ -610,7 +635,7 @@
     topic: { tab: 'people', q: '', role: 'all', open: new Set(['parent', 'p-hh']), reviewer: undefined, added: false, flash: undefined },
     tgt: { show: { mile: true, interp: true, impact: true }, base: 200, miles: [[2025, 170], [2030, 140], [2040, 90], [2050, 40]], edit: undefined, actions: [true, true, false, false] },
   })
-  PEOPLE.ll = { name: 'Lara Larsen', ini: 'LL', c: 'e' }
+  PEOPLE.ll = { name: 'Laura Lewis', ini: 'LL', c: 'e' }
 
   /* ── navigation ── */
   function go(p, set) {
@@ -639,7 +664,7 @@
   }
 
   /* ════ Home ════ */
-  const TODO = [['tour', 'Take the product tour', 'Onboarding · 3 min'], ['invite', 'Invite your team', 'Ingrid and Lars are waiting'], ['file', 'Upload last year’s report', 'So Celsia can fill in what it already knows'], ['target', 'Review the climate targets', 'Due Friday']]
+  const TODO = [['tour', 'Take the product tour', 'Onboarding · 3 min'], ['invite', 'Invite your team', 'Isabel and Liam are waiting'], ['file', 'Upload last year’s report', 'So Celsia can fill in what it already knows'], ['target', 'Review the climate targets', 'Due Friday']]
   // The report's topics and how far each has come: Climate and Pollution open, the rest are only on Home
   const TOPICS = [['Climate', 82, 'report'], ['Pollution', 60, 'topic'], ['Water', 35], ['People', 48], ['Business conduct', 15]]
   const SKILLS = [
@@ -652,7 +677,7 @@
   const PAGES = {}
   PAGES.home = () => `
     <div class="wrap">
-      <h1 class="h1 h1--hello">Welcome back, Hans</h1>
+      <h1 class="h1 h1--hello">Welcome back, Hannah</h1>
       <p class="hello-sub">Report 2023 is due in 6 weeks. Here’s where things stand.</p>
       <div class="home-top">
         <section class="todo" aria-label="To do">
@@ -664,7 +689,7 @@
         ${tourCard('Product tour')}
       </div>
       <div class="h2row"><h2 class="h2">Report 2023</h2><small>Due 31 March</small></div>
-      <div class="topics">${TOPICS.map(([n, p, to]) => `<button type="button" class="topic ${to ? '' : 'is-off'}" data-act="${to ? 'go' : 'toast'}" data-arg="${to ?? `${n} isn’t written in this demo`}"><span class="topic__name">${n}</span><span class="topic__bar" style="--p:${p}%"><i></i>${p > 0 ? '<b></b>' : ''}</span><span class="topic__pct">${p}%</span>${icon('arrow-narrow-right')}</button>`).join('')}</div>
+      <div class="topics">${TOPICS.map(([n, p, to]) => `<button type="button" class="topic ${to ? '' : 'is-off'}" data-act="${to ? 'go' : 'toast'}" data-arg="${to ?? `${n} isn’t written in this demo`}"><span class="topic__name">${n}</span><span class="topic__bar" style="--p:${p}%"><i></i></span><span class="topic__pct">${p}%</span>${icon('arrow-narrow-right')}</button>`).join('')}</div>
       <h2 class="h2 h2--sect">Quick links</h2>
       <div class="cards3">${[['input', 'table', 'Data input', 'Collect the numbers for your report'], ['report', 'report', 'Report', 'Write and review it with your team'], ['metric', 'insights', 'Insights', 'Follow your numbers against targets']]
         .map(([p, i, t, sub]) => `<button type="button" class="qcard is-on" data-act="go" data-arg="${p}">${skeu(i)}<b>${t}</b><small>${sub}</small></button>`).join('')}</div>
@@ -679,11 +704,8 @@
   ]
   const APP_GUIDES = ['How to get started', 'Inviting your team', 'How data flows into the report', 'Working with your companies', 'About Celsia']
   const article = (t) => `<li><button type="button" class="art" data-act="article" data-arg="${esc(t)}">${icon('file')}<span>${esc(t)}</span></button></li>`
-  const helpCard = (id, ico, name, items) => {
-    const all = S.help.all.has(id)
-    return `<section class="hcard"><h3 class="hcard__head"><span class="hcard__ico">${icon(ico)}</span>${esc(name)}</h3><ul class="arts">${(all ? items : items.slice(0, 3)).map(article).join('')}</ul>
-      ${items.length > 3 ? `<button type="button" class="btn btn--sm hcard__more" data-act="help-all" data-arg="${id}">${all ? 'Show fewer' : `All ${items.length} articles`}${icon(all ? 'chevron-up' : 'arrow-narrow-right')}</button>` : ''}</section>`
-  }
+  // a card shows its first three articles; the search finds the rest
+  const helpCard = (id, ico, name, items) => `<section class="hcard"><h3 class="hcard__head"><span class="hcard__ico">${icon(ico)}</span>${esc(name)}</h3><ul class="arts">${items.slice(0, 3).map(article).join('')}</ul></section>`
   function helpResults() {
     const q = S.help.q.trim().toLowerCase()
     const hits = [...APP_GUIDES.map((t) => [t, 'Using Celsia']), ...HELP.flatMap((g) => g.items.map((t) => [t, g.name]))].filter(([t]) => t.toLowerCase().includes(q))
@@ -822,7 +844,7 @@
   }
 
   /* ════ Insights: a number's chart against its target, by country ════ */
-  const MET_C = [['no', 'Norway', 'var(--tone-1)'], ['se', 'Sweden', 'var(--tone-2)'], ['dk', 'Denmark', 'var(--tone-3)']]
+  const MET_C = [['no', 'England', 'var(--tone-1)'], ['se', 'Scotland', 'var(--tone-2)'], ['dk', 'Ireland', 'var(--tone-3)']]
   const Q24 = { no: [1450, 1300, 1180, 1420], dk: [620, 560, 520, 610], se: [1180, 1060, 990, 1150] } // 2024, Q4 is the forecast
   const YEARS = [[2020, 13900], [2021, 14100], [2022, 13280], [2023, 12480], [2024, 12040]]
   const YSHARE = { no: 0.45, dk: 0.19, se: 0.36 }
@@ -852,16 +874,18 @@
     const tops = fall ? [all] : bars.map((p) => sumOn(p))
     if (S.met.target) tops.push(target)
     const ymax = niceMax(Math.max(...tops, 1))
-    const L = 40, R = 0, T = 12, B = 26, pw = W - L - R, ph = H - T - B
+    const L = 44, R = 0, T = 12, B = 26, pw = W - L - R, ph = H - T - B
     const y = (v) => T + ph - (v / ymax) * ph
+    const ty = S.met.target ? y(target) : -99
     const slot = pw / bars.length, bw = Math.min(44, slot * 0.42)
     let out = ''
     const fc = bars.findIndex((p) => p.forecast)
     if (fc >= 0) {
       const fx = L + slot * fc
-      out += `<rect class="mc-fc" x="${fx}" y="${T}" width="${L + pw - fx}" height="${ph}" rx="8"/><svg class="ico mc-fc__i" x="${fx + 10}" y="${T + 8}" width="12" height="12" viewBox="0 0 24 24">${ICONS.sparkles}</svg><text class="mc-fc__t" x="${fx + 26}" y="${T + 18}">Forecast</text>`
+      out += `<path class="mc-fc" d="${sqPath(fx, T, L + pw - fx, ph, 8)}"/><svg class="ico mc-fc__i" x="${fx + 10}" y="${T + 8}" width="12" height="12" viewBox="0 0 24 24">${ICONS.sparkles}</svg><text class="mc-fc__t" x="${fx + 26}" y="${T + 18}">Forecast</text>`
     }
-    for (let i = 0; i <= 4; i++) { const v = (ymax / 4) * i; out += `<line class="ch-grid ch-grid--solid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="ch-axis" x="${L - 10}" y="${y(v) + 3}" text-anchor="end">${short(v)}</text>` }
+    // The axis' numbers, except one the target's own number on the axis would cover
+    for (let i = 0; i <= 4; i++) { const v = (ymax / 4) * i; out += `<line class="ch-grid ch-grid--solid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/>${Math.abs(y(v) - ty) < 14 ? '' : `<text class="ch-axis" x="${L - 10}" y="${y(v) + 3}" text-anchor="end">${short(v)}</text>`}` }
     let run = 0
     bars.forEach((p, i) => {
       const cx = L + slot * (i + 0.5), x = cx - bw / 2
@@ -872,20 +896,19 @@
       shown.forEach(([c, v], j) => {
         const col = MET_C.find((m) => m[0] === c)[2]
         const top = j === shown.length - 1
-        out += `<path class="mc-bar" d="${barPath(x, y(base + v), bw, y(base) - y(base + v), top ? 4 : 0)}" style="fill:${col}" ${p.forecast ? 'opacity=".5"' : ''}><title>${COUNTRY[c]}, ${p.label}: ${num(v)}</title></path>`
+        out += `<path class="mc-bar" d="${sqPath(x, y(base + v), bw, y(base) - y(base + v), top ? 4 : 0, true)}" style="fill:${col}" ${p.forecast ? 'opacity=".5"' : ''}><title>${COUNTRY[c]}, ${p.label}: ${num(v)}</title></path>`
         base += v
       })
       if (!p.total) run += sumOn(p)
       out += `<text class="ch-axis ${p.total ? 'is-strong' : ''}" x="${cx}" y="${H - 6}" text-anchor="middle">${p.label}</text>`
     })
     if (S.met.target) {
-      const ty = y(target), label = `Target ${short(target)}`, lw = label.length * 6.2 + 18
-      out += `<line class="mc-target" x1="${L}" x2="${W - R}" y1="${ty}" y2="${ty}"/><rect class="mc-pill" x="${L + 6}" y="${ty - 11}" width="${lw}" height="22" rx="11"/><text class="mc-pill__t" x="${L + 6 + lw / 2}" y="${ty + 4}" text-anchor="middle">${label}</text>`
+      // The target's number sits on the axis, where the line starts, so it never covers a bar
+      out += `<line class="mc-target" x1="${L}" x2="${W - R}" y1="${ty}" y2="${ty}"/><g><title>Target: ${num(target)}</title><path class="mc-pill" d="${sqPath(0, ty - 9, L - 4, 18, 9)}"/><text class="mc-pill__t" x="${(L - 4) / 2}" y="${ty + 3.5}" text-anchor="middle">${short(target)}</text></g>`
     }
     return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(DPS[S.metric].name)} by ${yearly() ? 'period' : 'year'}, against its target">${out}</svg>`
   }
   // A bar with its top corners rounded by r
-  const barPath = (x, y, w, h, r) => { r = Math.min(r, h, w / 2); return `M${x} ${y + h}V${y + r}Q${x} ${y} ${x + r} ${y}H${x + w - r}Q${x + w} ${y} ${x + w} ${y + r}V${y + h}Z` }
   const forecastTotal = () => metPeriods().reduce((n, p) => n + sumOn(p, new Set(['no', 'dk', 'se'])), 0)
   function metAlert() {
     if (!yearly() || !S.met.forecast) return ''
@@ -905,7 +928,7 @@
         <div><h1 class="h1 h1--tight">${esc(d.name)}</h1><p class="muted">${esc(d.unit)}, ${yearly() ? '2024' : '2020 to 2024'}</p></div>
         <div class="seg" role="group" aria-label="Period">${RANGES.map(([r, t]) => `<button type="button" aria-pressed="${S.met.range === r}" data-act="met-range" data-arg="${r}">${t}</button>`).join('')}</div>
       </div>
-      <div class="met__chart">${metChart(576, 260)}</div>
+      <div class="met__chart">${metChart(576, 300)}</div>
       <div class="met__keys">
         ${MET_C.map(([c, n, col]) => { const on = S.met.on.has(c); return `<button type="button" class="key ${on ? '' : 'is-off'}" style="--c:${col}" role="checkbox" aria-checked="${on}" data-act="met-c" data-arg="${c}"><i></i>${n}<span title="${num(total(c))} t">${Math.round((total(c) / all) * 100)}%</span></button>` }).join('')}
         <span class="met__toggles">${[['forecast', 'Forecast'], ['target', 'Target']].map(([k, t]) => `<button type="button" class="chip" data-act="met-show" data-arg="${k}" aria-pressed="${S.met[k]}">${icon(S.met[k] ? 'eye' : 'eye-off')}${t}</button>`).join('')}</span>
@@ -916,14 +939,14 @@
 
   /* ════ Pollution: the topic's progress, its people, and a to-do list ════ */
   const COMPANIES = [
-    { id: 'parent', name: 'Fjordal Group', logo: ['H', 'var(--steel-1)'], people: [
+    { id: 'parent', name: 'Northfield Group', logo: ['F', 'var(--steel-1)'], people: [
       { id: 'p-hh', who: 'hh', roles: ['Writes', 'Reviews'], tasks: [['Policies', 'Writes'], ['Targets', 'Reviews']] },
       { id: 'p-ll', who: 'll', roles: ['Writes'], tasks: [['Actions', 'Writes'], ['Numbers', 'Writes']] },
       { id: 'p-ib', who: 'ib', roles: ['Helps'], tasks: [['Policies', 'Helps']] },
     ] },
-    { id: 'no', name: 'Fjordal Norge', logo: ['N', 'var(--steel-2)'], people: [{ id: 'n-lm', who: 'lm', roles: ['Writes'], tasks: [['Numbers', 'Writes'], ['Actions', 'Writes']] }] },
-    { id: 'se', name: 'Fjordal Sverige', logo: ['S', 'var(--steel-3)'], people: [{ id: 's-ib', who: 'ib', roles: ['Writes'], tasks: [['Numbers', 'Writes']] }, { id: 's-sd', who: 'sd', roles: ['Reviews'], tasks: [['Numbers', 'Reviews']] }] },
-    { id: 'dk', name: 'Fjordal Danmark', logo: ['D', 'var(--steel-4)'], people: [{ id: 'd-sd', who: 'sd', roles: ['Writes'], tasks: [['Numbers', 'Writes']] }] },
+    { id: 'no', name: 'Northfield England', logo: ['E', 'var(--steel-2)'], people: [{ id: 'n-lm', who: 'lm', roles: ['Writes'], tasks: [['Numbers', 'Writes'], ['Actions', 'Writes']] }] },
+    { id: 'se', name: 'Northfield Scotland', logo: ['S', 'var(--steel-3)'], people: [{ id: 's-ib', who: 'ib', roles: ['Writes'], tasks: [['Numbers', 'Writes']] }, { id: 's-sd', who: 'sd', roles: ['Reviews'], tasks: [['Numbers', 'Reviews']] }] },
+    { id: 'dk', name: 'Northfield Ireland', logo: ['I', 'var(--steel-4)'], people: [{ id: 'd-sd', who: 'sd', roles: ['Writes'], tasks: [['Numbers', 'Writes']] }] },
   ]
   const TASK_START = { 'p-hh:0': 'To do', 'p-hh:1': 'To do', 'p-ll:0': 'In progress', 'p-ll:1': 'Done', 'p-ib:0': 'Done', 'n-lm:0': 'Done', 'n-lm:1': 'Done', 's-ib:0': 'Done', 's-sd:0': 'In progress', 'd-sd:0': 'Done' }
   S.topic.tasks = { ...TASK_START }
@@ -974,14 +997,14 @@
           <button type="button" class="btn btn--primary btn--sm toolbar__end" data-act="add-role" ${t.added ? 'disabled' : ''}>${icon('plus')}Add person</button>
         </div>
         <div class="roles" data-roles>${rolesHTML()}</div>` : ''}
-      ${t.tab === 'progress' ? `<div class="drs">${E2.map(([name, p, to]) => `<button type="button" class="dr" data-act="${to ? 'go' : 'toast'}" data-arg="${to ?? `${name} isn’t written in this demo`}"><span class="dr__name">${name}</span><span class="progress"><span class="progress__bar" style="--p:${p}%"><i></i>${p > 0 ? '<b></b>' : ''}</span><span class="muted">${p}%</span></span>${icon('arrow-narrow-right')}</button>`).join('')}</div>` : ''}
+      ${t.tab === 'progress' ? `<div class="drs">${E2.map(([name, p, to]) => `<button type="button" class="dr" data-act="${to ? 'go' : 'toast'}" data-arg="${to ?? `${name} isn’t written in this demo`}"><span class="dr__name">${name}</span><span class="progress"><span class="progress__bar" style="--p:${p}%"><i></i></span><span class="muted">${p}%</span></span>${icon('arrow-narrow-right')}</button>`).join('')}</div>` : ''}
       ${t.tab === 'todo' ? `<div class="todos">${mine.map((m) => { const done = t.tasks[m.k] === 'Done'; return `<div class="todo__row ${done ? 'is-done' : ''}"><button type="button" class="tick" role="checkbox" aria-checked="${done}" data-act="task-done" data-arg="${m.k}" aria-label="${m.n}">${icon(done ? 'circle-check' : 'circle-dashed-check')}</button><div class="todo__text"><b>${m.r === 'Reviews' ? 'Review' : 'Write'} the ${m.n.toLowerCase()}</b><small>${esc(m.c)} · ${t.tasks[m.k]}</small></div></div>` }).join('')}</div>` : ''}
     </div>`
   }
 
   /* ════ A target: Reduce air pollution from our plants ════ */
   const TGT_X = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2040, 2050]
-  const TGT_ACTIONS = [['Filters on the Bergen kilns', 18, 2025], ['Cleaner burners in Gothenburg', 22, 2027], ['Electric heat at both plants', 45, 2030], ['Electric trucks', 25, 2040]]
+  const TGT_ACTIONS = [['Filters on the Leeds kilns', 18, 2025], ['Cleaner burners in Glasgow', 22, 2027], ['Electric heat at both plants', 45, 2030], ['Electric trucks', 25, 2040]]
   const interp = (yr) => {
     const pts = [[2023, S.tgt.base], ...S.tgt.miles]
     for (let i = 1; i < pts.length; i++) if (yr <= pts[i][0]) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i]; return y0 + ((yr - x0) / (x1 - x0)) * (y1 - y0) }
@@ -1006,7 +1029,7 @@
     : `<button type="button" class="val val--edit" data-act="tgt-edit" data-arg="${key}" title="Click to change">${num(v)}${icon('pencil')}</button>`
   PAGES.target = () => {
     const t = S.tgt, sh = t.show, final = t.miles.at(-1), reach = impactAt(2050)
-    const legend = [['interp', 'Plan', 'var(--steel-3)'], ['mile', 'Milestones', 'var(--text)'], ['impact', 'With our actions', 'var(--brand)']]
+    const legend = [['interp', 'Plan', 'var(--steel-1)'], ['mile', 'Milestones', 'var(--text)'], ['impact', 'With our actions', 'var(--brand)']]
     const rows = [[2023, t.base, 'base', 'Start'], ...t.miles.map(([yr, v], i) => [yr, v, `m${i}`, i === t.miles.length - 1 ? 'Goal' : ''])]
     return `
     <div class="wrap">
@@ -1042,7 +1065,6 @@
     article: (t) => toast(`“${t}” opens in the help center`, 'book'),
     todo: (k) => { S.todo.has(k) ? S.todo.delete(k) : S.todo.add(k); renderPage(); if (S.todo.size === TODO.length) toast('All done for today') },
     tour: () => { S.todo.add('tour'); S.guide = { ...S.guide, step: 0, min: false, seen: true }; go('input'); S.layer = 'guide'; renderLayer() },
-    'help-all': (k) => { S.help.all.has(k) ? S.help.all.delete(k) : S.help.all.add(k); renderPage() },
     metric: (id) => go('metric', () => { S.metric = id; S.met.editTarget = false }),
     'inp-open': (id) => { S.inp.open.has(id) ? S.inp.open.delete(id) : S.inp.open.add(id); renderPage() },
     'inp-clear': () => { S.inp.q = ''; renderPage() },
@@ -1071,7 +1093,7 @@
     'add-role': () => {
       COMPANIES[0].people.push({ id: 'p-sd', who: 'sd', roles: ['Helps'], tasks: [['Numbers', 'Helps']] })
       S.topic.tasks['p-sd:0'] = 'To do'; S.topic.added = true; S.topic.flash = 'p-sd'; S.topic.open.add('parent'); S.topic.role = 'all'; S.topic.q = ''
-      renderPage(); toast('Sofie Dahl helps with Pollution now')
+      renderPage(); toast('Sophie Davis helps with Pollution now')
     },
     'tgt-show': (k) => { S.tgt.show[k] = !S.tgt.show[k]; renderPage() },
     'tgt-edit': (k) => { S.tgt.edit = k; renderPage(); $(`[data-tgt="${k}"]`, pageEl)?.select() },
@@ -1120,9 +1142,10 @@
     report: (rid) => {
       finishEdit()
       if (S.report === rid) return
-      S.report = rid; S.sel = undefined; S.menu = false
+      // with the sidebar open, it stays open on the new section's first paragraph (on the same tab)
+      S.report = rid; S.sel = S.sel ? order(rid)[0] : undefined; S.menu = false
       stage.scrollTop = 0
-      renderToc(); renderStage(true); renderDp()
+      renderToc(); renderStage(true); renderDp(true)
     },
     toggle: (gid) => { S.open.has(gid) ? S.open.delete(gid) : S.open.add(gid); renderToc() },
     off: () => toast('Only Climate is written in this demo', 'info-square'),

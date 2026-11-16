@@ -1,6 +1,6 @@
 /* The demo's skeuomorphic icons, drawn by hand for the app's sidebar and the Home page (the rest of the app uses
    Lucide's line icons, icons.js). After the folder and file icons in kubilayss's project panel
-   (x.com/kubilayss/status/2119903375781146759), in black and white (in the accent's indigo when on): each is a small object with a white-to-grey body,
+   (x.com/kubilayss/status/2119903375781146759), in black and white (in the accent's lemon when on): each is a small object with a white-to-grey body,
    an outline darker at the bottom, a lighter layer behind, filled grey details and a soft shadow (styles.css, .sk).
    The gradients are defined once in index.html. Each is the inner shapes of a 24 × 24 icon, drawn by skeu(name):
    .sk-back is the layer behind, .sk-b the body, .sk-line an outline with no fill, .sk-g a filled detail and .sk-gs a
@@ -14,7 +14,7 @@ window.SKEU = {
     '<circle class="sk-gs" cx="12" cy="12.5" r="4.6"/>' +
     '<circle class="sk-g" cx="12" cy="12.5" r="1.8"/>',
   insights:
-    '<rect class="sk-b" x="3.5" y="3.5" width="17" height="17" rx="4.5"/>' +
+    '<path class="sk-b" d="M3.5 10.7C3.5 4.15 4.15 3.5 10.7 3.5H13.3C19.85 3.5 20.5 4.15 20.5 10.7V13.3C20.5 19.85 19.85 20.5 13.3 20.5H10.7C4.15 20.5 3.5 19.85 3.5 13.3Z"/>' +
     '<rect class="sk-g" x="7.3" y="12" width="2.6" height="5" rx="1"/>' +
     '<rect class="sk-g" x="10.7" y="8.5" width="2.6" height="8.5" rx="1"/>' +
     '<rect class="sk-g" x="14.1" y="10.5" width="2.6" height="6.5" rx="1"/>',
@@ -28,7 +28,7 @@ window.SKEU = {
     '<path class="sk-gs" d="M9.7 10.3a2.4 2.4 0 0 1 4.6.9c0 1.6-2.3 2-2.3 3.3"/>' +
     '<circle class="sk-g" cx="12" cy="17.1" r="1.15"/>',
   table:
-    '<rect class="sk-b" x="3.5" y="4.5" width="17" height="15.5" rx="3.5"/>' +
+    '<path class="sk-b" d="M3.5 10.1C3.5 5 4 4.5 9.1 4.5H14.9C20 4.5 20.5 5 20.5 10.1V14.4C20.5 19.5 20 20 14.9 20H9.1C4 20 3.5 19.5 3.5 14.4Z"/>' +
     '<rect class="sk-g" x="6.5" y="7.5" width="11" height="2.2" rx="1.1"/>' +
     '<rect class="sk-g sk-g--soft" x="6.5" y="11.5" width="4.5" height="2" rx="1"/>' +
     '<rect class="sk-g sk-g--soft" x="12.5" y="11.5" width="5" height="2" rx="1"/>' +

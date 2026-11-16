@@ -23,7 +23,7 @@
 import type { CompanyId } from "@/components/company";
 
 export type WorkMedia =
-  | { type: "demo"; src: string; width: number; height: number; title: string; background?: string; glass?: boolean; browser?: { background: string; url: string } }
+  | { type: "demo"; src: string; width: number; height: number; title: string; background?: string; glass?: boolean; browser?: { background: string; url: string; dark?: boolean } }
   | { type: "image"; src: string; alt: string }
   | { type: "video"; src: string; poster?: string }
   | { type: "slides"; slides: { src: string; url?: string }[]; alt: string; browser?: { background: string } };
@@ -79,10 +79,11 @@ export const WORK: WorkItem[] = [
       title: "Celsia demo: the reporting module, with data input, insights and targets",
       browser: {
         url: "app.celsia.io",
-        // A cold steel wallpaper, for the app's steel and indigo: near-white at the top left, pale steel at the top right,
-        // steel blue with a breath of indigo at the bottom right
+        // dark, like the app: Safari's dark toolbar on a soft grey wallpaper, lighter at the top left, grey all over (no
+        // tint of the accent)
+        dark: true,
         background:
-          "radial-gradient(70% 90% at 0% 0%, #f9fafc 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #e4e9f1 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #a9b4d6 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #dde3ee 0%, transparent 70%), linear-gradient(135deg, #f1f4f8, #c8d0e2)",
+          "radial-gradient(70% 90% at 0% 0%, #5b5d63 0%, transparent 65%), radial-gradient(60% 80% at 100% 0%, #48494e 0%, transparent 65%), radial-gradient(80% 100% at 100% 100%, #3b3c41 0%, transparent 70%), radial-gradient(60% 70% at 0% 100%, #36373c 0%, transparent 70%), linear-gradient(135deg, #46474c, #2c2d31)",
       },
     },
   },

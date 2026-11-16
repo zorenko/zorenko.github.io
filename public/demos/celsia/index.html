@@ -4,7 +4,7 @@
   <!-- The Celsia demo on the portfolio home page (content/work.ts): Celsia's sustainability reporting app, only the app's
        window, starting at Home. docs/demos.md says how demos like this are made. Celsia's work is under NDA, so the demo
        is rebranded away from the production app and simplified for anyone to follow: plain words instead of the
-       standards' codes, and none of the production app's specialist set-up. Cold steel greys with one bright electric-indigo accent
+       standards' codes, and none of the production app's specialist set-up. Dark: soft greys with one pale lemon accent
        (styles.css), Geist, Lucide's line icons (icons.js) and skeuomorphic icons drawn for the sidebar
        and Home (skeu.js); its screenshots are of the demo itself. The screens began as Figma frames ("Celsia app –
        Concepts 24-25" and "portfolio - cv", 453:10707), some of them only concepts.
@@ -25,15 +25,15 @@
   <script>if (new URLSearchParams(location.search).has('glass')) document.documentElement.classList.add('is-glass')</script>
 </head>
 <body>
-<!-- The skeuomorphic icons' gradients (skeu.js, styles.css .sk): top to bottom, at rest, and in the accent's indigo in the current page -->
+<!-- The skeuomorphic icons' gradients (skeu.js, styles.css .sk): top to bottom, warm stone lit from above on the dark, and in the accent's lemon in the current page -->
 <svg width="0" height="0" style="position: absolute" aria-hidden="true">
   <defs>
-    <linearGradient id="sk-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#eaeef3"/></linearGradient>
-    <linearGradient id="sk-line" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcc4cf"/><stop offset="1" stop-color="#838d9b"/></linearGradient>
-    <linearGradient id="sk-fill-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fa"/><stop offset="1" stop-color="#e2e7ee"/></linearGradient>
-    <linearGradient id="sk-line-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d2d8e0"/><stop offset="1" stop-color="#a6afbb"/></linearGradient>
-    <linearGradient id="sk-fill-on" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#e3e6ff"/></linearGradient>
-    <linearGradient id="sk-line-on" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#959cfb"/><stop offset="1" stop-color="#4a55f5"/></linearGradient>
+    <linearGradient id="sk-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#54514b"/><stop offset="1" stop-color="#393733"/></linearGradient>
+    <linearGradient id="sk-line" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#99948a"/><stop offset="1" stop-color="#5c5851"/></linearGradient>
+    <linearGradient id="sk-fill-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#43413c"/><stop offset="1" stop-color="#32302d"/></linearGradient>
+    <linearGradient id="sk-line-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#726e66"/><stop offset="1" stop-color="#4b4843"/></linearGradient>
+    <linearGradient id="sk-fill-on" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#52513f"/><stop offset="1" stop-color="#3b3b30"/></linearGradient>
+    <linearGradient id="sk-line-on" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f5c4"/><stop offset="1" stop-color="#bdbb7b"/></linearGradient>
   </defs>
 </svg>
 <div class="app" data-app>
