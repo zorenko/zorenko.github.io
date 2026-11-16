@@ -138,10 +138,6 @@ p { margin: 0; }
 .bar__div { width: 2px; height: 20px; margin: 0 2px; border-radius: 3px; background: var(--line); }
 .bar__grip { cursor: grab; color: var(--muted); }
 
-/* the coach: what to press next, a soft pulsing ring */
-.is-coach { animation: coach 1.7s var(--ease-out) infinite; }
-@keyframes coach { from { box-shadow: 0 0 0 0 rgb(255 102 0 / .5); } to { box-shadow: 0 0 0 8px rgb(255 102 0 / 0); } }
-
 /* ── the data point sidebar ── */
 .dp { position: relative; isolation: isolate; flex: none; width: 312px; border-left: 1px solid var(--line); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: thin; }
 .dp.is-in { animation: dp-in .3s var(--ease-out); }

@@ -174,7 +174,6 @@
     menu: false, // the owner menu
     layer: undefined, // 'chart'
     sums: {}, // a narrative's summary of its subsidiaries' answers: { text, busy, used }
-    seen: false, // a value in the text has been opened: the coach ring stops pointing at one
     downloading: false,
     display: {}, // a block data point shown as 'table' or 'text'
     dp: {}, // what can change on each data point
@@ -332,7 +331,7 @@
   function applySel() {
     stage.querySelectorAll('.is-sel').forEach((el) => el.classList.remove('is-sel'))
     stage.querySelector('.bar')?.remove()
-    if (!S.sel || REPORT_OF[S.sel] !== S.report) return renderCoach()
+    if (!S.sel || REPORT_OF[S.sel] !== S.report) return
     const para = stage.querySelector(`[data-para="${PARA_OF[S.sel]}"]`)
     para?.classList.add('is-sel')
     stage.querySelector(`[data-v="${S.sel}"]`)?.classList.add('is-sel')
@@ -352,7 +351,7 @@
         <button type="button" class="iconbtn" data-act="tab" data-arg="comments" aria-label="Comments" title="Comments" aria-pressed="${S.tab === 'comments'}">${icon('message')}</button>
         <button type="button" class="iconbtn" data-act="toast" data-arg="More actions aren’t in this demo" aria-label="More" title="More">${icon('dots-vertical')}</button>
       </div>`)
-      return renderCoach()
+      return
     }
     para?.insertAdjacentHTML('afterbegin', `
       <div class="bar" role="toolbar" aria-label="${esc(kindLabel(d))}">
@@ -363,7 +362,6 @@
         <button type="button" class="iconbtn" data-act="edit" aria-label="Edit the text" title="Edit the text" aria-pressed="${S.editing === PARA_OF[S.sel]}">${icon('pencil')}</button>
         <span class="iconbtn bar__grip" title="Drag to move" aria-hidden="true">${icon('grip-vertical')}</span>
       </div>`)
-    renderCoach()
   }
 
   /* ── the data point sidebar ── */
@@ -405,7 +403,6 @@
     dpEl.scrollTop = keep
     if (enter && wasHidden) { dpEl.classList.remove('is-in'); void dpEl.offsetWidth; dpEl.classList.add('is-in') }
     onDpScroll()
-    renderCoach()
   }
 
   const kv = (k, v, row = false) => `<div class="kv"><div class="kv__k">${k}</div><div class="kv__v ${row ? 'kv__v--row' : ''}">${v}</div></div>`
@@ -528,13 +525,6 @@
     setTimeout(() => { el.classList.add('is-leaving'); setTimeout(() => el.remove(), 220) }, 3000)
   }
 
-  // The coach ring: the first value in the text until one is opened, then a narrative's Write button.
-  function renderCoach() {
-    app.querySelectorAll('.is-coach').forEach((el) => el.classList.remove('is-coach'))
-    if (!S.seen) return stage.querySelector('.v:not(.is-sel)')?.classList.add('is-coach')
-    if (S.sel && S.tab === 'source' && !Object.keys(S.sums).length) $('[data-write]', dpEl)?.classList.add('is-coach')
-  }
-
   /* ── editing a paragraph ── */
   function startEdit(pid) {
     finishEdit()
@@ -569,7 +559,6 @@
     if (S.editing && PARA_OF[id] === S.editing) return
     finishEdit()
     const opening = !S.sel
-    if (DPS[id].kind !== 'narrative') S.seen = true
     if (S.sel !== id) S.menu = false
     S.sel = id
     applySel()
@@ -1301,7 +1290,7 @@
   const railItem = (p) => () => $(`.rail__item[data-arg="${p}"]`, rail)
   if (!new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
     name: 'Anastasia',
-    color: '#7b4dff',
+    color: '#496aff',
     // Each page's place in the tour; the Help center and Pollution sit after the page they're nearest
     where: () => ({ report: 0, topic: 0.5, metric: 1, target: 2, home: 3, input: 4, help: 4.5 })[S.page],
     // Before it carries on: what the visitor left open closed

@@ -3,7 +3,7 @@
 const EXPERIENCE: { role: string; company: string; note?: string; year: number }[] = [
   { role: "Independent Designer", company: "Sanna, Eider", year: 2026 },
   { role: "Design Manager (VP)", company: "ISS-Corporate", year: 2024 },
-  { role: "Lead Designer", company: "Celsia", note: "acquired by ISS-Corporate", year: 2022 },
+  { role: "Design Lead", company: "Celsia", note: "acquired by ISS-Corporate", year: 2022 },
   { role: "Product Designer", company: "Cognite", year: 2020 },
   { role: "Product Designer", company: "Yandex Cloud", year: 2019 },
   { role: "UX/UI Designer", company: "Nexign", year: 2018 },

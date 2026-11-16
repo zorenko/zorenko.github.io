@@ -20,6 +20,7 @@ import { isShown } from "@/lib/flags";
 import { useEffect, useRef, useState } from "react";
 import type { WorkItem } from "@/content/work";
 import { Browser } from "./browser";
+import { Company } from "./company";
 import { Demo } from "./demo";
 import { YouCursor } from "./you-cursor";
 import { prefersReducedMotion } from "@/lib/dom";
@@ -194,19 +195,44 @@ function Media({ item, copy }: { item: WorkItem; copy: boolean }) {
   );
 }
 
+// The title's names: the whole title, or each name of a title that lists several (split at its commas), each with
+// its tile (components/company.tsx) and its own site
+function names({ title, icons, sites }: WorkItem) {
+  const list = (icons?.length ?? 0) > 1 || (sites?.length ?? 0) > 1 ? title.split(", ") : [title];
+  return list.map((name, i) => ({ name, icon: icons?.[i], site: sites?.[i] }));
+}
+
+function TitleText({ item }: { item: WorkItem }) {
+  return <>{names(item).map(({ name, icon }, i) => <span key={name}>{i > 0 && ", "}<Company id={icon}>{name}</Company></span>)}</>;
+}
+
 function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
-  const { href, title, year } = item;
-  // The year follows the title, outside its link
-  const when = <span className="q-car-year"> · {year}</span>;
-  // A link into a section switched off in lib/flags.ts (the project pages) shows as plain text
-  if (!href || !isShown(href)) return <h3 className="q-car-title">{title}{when}</h3>;
+  const { href, year } = item;
+  // The year follows the title, outside its link; when the title is long, the dot and the year wrap together
+  const when = <>{" "}<span className="q-car-year">· {year}</span></>;
+  const text = <TitleText item={item} />;
   const props = { tabIndex: copy ? -1 : undefined };
+  // A link into a section switched off in lib/flags.ts (the project pages) doesn't show: then each name links to its
+  // own site, in a new tab, or is plain text
+  if (!href || !isShown(href)) {
+    return (
+      <h3 className="q-car-title">
+        {names(item).map(({ name, icon, site }, i) => (
+          <span key={name}>
+            {i > 0 && ", "}
+            {site ? <a {...props} href={site} target="_blank" rel="noopener"><Company id={icon}>{name}</Company></a> : <Company id={icon}>{name}</Company>}
+          </span>
+        ))}
+        {when}
+      </h3>
+    );
+  }
   return (
     <h3 className="q-car-title">
       {isExternal(href) ? (
-        <a {...props} href={href} target="_blank" rel="noopener">{title}</a>
+        <a {...props} href={href} target="_blank" rel="noopener">{text}</a>
       ) : (
-        <Link {...props} href={href}>{title}</Link>
+        <Link {...props} href={href}>{text}</Link>
       )}
       {when}
     </h3>

@@ -13,7 +13,7 @@ export default function Celsia() {
     <Project
       title="Celsia"
       lead="Reporting module from zero to one, acquired 2024"
-      role="Lead Designer · 2022–2026"
+      role="Design Lead · 2022–2026"
       demo={demo?.type === "demo" ? demo : undefined}
       intro={
         <>
@@ -26,7 +26,7 @@ export default function Celsia() {
         { src: "/assets/img/work/celsia-slide-05.jpg", caption: "Emissions data", alt: "Celsia emissions data shown as a stacked bar chart above a table." },
         { src: "/assets/img/work/celsia-slide-09.jpg", caption: "Targets & actions", alt: "Celsia target for reducing air pollutant emissions, with a trend chart." },
       ]}
-      next={{ href: "/work/earlier-work/", title: "Yandex, Kaspersky, Cognite" }}
+      next={{ href: "/work/earlier-work/", title: "Yandex, Cognite" }}
     >
       <Reveal as="section" className="q-case" aria-labelledby="q-case-hl">
         <h2 id="q-case-hl">Highlights</h2>

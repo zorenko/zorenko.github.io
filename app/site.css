@@ -139,6 +139,14 @@ body.v-quiet {
 .q-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; line-height: 24px; }
 .q-meta { flex: none; color: var(--q-date); font-variant-numeric: tabular-nums; }
 .q-note-inline { color: var(--q-date); } /* a side note in a row, as light as the year */
+/* A company's or product's tile before a carousel title, like an app icon (components/company.tsx): its mark in white on its colour */
+.q-co { white-space: nowrap; }
+.q-co-icon { --size: 16px; position: relative; display: inline-block; width: var(--size); height: var(--size); margin-right: 5px; border-radius: 4.5px; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / .12);
+  /* Centred on the capitals: its bottom sits half of (its height − the cap height) below the baseline */
+  vertical-align: calc((var(--cap) * 1em - var(--size)) / 2); --cap: 0.7; }
+html.q-dark .q-co-icon { box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / .16); }
+.q-co-mark { position: absolute; inset: 0; margin: auto; width: 61%; height: 61%; mask-position: center; mask-size: contain; mask-repeat: no-repeat; }
+.q-co-mark--wide { width: 78%; }
 /* Writing: post rows (rendered from /blog/posts.json by /assets/blog/blog.js) */
 .v-quiet .q-more { display: inline-block; margin-top: 24px; color: var(--q-muted); text-decoration: none; transition: color 200ms var(--q-ease); }
 .v-quiet .q-more:hover { color: var(--q-title); }
@@ -393,8 +401,8 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .walk { position: fixed; left: 0; top: 0; z-index: 2147483001; pointer-events: none; opacity: 0; will-change: transform; }
 .walk.is-on { opacity: 1; }
 .walk__in { position: absolute; left: 0; top: 0; transform: scale(.77); transform-origin: 0 0; }
-.walk__arrow { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; overflow: visible; fill: var(--walk); stroke: #fff; stroke-width: 1.5; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .25)); }
-.walk__name { position: absolute; left: 19px; top: 24px; padding: 4px 9px; border-radius: 6px; background: var(--walk); color: #fff; font: 500 15px/1.3 "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: 0; white-space: nowrap; box-shadow: 0 1px 3px rgb(0 0 0 / .18); }
+.walk__arrow { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; overflow: visible; fill: var(--walk); stroke: rgb(255 255 255 / .7); stroke-width: 2.8; stroke-linejoin: round; paint-order: stroke; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .25)); }
+.walk__name { position: absolute; left: 15px; top: 13px; padding: 4px 9px; border-radius: 6px; background: var(--walk); color: #fff; font: 500 15px/1.3 "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; letter-spacing: 0; white-space: nowrap; box-shadow: 0 0 0 1.5px rgb(255 255 255 / .7), 0 1px 3px rgb(0 0 0 / .25); }
 .walk.is-left .walk__name { left: auto; right: 8px; }
 .walk.is-up .walk__name { top: auto; bottom: 10px; }
 .q-car.is-dragging iframe { pointer-events: none; }
@@ -407,7 +415,7 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
 .v-quiet .q-car-title { margin: 0; font-size: 14px; font-weight: 400; line-height: inherit; color: var(--q-title); }
 .v-quiet .q-car-title a { color: inherit; text-decoration: underline; text-decoration-color: var(--q-underline); text-underline-offset: 4px; transition: text-decoration-color 200ms var(--q-ease); }
 .v-quiet .q-car-title a:hover { text-decoration-color: currentColor; }
-.v-quiet .q-car-year { color: var(--q-muted); font-variant-numeric: tabular-nums; }
+.v-quiet .q-car-year { color: var(--q-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .v-quiet .q-car-desc { margin: 0; color: var(--q-muted); text-wrap: pretty; }
 @media (max-width: 767px) {
   .q-car { --car-gap: 8px; }
@@ -874,7 +882,7 @@ html.q-dark {
 @media (hover: hover) and (pointer: fine) { .q-dock-icon:hover .q-dock-tip { opacity: 1; transform: translate(-50%, 0); } }
 .q-dock-island[data-mini="true"] .q-dock-tip { display: none; }
 
-.q-dock-panel { display: flex; flex-direction: column; width: min(272px, 100vw - 32px); padding: var(--dock-pad); }
+.q-dock-panel { display: flex; flex-direction: column; width: min(200px, 100vw - 32px); padding: var(--dock-pad); }
 .q-dock-panel.is-entering .q-dock-list li { animation: q-dock-item-in 380ms cubic-bezier(0.34, 1.3, 0.64, 1) both; animation-delay: calc(100ms + var(--k, 0) * 35ms); }
 @keyframes q-dock-item-in { from { opacity: 0; transform: translateY(10px); filter: blur(3px); } }
 
