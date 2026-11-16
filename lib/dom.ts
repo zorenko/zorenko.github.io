@@ -6,6 +6,13 @@ export const cssVars = (vars: Record<`--${string}`, string | number>) => vars as
 export const prefersReducedMotion = () =>
   typeof window !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/** Run a change that repaints the whole page (the theme) as one cross-fade, using View Transitions; at once where
+    the browser has none. The fade's timing is in app/site.css (::view-transition) */
+export const crossFade = (change: () => void) => {
+  if (typeof document.startViewTransition !== "function") return change();
+  document.startViewTransition(change);
+};
+
 /** Wait two frames, so a class added now starts its transition from the current state */
 export const afterPaint = (fn: () => void) => {
   let inner = 0;

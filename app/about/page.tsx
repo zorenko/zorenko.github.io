@@ -7,7 +7,7 @@ export const metadata = pageMeta("About", "Designing digital products for over 1
 
 export default function About() {
   return (
-    <main className="q q-about" id="q-main">
+    <main className="q q-wide" id="q-main">
       <header className="q-phead" {...enter(1)}>
         <h1>About</h1>
         <p className="q-plead">I&apos;ve been designing digital products for over 10 years, and since 2018 I&apos;ve specialised in complex B2B products, mostly devtools. In 2022 I joined Celsia as design lead, shaping a sustainability reporting platform from MVP to a mature product.</p>

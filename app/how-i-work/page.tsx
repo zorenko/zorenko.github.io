@@ -26,7 +26,7 @@ const [latest, ...older] = versions;
 
 export default function HowIWork() {
   return (
-    <main className="q" id="q-main">
+    <main className="q q-wide" id="q-main">
       <header className="q-phead" {...enter(1)}>
         <h1>How I work</h1>
         <p className="q-plead">
