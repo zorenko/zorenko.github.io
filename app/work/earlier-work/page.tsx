@@ -1,14 +1,14 @@
 import { Project } from "@/components/project";
 import { pageMeta } from "@/lib/site";
 
-export const metadata = pageMeta("Yandex, Kaspersky, Cognite", "Yandex, Kaspersky, Cognite. Cloud, security and industrial data products.", "/assets/img/work/other-slide-07.jpg");
+export const metadata = pageMeta("Yandex, Cognite", "Yandex, Cognite. Developer tools for the cloud and industrial data.", "/assets/img/work/other-slide-07.jpg");
 
 export default function EarlierWork() {
   return (
     <Project
-      title="Yandex, Kaspersky, Cognite"
-      lead="Cloud, security and industrial data products"
-      role="Product Designer · 2015–2021"
+      title="Yandex, Cognite"
+      lead="Developer tools for the cloud and industrial data"
+      role="Product Designer · 2019–2022"
       shots={[
         { src: "/assets/img/work/other-slide-07.jpg", caption: "Yandex Cloud · Marketplace", alt: "Yandex Cloud Marketplace landing page with featured products." },
         { src: "/assets/img/work/other-slide-01.jpg", caption: "Performance diagnostics", alt: "Performance diagnostics dashboard with a time-series chart." },

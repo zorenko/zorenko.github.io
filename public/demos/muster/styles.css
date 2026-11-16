@@ -881,7 +881,7 @@ code, kbd { font-family: var(--f-mono); font-size: .92em; }
 .web__search input::placeholder { color: var(--muted-2); }
 .web__search input::-webkit-search-cancel-button { display: none; }
 .web__search kbd { padding: 0 3px; border-radius: 4px; background: var(--surface-2); color: var(--muted-2); font: 400 10px/14px var(--f-body); }
-/* the list scrolls, so it clips: 10px of padding each side, pulled back out by the margin, leaves room for the 9px coach ring */
+/* the list scrolls, so it clips: 10px of padding each side, pulled back out by the margin, leaves room for focus rings */
 .web__list { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; margin: 0 -10px; padding: 2px 10px 16px; scrollbar-width: none; }
 .web__nav, .web__tree, .web__tree ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
 .web__tree ul { margin-top: 2px; }
@@ -1007,11 +1007,6 @@ button.dock__app:active .ai { filter: brightness(.7); }
 .dock__app.is-bouncing .ai { animation: dock-bounce .55s cubic-bezier(.3, .7, .4, 1); }
 @keyframes dock-bounce { 45% { transform: translateY(-40%); } }
 
-/* the next thing to click in "Try this": a soft pulsing ring */
-.is-coach { animation: coach 1.7s var(--ease-out) infinite; }
-@keyframes coach { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-deep) 95%, transparent); } to { box-shadow: 0 0 0 var(--coach, 9px) color-mix(in srgb, var(--accent-deep) 0%, transparent); } }
-/* the menu bar extra has 3px above it before the desk's edge clips, so its ring stays inside that */
-.mbar__muster { --coach: 3px; }
 /* a count that changed because of something done in another window */
 .is-flash { border-radius: 4px; animation: flash 1.4s var(--ease-out); }
 @keyframes flash { from { background-color: var(--accent); } }
@@ -2023,7 +2018,6 @@ html:has(.contact[open]) { overflow: hidden; }
   .dock__app::before, .scene, .scene__body { transition: none; }
   .seg__hl.is-on { transition: opacity .15s ease; }
   .dock__app.is-bouncing .ai, .is-flash { animation: none; }
-  .is-coach { animation: none; box-shadow: 0 0 0 2px var(--accent-deep); }
   /* gentler, not zero: views, the fix note and the toast still fade */
   .pop__view.is-in, .pv-done.is-new, .desk__toast { animation-name: fade; animation-duration: .15s; }
   .desk__toast.is-leaving { animation-name: fade-out; animation-duration: .15s; }

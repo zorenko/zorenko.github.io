@@ -1,5 +1,5 @@
 /* The Sanna demo (index.html says what it is). One state object; the timeline, the task, Hege's panel and the progress
-   under the task each draw from it. A soft ring points at the next thing to press, so a visitor can follow the flow:
+   under the task each draw from it. The flow, which the walkthrough follows press by press:
    Continue → each unknown transaction → the two questions → Send to Hege → back on the timeline, where Hege approves it. */
 (() => {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -303,7 +303,6 @@
         </div>
         ${ready ? `<button type="button" class="cta cta--sm" data-act="send-hege" ${S.sending ? 'disabled' : ''}>${S.sending ? `${icon('loader', 'spin')}Sending` : 'Send to Hege'}</button>` : ''}
       </div>`
-    renderCoach()
   }
   // With Hege's panel open, the task's column moves left so the panel doesn't cover it
   function renderShift() {
@@ -379,7 +378,6 @@
     else if (reduced) sc2.scrollTop = sc2.scrollHeight
     else { sc2.scrollTop = 0; const id = t.id; setTimeout(() => { if (panelKey === id) sc2.scrollTo({ top: sc2.scrollHeight, behavior: 'smooth' }) }, 650) }
     panelKey = t.id
-    renderCoach()
   }
 
   /* ── the flow ── */
@@ -397,7 +395,7 @@
     sheetKey = undefined
     renderSheet()
     setPath()
-    // A moment on the title, then down to the open step, where the ring is
+    // A moment on the title, then down to the open step
     setTimeout(() => { if (S.sheet && !S.sent && !S.panel && S.step) scrollToStep(S.step) }, reduced ? 0 : 700)
   }
   async function closeTask() {
@@ -412,18 +410,17 @@
     setTimeout(() => { sheet.hidden = true; sheet.classList.remove('is-leaving') }, reduced ? 0 : 200)
     if (sent && S.phase === 'work') {
       S.phase = 'review'
-      renderTimeline(); centerFocus(false); renderCoach()
+      renderTimeline(); centerFocus(false)
       await wait(2800)
       S.phase = 'approved'
-      renderTimeline(); renderCoach()
+      renderTimeline()
       toast(`<img src="${HEGE}" alt="" /><span><b>Hege</b> approved the annual financial statement</span>`)
       await wait(1300)
       S.phase = 'done'
       renderTimeline()
       centerFocus(true)
-      renderCoach()
     } else {
-      renderTimeline(); renderCoach()
+      renderTimeline()
     }
   }
   function openTx(id) {
@@ -509,9 +506,8 @@
     setTimeout(() => { el.classList.add('is-leaving'); setTimeout(() => el.remove(), 220) }, reduced ? ms / 2 : ms)
   }
 
-  /* ── coach: the next thing to press ── */
-  function renderCoach() {
-    desk.querySelectorAll('.is-coach').forEach((el) => el.classList.remove('is-coach'))
+  /* ── the next thing to press in the task, for the walkthrough ── */
+  function nextTarget() {
     let el
     if (!S.sheet) el = S.phase === 'work' ? $('[data-act="open-task"]', tlIn) : undefined
     else if (S.sent) el = $('.sent-to .cta', sheetCol)
@@ -531,7 +527,7 @@
       if (S.step !== 'qs') el = $('[data-act="step"][data-arg="qs"]', sheetCol)
       else el = $(`[data-q="${QS.find((q) => !S.answers[q.id]).id}"] .yn`, sheetCol)
     } else el = $('[data-act="send-hege"]', foot)
-    el?.classList.add('is-coach')
+    return el
   }
 
   function tick() {
@@ -597,7 +593,7 @@
   })
   addEventListener('resize', () => { renderShift(); renderTicks(); closePop() })
 
-  /* ── the walkthrough: Anastasia's cursor does the task the coach ring points at, one press at a time, from the
+  /* ── the walkthrough: Anastasia's cursor does the task, one press at a time, from the
      timeline to All tasks complete (../walkthrough.js runs it, and gives way to the visitor). Each press reads the
      demo as it is, so after the visitor's turn it carries on from wherever they left it. The story ends, so the tour
      does too: then the demo is the visitor's ── */
@@ -612,11 +608,11 @@
     if (S.sent) { await w.pause(1600); await w.click(() => $('.sent-to .cta', sheetCol)); await w.pause(800); return true }
     // The category menu, open: Customer payment for the one Hege asked about
     if (t && S.menu) { await w.click(() => $(`[data-act="cat"][data-arg="${t.cat ?? 'sale'}"]`, panel)); await w.pause(LINGER.cat); return true }
-    const ring = $('.is-coach', desk)
-    if (!ring) { await w.pause(400); return true }
-    let target = ring
-    if (ring.matches('.yn')) { const q = ring.closest('[data-q]').dataset.q; target = $(`[data-arg="${q}:${ANSWER[q]}"]`, ring) }
-    else if (!ring.matches('[data-act]')) target = $('[data-act]', ring)
+    const next = nextTarget()
+    if (!next) { await w.pause(400); return true }
+    let target = next
+    if (next.matches('.yn')) { const q = next.closest('[data-q]').dataset.q; target = $(`[data-arg="${q}:${ANSWER[q]}"]`, next) }
+    else if (!next.matches('[data-act]')) target = $('[data-act]', next)
     await w.show(target)
     await w.click(target)
     await w.pause(LINGER[target.dataset.act] ?? 900)
@@ -624,7 +620,7 @@
   }
   if (!new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
     name: 'Anastasia',
-    color: '#7b4dff',
+    color: '#496aff',
     loop: false,
     where: () => 0,
     tidy: async () => closePop(),
@@ -635,7 +631,6 @@
   setInterval(tick, 20000)
   renderTimeline()
   centerFocus(false)
-  renderCoach()
   setPath()
   // The fonts change the heights: centre Today's focus again once they're in
   document.fonts?.ready.then(() => { if (!S.sheet) centerFocus(false) })

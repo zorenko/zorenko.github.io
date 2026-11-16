@@ -1775,7 +1775,7 @@
       wins[k].hidden = false; dockState();
       await genie(k, false);
     };
-    const hideWin = async k => { if (wins[k].hidden) return; await genie(k, true); wins[k].hidden = true; dockState(); updateCoach(); };
+    const hideWin = async k => { if (wins[k].hidden) return; await genie(k, true); wins[k].hidden = true; dockState(); updateReset(); };
     // what each scene last showed for "need a look", so arriving after a change elsewhere can flash it
     const seen = { web: 26, pop: 26, term: 26 };
     const apply = async k => {
@@ -1788,7 +1788,7 @@
       if (k !== 'pop') setOpen(false);
       await Promise.all(Object.keys(wins).filter(x => x !== k).map(hideWin));
       if (k === 'pop') setOpen(true); else await showWin(k);
-      updateCoach();
+      updateReset();
       // the first visit to Terminal runs a check, so the window opens on something
       if (k === 'term' && !checkedOnce) type(['muster check']);
     };
@@ -1845,7 +1845,7 @@
     const findIssue = q => /^\d+$/.test(q) ? ISSUES[q - 1] : issuesFor(q)[0] || ISSUES.find(i => i.skills.includes(q));
     const wait = ms => new Promise(r => setTimeout(r, reduced || SHOT ? 0 : ms));
     let pending = null, checkedOnce = false;
-    const ask = (q, yes) => { pending = { q, yes }; promptEl.innerHTML = `${q} ${t('dim', '[')}${run$('y')}${t('dim', '/N]')}`; updateCoach(); };
+    const ask = (q, yes) => { pending = { q, yes }; promptEl.innerHTML = `${q} ${t('dim', '[')}${run$('y')}${t('dim', '/N]')}`; updateReset(); };
 
     const CLI = {
       help() {
@@ -1874,7 +1874,7 @@
         });
         say('', t('dim', `Your Claude Code skills add ~${fmtTok(listing())} tokens to every turn${listing() < LISTING ? `, down from ${fmtTok(LISTING)}` : ''}.`));
         say('', n ? `${t('strong', `${n} need a look.`)} See one: ${run$(`muster fix ${num(open()[0].id)}`)}` : `${t('ok', '✓')} ${t('strong', 'All clear.')}`);
-        updateCoach();
+        updateReset();
       },
       fix(q) {
         const i = q && findIssue(q);
@@ -2166,7 +2166,7 @@
       webPath.textContent = pathOf(route);
       webBack.disabled = webStack.length < 2;
       webFwdBtn.disabled = !webFwd.length;
-      updateCoach();
+      updateReset();
     };
     const webGo = route => { if (webStack[webStack.length - 1] !== route) { webStack.push(route); webFwd = []; } renderWeb(); webMain.scrollTop = 0; };
     const openWeb = route => { webGo(route); setScene('web'); };
@@ -2174,7 +2174,7 @@
       const b = e.target.closest('button');
       if (!b) return;
       if (b.dataset.web) webGo(b.dataset.web);
-      else if (b.dataset.fold) { const f = b.dataset.fold; openFolders.has(f) ? openFolders.delete(f) : openFolders.add(f); renderSide(); updateCoach(); $(`[data-fold="${f}"]`, webSide)?.focus({ preventScroll: true }); }
+      else if (b.dataset.fold) { const f = b.dataset.fold; openFolders.has(f) ? openFolders.delete(f) : openFolders.add(f); renderSide(); updateReset(); $(`[data-fold="${f}"]`, webSide)?.focus({ preventScroll: true }); }
       else if (b.dataset.range) { range = b.dataset.range; renderWeb(); $(`[data-range="${range}"]`, webMain)?.focus({ preventScroll: true }); }
       else if (b.dataset.jump) {
         const el = $(`#web-${b.dataset.jump}`, webMain), bar = $('.web__top', webMain);
@@ -2189,24 +2189,11 @@
       else if (b.dataset.go?.startsWith('toast:')) toast(TOASTS[b.dataset.go.slice(6)]);
     });
     webMain.addEventListener('change', e => { const n = e.target.dataset.webMove; if (n) changed('web', doMove(n, e.target.value)); });
-    webQ.addEventListener('input', () => { renderSide(); updateCoach(); });
-    webQ.addEventListener('keydown', e => { if (e.key === 'Escape' && webQ.value) { e.stopPropagation(); webQ.value = ''; renderSide(); updateCoach(); } });
+    webQ.addEventListener('input', () => { renderSide(); updateReset(); });
+    webQ.addEventListener('keydown', e => { if (e.key === 'Escape' && webQ.value) { e.stopPropagation(); webQ.value = ''; renderSide(); updateReset(); } });
 
-    // ── a soft ring on the one thing worth trying in the scene on screen, until it's been tried ──
-    let coached = null;
-    const COACH = {
-      web: () => wins.web.hidden ? dockOf('web') : unsorted().length < UNSORTED.length ? null
-        : webStack[webStack.length - 1] === 'unsorted' ? $('[data-web-main] [data-sortall]', desk) : $('[data-web-side] [data-web="unsorted"]', desk),
-      pop: () => pop.classList.contains('is-closed') ? toggle : menuFolder ? null : $('[data-view] [data-go^="folder:"]', desk),
-      term: () => wins.term.hidden ? dockOf('term') : pending ? $('[data-run="y"]', promptEl) : fixed.size ? null : $$('[data-tty-log] [data-run^="muster fix"]', desk).pop(),
-    };
-    const updateCoach = () => {
-      coached?.classList.remove('is-coach');
-      coached = phone.matches || SHOT ? null : COACH[scene]?.() || null;
-      coached?.classList.add('is-coach');
-      resetBtn.hidden = !dirty;
-    };
-    let menuFolder = false;
+    // Reset shows once something in the demo has changed
+    const updateReset = () => { resetBtn.hidden = !dirty; };
 
     let stack = ['home'];
     // dir: 'push' / 'pop' slides the view in on pointer navigation; in-place re-renders and keyboard stay still
@@ -2221,8 +2208,7 @@
       const n = remaining();
       badge.textContent = n || '✓';
       badgeMini.textContent = n || '✓';
-      if (name === 'folder') menuFolder = true;
-      updateCoach();
+      updateReset();
     };
     const go = (route, { reset = false, focus = false } = {}) => {
       if (route.startsWith('toast:')) { toast(TOASTS[route.slice(6)]); return; }
@@ -2235,7 +2221,7 @@
     const setOpen = o => {
       // grow from the menu-bar toggle (offsets: the closed popover's own scale doesn't skew them)
       if (o && pop.classList.contains('is-closed')) pop.style.transformOrigin = `${Math.round(toggle.offsetParent.offsetLeft + toggle.offsetLeft + toggle.offsetWidth / 2 - pop.offsetLeft)}px 0`;
-      pop.classList.toggle('is-closed', !o); toggle.setAttribute('aria-expanded', String(o)); toggle.classList.toggle('is-on', o); updateCoach(); };
+      pop.classList.toggle('is-closed', !o); toggle.setAttribute('aria-expanded', String(o)); toggle.classList.toggle('is-on', o); updateReset(); };
 
     view.addEventListener('click', e => {
       const b = e.target.closest('button');
@@ -2373,7 +2359,7 @@
     // "Reset the demo": sample data, Terminal and the browser go back to how the page loaded; the scene stays
     const reset = () => {
       restore();
-      checkedOnce = menuFolder = dirty = false;
+      checkedOnce = dirty = false;
       Object.keys(seen).forEach(k => { seen[k] = 26; });
       pending = null; promptEl.innerHTML = PS1; log.innerHTML = ''; hist.length = 0; hp = 0;
       boot();
@@ -2402,7 +2388,7 @@
     const web$ = sel => () => $(`[data-web-side] ${sel}, [data-web-main] ${sel}`, desk);
     if (document.documentElement.classList.contains('is-embed') && !SHOT && !new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
       name: 'Anastasia',
-      color: '#7b4dff',
+      color: '#496aff',
       where: () => ({ web: 0, pop: 1, term: 2 })[scene],
       // Before it carries on: the scene's window or popover open again, if the visitor closed it
       tidy: async w => {

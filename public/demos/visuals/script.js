@@ -295,8 +295,6 @@
     layer: undefined, // search | paste
     saved: new Set(),
     arriving: new Set(),
-    seen: new Set(['page:pictures']), // the sidebar's pages the person has opened: the coach ring points at the next one
-    coach: undefined, // the Mac desktop's steps, after the pages: safari | save | visuals
   }
   const bucketById = (id) => S.buckets.find((b) => b.id === id)
   const projectById = (id) => S.projects.find((b) => b.id === id)
@@ -348,7 +346,6 @@
       ${S.buckets.length ? `<div class="side__group"><div class="side__head">Buckets <span class="count">${S.buckets.length}</span></div>
         ${S.buckets.map((b) => row('bucket', b.id, 'box', b.name, b.ids.length, S.page === 'bucket' && S.bucket === b.id)).join('')}</div>` : ''}
       <div class="side__group side__foot"><span class="row is-static" aria-disabled="true" title="Not in this demo">${icon('settings')}<span class="row__name">Settings</span></span></div>`
-    renderCoach()
   }
 
   /* ── the page ── */
@@ -500,7 +497,6 @@
     bar.classList.remove('is-leaving')
     bar.innerHTML = html
     $('[data-draft-name]', bar)?.focus()
-    renderCoach()
   }
 
   function tagHeadHTML(tag) {
@@ -584,7 +580,6 @@
     box.innerHTML = briefHTML(projectById(S.project))
     box.scrollTop = top
     box.querySelectorAll('textarea').forEach(grow)
-    renderCoach()
   }
 
   /* ── the tag graph on the Tags page ── */
@@ -696,7 +691,6 @@
     placeComment()
     $('[data-draft-name]', panel)?.focus()
     renderOpen()
-    renderCoach()
   }
 
   /* ── Ask Claude Code: a pane on an open picture, and on a bucket's page ── */
@@ -734,7 +728,6 @@
   const renderAsk = (kind) => {
     const box = $(`[data-ask="${kind}"]`, panel)
     if (box) box.outerHTML = askHTML(kind)
-    renderCoach()
   }
   const cap = (s) => s[0].toUpperCase() + s.slice(1)
   const uniq = (list) => [...new Set(list)]
@@ -949,7 +942,6 @@
     S.tagDraft = false
     delete S.answers.picture
     if (page === 'tag') S.tag = arg
-    S.seen.add(page === 'project' || page === 'bucket' ? `${page}:${arg}` : `page:${page}`)
     if (page === 'bucket') {
       if (S.bucket !== arg) delete S.answers.bucket
       S.bucket = arg
@@ -1046,7 +1038,6 @@
         <button type="button" class="save${saved ? ' is-saved' : ''}" data-act="save" data-arg="${p.id}" ${saved ? 'aria-disabled="true"' : ''}>${saved ? `${icon('check')}Saved` : '<img src="assets/mark.svg" alt="" />Save to Visuals'}</button>
         <figcaption>${esc(p.title)}</figcaption></figure>`
     }).join('')
-    renderCoach()
   }
   let extTimer
   function extToast(kind, title, desc) {
@@ -1063,14 +1054,12 @@
     const p = PLATES.find((x) => x.id === id)
     S.saved.add(id)
     const btn = $(`[data-act="save"][data-arg="${id}"]`, siteGrid)
-    if (btn) { btn.classList.remove('is-coach'); btn.innerHTML = `${spinner()}Saving…` }
+    if (btn) btn.innerHTML = `${spinner()}Saving…`
     extToast('loading', 'Saving to Visuals', p.title)
     await wait(650)
     addNew(p)
     renderSite()
     extToast('success', 'Saved to Visuals', 'Visuals sorts it with the next new pictures.')
-    if (S.coach === 'save' || S.coach === 'safari') S.coach = 'visuals'
-    renderCoach()
     bounce('app')
   }
   // A saved link comes in as a new picture, with a dot, at the top of the feed
@@ -1097,34 +1086,17 @@
     }
     $('[data-front-app]').textContent = app === 'app' ? 'Visuals' : 'Safari'
     $('[data-menus]').innerHTML = MENUS[app].map((m) => `<span>${m}</span>`).join('')
-    if (app === 'web') { S.sawSafari = true; if (S.coach === 'safari') S.coach = 'save' }
     if (app === 'app') {
-      if (S.coach === 'visuals') S.coach = undefined
       if (S.arriving.size) { S.page = 'pictures'; S.open = undefined; S.layer = undefined; clearSelection() }
       render()
       clearArrivals()
     }
-    renderCoach()
   }
   function bounce(app) {
     const el = $(`[data-dock="${app}"]`)
     if (!el || reduced) return
     el.classList.remove('is-bouncing'); void el.offsetWidth; el.classList.add('is-bouncing')
     setTimeout(() => el.classList.remove('is-bouncing'), 600)
-  }
-  // A soft ring on the next page to open in the sidebar, in its order, until each has been opened:
-  // Tags, Colors, the brand project, then the bucket. On the Mac desktop, then Safari and a save.
-  const TOUR = () => ['page:tags', 'page:colors', ...S.projects.map((b) => `project:${b.id}`), ...S.buckets.map((b) => `bucket:${b.id}`)]
-  function renderCoach() {
-    desk.querySelectorAll('.is-coach').forEach((el) => el.classList.remove('is-coach'))
-    const next = TOUR().find((k) => !S.seen.has(k))
-    if (!next && !appOnly && !S.sawSafari && !S.coach) S.coach = 'safari'
-    if (S.coach === 'safari') $('[data-dock="web"]').classList.add('is-coach')
-    if (S.coach === 'visuals') $('[data-dock="app"]').classList.add('is-coach')
-    if (S.coach === 'save') siteGrid?.querySelector('.save:not(.is-saved)')?.classList.add('is-coach')
-    if (!next || S.front !== 'app' || S.layer) return
-    const [act, arg] = next.split(':')
-    $(`[data-act="${act}"][data-arg="${arg}"]`, side)?.classList.add('is-coach')
   }
   function tick() {
     const d = new Date()
@@ -1205,7 +1177,7 @@
       }
     },
     'open-all': (a) => { S.layer = undefined; renderLayer(); openPicture(a, S.pics.map((p) => p.id)) },
-    close: () => { S.open = undefined; S.tagDraft = false; delete S.answers.picture; renderOpen(); renderCoach() },
+    close: () => { S.open = undefined; S.tagDraft = false; delete S.answers.picture; renderOpen() },
     sort: () => sort(),
     fav: (a) => {
       S.favs = S.favs.includes(a) ? S.favs.filter((t) => t !== a) : [...S.favs, a]
@@ -1315,8 +1287,8 @@
       renderSide(); renderPanel()
       toast(`Took ${plural(n, 'picture')} out of ${esc(b.name)}. They stay in All pictures.`)
     },
-    search: () => { S.layer = 'search'; renderLayer(); renderCoach() },
-    paste: () => { S.layer = 'paste'; renderLayer(); renderCoach() },
+    search: () => { S.layer = 'search'; renderLayer() },
+    paste: () => { S.layer = 'paste'; renderLayer() },
     'close-layer': () => { S.layer = undefined; renderLayer(); renderSide() },
     save: (a) => save(a),
   }
@@ -1413,7 +1385,7 @@
   let resizeTimer
   addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (S.front === 'app') renderPanel() }, 120) })
 
-  /* ── the walkthrough: Anastasia's cursor goes through the pages in the coach ring's order, and does on each what a
+  /* ── the walkthrough: Anastasia's cursor goes through the pages (Tags, Colors, the brand project, the bucket), and does on each what a
      visitor would (../walkthrough.js runs it, and gives way to the visitor). Each step finds what it presses when it gets
      there, and skips what's no longer there to press: a second time round, Sort is gone and the brief is filled ── */
   const scrollBox = () => $('[data-scroll]', panel)
@@ -1447,7 +1419,7 @@
   }
   if (!new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
     name: 'Anastasia',
-    color: '#7b4dff',
+    color: '#496aff',
     // Each page's place in the tour; one that isn't in it sits after the one it's nearest
     where: () => {
       if (S.page === 'project') return S.project === 'p1' ? 3 : 3.5
@@ -1505,11 +1477,10 @@
           await w.pause(1600)
         },
       ] },
-      // Colors: two colors that pictures have
+      // Colors: beige, then blue
       { enter: (w) => w.click(sideRow('page', 'colors')), steps: [
         async (w) => {
-          const keys = [...panel.querySelectorAll('.swatch:not([aria-disabled])')].map((b) => b.dataset.arg).filter((k) => k !== S.colorSel)
-          for (const k of [...new Set([keys[Math.floor(keys.length * 0.6)], keys[Math.floor(keys.length * 0.2)]])].filter(Boolean)) {
+          for (const k of ['brown.0', 'blue.2']) {
             await w.click(() => $(`.swatch[data-arg="${k}"]`, panel))
             await w.pause(1500)
           }

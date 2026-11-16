@@ -131,13 +131,6 @@ img { display: block; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 @keyframes sink { to { opacity: 0; transform: translateY(8px); } }
 
-/* coach: the next thing to press, a soft pulsing ring */
-.is-coach { animation: coach 1.7s var(--ease-out) infinite; }
-@keyframes coach { from { box-shadow: var(--brand-edge), 0 0 0 0 rgb(224 231 9 / .9); } to { box-shadow: var(--brand-edge), 0 0 0 9px rgb(224 231 9 / 0); } }
-.dock__app.is-coach { animation: none; }
-.dock__app.is-coach::after { opacity: 1; background: #b5ba00; animation: dock-coach 1.4s ease-in-out infinite; }
-@keyframes dock-coach { 50% { transform: translateX(-50%) scale(1.8); } }
-
 /* a tag's page: the header, then its pictures */
 .thead { display: flex; align-items: center; gap: 4px; min-height: 28px; margin-bottom: 14px; }
 .thead h2 { margin: 0; font-size: 14px; font-weight: 500; }
@@ -276,8 +269,6 @@ img { display: block; }
 .bucket-ask .ask { padding: 14px; }
 .bsec { margin-bottom: 18px; }
 .bsec__head { display: flex; align-items: baseline; gap: 6px; margin: 0 0 8px; font-size: 13px; font-weight: 500; }
-.row.is-coach { animation: coach-row 1.7s var(--ease-out) infinite; }
-@keyframes coach-row { from { box-shadow: 0 0 0 0 rgb(224 231 9 / .9); } to { box-shadow: 0 0 0 7px rgb(224 231 9 / 0); } }
 
 /* dialogs over the window: Settings and Search */
 .layer:empty { display: none; }
@@ -337,10 +328,8 @@ img { display: block; }
 .save { position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 7px; border: 0; border-radius: 8px; background: rgb(255 255 255 / .95); box-shadow: 0 0 0 1px rgb(0 0 0 / .08), 0 2px 8px rgb(0 0 0 / .14); font: 500 12px var(--f); color: #161616; cursor: pointer; opacity: 0; transform: translateY(-3px); transition: opacity .18s, transform .25s var(--ease-out), background-color .15s; }
 .save img { width: 16px; height: 16px; margin: -1px; }
 .save:hover { background: #fff; }
-.plate:hover .save, .save:focus-visible, .save.is-saved, .save.is-coach { opacity: 1; transform: none; }
+.plate:hover .save, .save:focus-visible, .save.is-saved { opacity: 1; transform: none; }
 .save.is-saved { cursor: default; background: #161616; color: #fff; }
-.save.is-coach { animation: save-coach 1.7s var(--ease-out) infinite; }
-@keyframes save-coach { from { box-shadow: 0 0 0 1px rgb(0 0 0 / .08), 0 0 0 0 rgb(224 231 9 / .95); } to { box-shadow: 0 0 0 1px rgb(0 0 0 / .08), 0 0 0 9px rgb(224 231 9 / 0); } }
 @media (hover: none) { .save { opacity: 1; transform: none; } }
 /* the extension's note, at the bottom right of the page (extension/toast.js) */
 .ext-toast { position: absolute; right: 20px; bottom: 20px; z-index: 5; display: flex; align-items: center; gap: 10px; width: 320px; padding: 13px 15px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px rgb(0 0 0 / .06), 0 2px 4px rgb(0 0 0 / .04), 0 8px 24px rgb(0 0 0 / .1); font: 13px/1.4 var(--f); color: #09090b; animation: rise .4s ease; }
