@@ -110,6 +110,9 @@ img { display: block; }
 .tile::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgb(0 0 0 / .05); pointer-events: none; }
 .tile.is-arriving img { animation: arrive .5s var(--ease-out) both; }
 @keyframes arrive { from { opacity: 0; transform: scale(1.04); } }
+/* A tile stays hidden until its picture has loaded and decoded, then fades in (script.js: reveal) */
+.tile-wrap.is-waiting { opacity: 0; }
+.tile-wrap.is-coming { animation: page-in .2s var(--ease-out); }
 .dot { position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 1px rgb(110 105 0 / .45); transition: opacity .25s, transform .25s var(--ease-out); }
 .dot--inline { position: static; flex: none; }
 .dot.is-gone { opacity: 0; transform: scale(.4); }

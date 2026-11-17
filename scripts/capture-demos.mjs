@@ -58,6 +58,8 @@ async function open(demo, { scale, walk }) {
   // A glass demo is see-through where the card's tint shows through: the stills and recording have it under them
   if (demo.glass) await page.addStyleTag({ content: `html { background: ${demo.background} !important; }` });
   await page.evaluate(() => document.fonts.ready);
+  // As the site waits before it shows the live demo (components/demo.tsx): its pictures in view have loaded
+  await page.evaluate(() => window.demoReady);
   await page.waitForTimeout(600);
   return page;
 }

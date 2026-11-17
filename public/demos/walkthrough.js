@@ -365,9 +365,10 @@
     document.addEventListener('mouseout', (e) => { if (e.isTrusted && !e.relatedTarget && taken) later(away) })
     // In the carousel it starts when its card comes to the middle, stops and hides when the card leaves it, and carries
     // on when the card is back
-    // The carousel switches inert as the card passes halfway to the middle, so it starts a moment later, as it settles
+    // The carousel switches inert as the card passes halfway to the middle, so it starts a moment later, as it settles.
+    // A demo whose page shows only once its pictures are in (window.demoReady, as the site waits for) counts from then
     let wasCentred = centred()
-    if (wasCentred) later(start)
+    if (wasCentred) Promise.resolve(window.demoReady).then(() => { if (wasCentred && !taken) later(start) })
     if (holder) new MutationObserver(() => {
       const now = centred()
       if (now === wasCentred) return
