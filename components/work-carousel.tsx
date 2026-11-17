@@ -8,7 +8,11 @@
    side card brings it to the middle; the arrow keys move one card while it's on screen; tabbing to a card's title brings it to the middle.
    Only the title links to the project: clicking the middle picture does nothing.
    Hovering the middle picture tilts it toward the cursor. The first time it scrolls into view, the cards turn over
-   to face you, from the middle out.
+   to face you, from the middle out, as Web Animations so the demos starting up can't stall it. A live demo (a whole
+   page on this main thread) starts only in the middle card, once the carousel is still (on first view, once the cards
+   have turned over, so nothing else runs while they do), or on a side card the pointer
+   rests on (about to be clicked); until then its still shows. So nothing starts up while the middle demo's
+   walkthrough moves its cursor, which is drawn on this main thread too.
 
    Every card is placed with a transform each frame. A card sliding off one end comes back round the other, so the
    row never ends; short lists are repeated to fill it (repeats are hidden from screen readers). A live demo (an
@@ -85,6 +89,16 @@ function flipEase(p: number) {
   const at = (q: number) => 1 - Math.exp(-FLIP_SPRING * stiff * q) * (Math.cos(wobble * q) + ((FLIP_SPRING * stiff) / wobble) * Math.sin(wobble * q));
   return at(p) + (1 - at(1)) * p * p * p;
 }
+
+/** flipEase as a CSS linear() easing, so the turn can run as a Web Animation, off the main thread where the browser
+    allows: demos starting up on this page's main thread can't hold it up */
+const FLIP_SPRING_CSS = `linear(${Array.from({ length: 61 }, (_, k) => Math.round(flipEase(k / 60) * 10000) / 10000).join(", ")})`;
+// Browsers without linear() (before Safari 17.2) would throw: a strong ease-out there instead
+const flipEasing = () => (CSS.supports("animation-timing-function", FLIP_SPRING_CSS) ? FLIP_SPRING_CSS : "cubic-bezier(0.23, 1, 0.32, 1)");
+
+// When the browser has nothing else to do (Safari has no requestIdleCallback: a moment later instead)
+const idle = (fn: () => void) => (typeof requestIdleCallback === "function" ? requestIdleCallback(fn, { timeout: 1500 }) : window.setTimeout(fn, 300));
+const cancelIdle = (id: number) => (typeof cancelIdleCallback === "function" ? cancelIdleCallback(id) : clearTimeout(id));
 
 const isExternal = (href: string) => /^https?:/.test(href);
 
@@ -180,7 +194,8 @@ function Slides({ media: { slides, browser }, alt, copy }: { media: SlidesMedia;
 function Media({ item, copy }: { item: WorkItem; copy: boolean }) {
   const { media } = item;
   // Inert until it's in the middle (setActive below switches it)
-  if (media.type === "demo") return <Demo demo={media} className="q-car-media" inert tabIndex={copy ? -1 : undefined} />;
+  // Its live demo waits until the card is in the middle (wakeMiddle below)
+  if (media.type === "demo") return <Demo demo={media} className="q-car-media" inert deferred tabIndex={copy ? -1 : undefined} />;
   return (
     <div className="q-car-media">
       {media.type === "image" ? (
@@ -276,7 +291,8 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     let lastTime = 0;
     let active = -1;
     let announce = false; // only after someone moves it
-    let flipping: { start: number; now: number } | null = null;
+    let unseen = false; // not yet on screen: every card hidden until it turns over
+    let turning: Animation[] = []; // the turn, playing
 
     const sides = () => (wide ? 2 : 1);
     const indexAt = (pos: number) => Math.round(pos / step);
@@ -326,11 +342,6 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       };
     }
 
-    function flipAt(t: number) {
-      const p = Math.max(0, (flipping!.now - flipping!.start - Math.round(t) * FLIP_STAGGER) / FLIP_MS);
-      return { at: p >= 1 ? 1 : flipEase(p), fade: Math.min(1, p / FLIP_FADE) };
-    }
-
     function setActive(i: number) {
       if (i === active) return;
       if (active >= 0) {
@@ -377,13 +388,10 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
 
         const spot = place(t);
         const rest = -dir * spot.turn;
-        const flip = flipping ? flipAt(t) : null;
-        const edgeOn = -(dir || 1) * (Math.PI / 2);
-        let show = clamp01(shown + 1 - t); // fades out past the outermost spot
-        if (flip) show = clamp01(show * flip.fade);
+        const show = unseen ? 0 : clamp01(shown + 1 - t); // fades out past the outermost spot
         const hidden = !show || spot.angle > CURVE_HIDE;
         if (!(hidden && s.hidden)) {
-          const turn = (FLAT ? 0 : lean) + (flip ? edgeOn + (rest - edgeOn) * flip.at : rest);
+          const turn = (FLAT ? 0 : lean) + rest;
           card.style.transform = `translate3d(${dir * spot.x}px, 0, ${spot.z}px) rotateY(${turn}rad) scale(${spot.scale})`;
         }
         if (hidden !== s.hidden) {
@@ -393,7 +401,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
         const opacity = show < 1 ? String(show) : "";
         if (opacity !== s.opacity) card.style.opacity = s.opacity = opacity;
         // Wide screens: nearer cards in front, so the outer ones tuck behind
-        const z = wide || flipping ? String(1000 - Math.round(t * 100)) : "";
+        const z = wide || busy ? String(1000 - Math.round(t * 100)) : ""; // and while they turn over
         if (z !== s.z) card.style.zIndex = s.z = z;
 
         const text = clamp01((INFO_GONE - t) / (INFO_GONE - INFO_FULL));
@@ -449,6 +457,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       render();
       frame = current === target && !lean ? 0 : requestAnimationFrame(tick);
       root.classList.toggle("is-still", !frame);
+      if (!frame) wakeMiddle();
     }
     function run() {
       if (frame) return;
@@ -459,13 +468,39 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     // The cards turning over on first view is only a show: any click, key, drag or scroll ends it at once and goes
     // ahead, so nothing is lost while the last cards are still settling
     function finishIntro() {
-      if (!flipping) return;
-      cancelAnimationFrame(turnFrame);
+      if (!unseen && !turning.length) return;
       clearTimeout(waitTimer);
       seen?.disconnect();
-      flipping = null;
+      unseen = false;
+      const anims = turning;
+      turning = [];
+      anims.forEach((a) => a.cancel()); // the cards' own styles are already where the turn ends
       busy = false;
       render(true);
+      wakeMiddle();
+    }
+
+    // A live demo starts only in the middle card, once the carousel is still: each is a whole page on this main
+    // thread, so starting the side ones too would stall the middle demo's walkthrough cursor. A side card's still is
+    // what it shows anyway: shrunk, and not usable
+    const wake = (i: number) => frames[i] && !frames[i]!.hasAttribute("data-wake") && frames[i]!.setAttribute("data-wake", "");
+    function wakeMiddle() {
+      if (busy || frame || active < 0) return;
+      wake(active);
+    }
+    // …or on a side card the pointer rests on (not one it passes over), when the browser is idle: it's likely to be
+    // clicked to the middle next
+    const REST_MS = 350;
+    let wakeTimer = 0;
+    let wakeTask = 0;
+    let wakeCard = -1;
+    function wakeHovered(i: number) {
+      if (busy) i = -1; // tried again on the next move
+      if (i === wakeCard) return;
+      wakeCard = i;
+      clearTimeout(wakeTimer);
+      cancelIdle(wakeTask);
+      if (i >= 0) wakeTimer = window.setTimeout(() => (wakeTask = idle(() => wake(i))), REST_MS);
     }
     function moveBy(px: number) {
       finishIntro();
@@ -532,6 +567,8 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     }
     const onHover = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return;
+      const over = (e.target as Element).closest<HTMLElement>(".q-car-card");
+      wakeHovered(over && !over.classList.contains("is-active") ? els.indexOf(over) : -1);
       if (reduce || drag || busy) return untilt();
       const media = (e.target as Element).closest<HTMLElement>(".q-car-media:not([data-demo])");
       const card = media?.closest<HTMLElement>(".q-car-card");
@@ -543,7 +580,10 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       tilt.toY = (((e.clientX - r.left) / r.width) * 2 - 1) * TILT_DEG;
       if (!tiltFrame) tiltFrame = requestAnimationFrame(tiltTick);
     };
-    const onLeave = () => untilt();
+    const onLeave = () => {
+      untilt();
+      wakeHovered(-1);
+    };
 
     // Drag (mouse) or swipe (touch), only on the pictures so the text stays selectable. On release it springs to
     // the nearest card, or carries on if flicked.
@@ -649,24 +689,36 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
 
     // First time it's on screen: the cards turn over to face you, from the middle out
     let seen: IntersectionObserver | undefined;
-    let turnFrame = 0;
     let waitTimer = 0;
+    // Each card turns from edge-on to where it rests, as a Web Animation: its own styles are set to where it ends, and
+    // the animation (filling backwards over its delay) plays from edge-on to there
     function turn() {
-      if (!flipping) return; // already ended by a click or key
-      flipping.start = performance.now();
-      const end = flipping!.start + FLIP_MS + (sides() + 1) * FLIP_STAGGER;
-      const turning = (now: number) => {
-        flipping!.now = now;
-        render();
-        if (now < end) {
-          turnFrame = requestAnimationFrame(turning);
-          return;
-        }
-        flipping = null;
+      if (!unseen) return; // already ended by a click or key
+      unseen = false;
+      render();
+      const anims: Animation[] = [];
+      const easing = flipEasing();
+      els.forEach((card, i) => {
+        if (st[i].hidden) return;
+        const t = Math.abs(st[i].offset);
+        const dir = Math.sign(st[i].offset);
+        const rest = card.style.transform;
+        const edgeOn = rest.replace(/rotateY\([^)]*\)/, `rotateY(${-(dir || 1) * (Math.PI / 2)}rad)`);
+        const delay = Math.round(t) * FLIP_STAGGER;
+        anims.push(
+          card.animate([{ transform: edgeOn }, { transform: rest }], { duration: FLIP_MS, delay, easing, fill: "backwards" }),
+          // Fades in over the start of the turn, so no edge shows
+          card.animate([{ opacity: 0 }, { opacity: card.style.opacity || 1 }], { duration: FLIP_MS * FLIP_FADE, delay, fill: "backwards" }),
+        );
+      });
+      turning = anims;
+      Promise.all(anims.map((a) => a.finished)).then(() => {
+        if (turning !== anims) return; // ended early by a click or key
+        turning = [];
         busy = false;
         render(true);
-      };
-      turnFrame = requestAnimationFrame(turning);
+        wakeMiddle();
+      }, () => {});
     }
     function intro() {
       // Pictures on screen are decoded first, so none turns over blank (waiting at most FLIP_WAIT_MS)
@@ -682,13 +734,16 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     }
 
     const update = () => {
+      const was = step;
       if (!measure()) return;
+      if (turning.length && step !== was) finishIntro(); // its keyframes hold the old places
       render(!busy);
       root.classList.add("is-laid-out");
+      wakeMiddle();
     };
     if (!reduce) {
       busy = true;
-      flipping = { start: Infinity, now: 0 }; // edge-on and hidden until it's seen
+      unseen = true;
       seen = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting) return;
@@ -717,7 +772,9 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       visible.disconnect();
       cancelAnimationFrame(frame);
       cancelAnimationFrame(tiltFrame);
-      cancelAnimationFrame(turnFrame);
+      turning.forEach((a) => a.cancel());
+      cancelIdle(wakeTask);
+      clearTimeout(wakeTimer);
       clearTimeout(snapTimer);
       clearTimeout(waitTimer);
       removeEventListener("pointermove", onMove);

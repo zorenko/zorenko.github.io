@@ -12,6 +12,9 @@
       fetched only when it first plays: when it's on screen (in the carousel, in the middle card). It pauses
       elsewhere.
       With reduced motion, Save-Data or a 2G connection, the still stays.
+   With `deferred` (the work carousel) the live demo waits, on its still, until the frame gets data-wake: a demo is a
+   whole page that runs on this page's main thread, so the carousel starts one only when its card is near the middle
+   and the carousel is still.
    The stills and recordings are made by scripts/capture-demos.mjs. */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
@@ -30,13 +33,15 @@ function pickMode(): Mode {
   return "tour";
 }
 
-export function Demo({ demo, className = "", inert, tabIndex }: {
+export function Demo({ demo, className = "", inert, tabIndex, deferred }: {
   demo: DemoMedia;
   /** The box's look: the carousel passes its card style, a project page its own */
   className?: string;
   /** Starts inert (the carousel switches it on for the middle card, through .q-demo-frame) */
   inert?: boolean;
   tabIndex?: number;
+  /** The live demo waits until the frame gets data-wake (the carousel sets it) */
+  deferred?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -44,6 +49,7 @@ export function Demo({ demo, className = "", inert, tabIndex }: {
   const [mode, setMode] = useState<Mode>("still");
   // The live demo or the recording has drawn: it fades in, and the still under it goes
   const [ready, setReady] = useState(false);
+  const [awake, setAwake] = useState(!deferred);
   const dir = demo.src.slice(0, demo.src.lastIndexOf("/") + 1);
 
   useEffect(() => setMode(pickMode()), []);
@@ -56,14 +62,29 @@ export function Demo({ demo, className = "", inert, tabIndex }: {
     return () => ro.disconnect();
   }, [demo.width]);
 
-  // The live demo: shown once it has loaded, its fonts are in and it has painted
+  // A deferred live demo: woken by data-wake on the frame
   useEffect(() => {
-    if (mode !== "live") return;
+    if (awake || mode !== "live") return;
+    const frame = ref.current!;
+    const wake = () => {
+      if (frame.hasAttribute("data-wake")) setAwake(true);
+    };
+    wake();
+    const mo = new MutationObserver(wake);
+    mo.observe(frame, { attributes: true, attributeFilter: ["data-wake"] });
+    return () => mo.disconnect();
+  }, [awake, mode]);
+
+  // The live demo: shown once it has loaded, its fonts are in, it has drawn what the still shows (a demo whose pictures
+  // load after its page does says so with window.demoReady, a promise) and it has painted
+  useEffect(() => {
+    if (mode !== "live" || !awake) return;
     const iframe = iframeRef.current!;
     let cancel = () => {};
     const show = async () => {
       try {
         await iframe.contentDocument?.fonts.ready;
+        await (iframe.contentWindow as (Window & { demoReady?: Promise<unknown> }) | null)?.demoReady;
       } catch {}
       cancel = afterPaint(() => setReady(true));
     };
@@ -73,7 +94,7 @@ export function Demo({ demo, className = "", inert, tabIndex }: {
       iframe.removeEventListener("load", show);
       cancel();
     };
-  }, [mode]);
+  }, [mode, awake]);
 
   // The recording: plays while it's on screen and, in the carousel, its card is in the middle (its frame isn't inert)
   useEffect(() => {
@@ -123,7 +144,7 @@ export function Demo({ demo, className = "", inert, tabIndex }: {
         decoding="async"
         draggable={false}
       />
-      {mode === "live" && (
+      {mode === "live" && awake && (
         <iframe ref={iframeRef} src={demo.src} width={demo.width} height={demo.height} title={demo.title} loading="lazy" tabIndex={tabIndex} />
       )}
       {mode === "tour" && (

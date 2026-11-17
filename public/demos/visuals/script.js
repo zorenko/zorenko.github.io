@@ -348,6 +348,58 @@
   /* ── the page ── */
   // A post of several pictures is a slider: the first one gives the tile its shape, another covers it, cropped. Its
   // arrows show on hover and go round; dots say which one shows. A video shows its still, with a small mark.
+  /* A tile stays hidden until its picture has loaded and decoded, so it never shows half drawn, then fades in quickly.
+     The site shows a still of this page first and fades the live page in over it once window.demoReady resolves
+     (components/demo.tsx): that waits for the pictures in view, so the two look the same and the swap doesn't show.
+     A picture loaded once shows straight away when a page is drawn again. Only a tile someone can see fades in: not
+     while the site's still covers the page, and not one out of view (All pictures holds each picture a few times over,
+     to loop, and the copies all load at once), so the fades don't pile up while the site's cards turn over. */
+  const loaded = new Set() // the src of each picture that has loaded
+  let covered = (() => { try { return Boolean(window.frameElement) } catch { return false } })() // until demoReady
+  function inView(wrap) {
+    const box = wrap.closest('[data-scroll]')?.getBoundingClientRect()
+    const r = wrap.getBoundingClientRect()
+    return Boolean(box) && r.bottom > box.top && r.top < box.bottom && r.right > box.left && r.left < box.right
+  }
+  function reveal(img) {
+    loaded.add(img.getAttribute('src'))
+    const wrap = img.closest('.tile-wrap')
+    if (!wrap?.classList.contains('is-waiting')) return
+    const show = () => {
+      if (!wrap.classList.contains('is-waiting')) return
+      if (covered || !inView(wrap)) return wrap.classList.remove('is-waiting')
+      wrap.classList.replace('is-waiting', 'is-coming')
+      wrap.addEventListener('animationend', (e) => { if (e.target === wrap) wrap.classList.remove('is-coming') })
+    }
+    img.decode().then(show, show)
+  }
+  // Load and error don't bubble, so they're caught on the way down. A tile whose picture fails shows its grey
+  for (const type of ['load', 'error']) document.addEventListener(type, (e) => { if (e.target instanceof HTMLImageElement) reveal(e.target) }, true)
+  // The pictures in view load first, and straight away (the others wait, lazily, to be scrolled to)
+  function inViewPictures() {
+    const imgs = []
+    for (const wrap of panel.querySelectorAll('.tile-wrap.is-waiting')) {
+      if (!inView(wrap)) continue
+      const img = $('img', wrap)
+      img.loading = 'eager'
+      imgs.push(img)
+    }
+    return imgs
+  }
+  // The first page is drawn: its pictures in view have loaded and show, or it has waited long enough
+  const READY_MAX = 2500 // ms
+  let markReady
+  window.demoReady = new Promise((resolve) => { markReady = resolve })
+  window.demoReady.then(() => { covered = false })
+  function whenDrawn(imgs, done) {
+    const shown = (img) => new Promise((resolve) => {
+      const wrap = img.closest('.tile-wrap')
+      if (!wrap.classList.contains('is-waiting')) return resolve()
+      new MutationObserver((_, mo) => { if (!wrap.classList.contains('is-waiting')) { mo.disconnect(); resolve() } }).observe(wrap, { attributeFilter: ['class'] })
+    })
+    Promise.race([Promise.all(imgs.map(shown)), new Promise((r) => setTimeout(r, READY_MAX))]).then(done)
+  }
+
   const tileLabel = (p, i) => [p.isNew ? 'New' : '', p.files[i].video ? 'Video' : '', p.title, p.site, p.files.length > 1 ? `${i + 1} of ${p.files.length}` : ''].filter(Boolean).join(' · ')
   const tileHTML = (p, copy = false, comment = false) => {
     const n = p.files.length
@@ -357,7 +409,7 @@
     const on = S.sel.has(p.id)
     const skip = copy ? ' tabindex="-1"' : ''
     const arrow = (d, ico, name) => `<button type="button" class="slide slide--${ico}" data-act="slide" data-arg="${p.id}:${d}" aria-label="${name}"${skip}>${icon(ico)}</button>`
-    return `<div ${copy ? 'aria-hidden="true" data-copy' : 'role="listitem"'} class="tile-wrap"><button type="button"${skip} class="tile${S.arriving.has(p.id) ? ' is-arriving' : ''}${on ? ' is-selected' : ''}" data-act="open" data-arg="${p.id}" data-tile="${p.id}" aria-label="${esc(label)}">
+    return `<div ${copy ? 'aria-hidden="true" data-copy' : 'role="listitem"'} class="tile-wrap${loaded.has(f.src) ? '' : ' is-waiting'}"><button type="button"${skip} class="tile${S.arriving.has(p.id) ? ' is-arriving' : ''}${on ? ' is-selected' : ''}" data-act="open" data-arg="${p.id}" data-tile="${p.id}" aria-label="${esc(label)}">
       <img src="${f.src}" alt="" width="${p.w}" height="${p.h}" style="aspect-ratio:${p.w}/${p.h}" loading="lazy" decoding="async" draggable="false" />${p.isNew ? '<span class="dot"></span>' : ''}
       ${f.video ? `<span class="vmark">${icon('play')}</span>` : ''}${n > 1 ? `<span class="place">${p.files.map((_, d) => `<i${d === i ? ' class="is-on"' : ''}></i>`).join('')}</span>` : ''}</button>
       <button type="button"${skip} class="tick${on ? ' is-on' : ''}" data-act="select" data-arg="${p.id}" aria-pressed="${on}" aria-label="Select ${esc(p.title)}">${icon('check')}</button>
@@ -677,6 +729,8 @@
     panel.dataset.key = key
     panel.querySelectorAll('[data-scroll]').forEach((el, i) => { if (scrolls[i]) el.scrollTop = scrolls[i] })
     setupLoop(fresh)
+    const imgs = inViewPictures()
+    if (markReady) { whenDrawn(imgs, markReady); markReady = undefined }
     $('[data-brief]', panel)?.querySelectorAll('textarea').forEach(grow)
     placeComment()
     renderOpen()
@@ -1331,6 +1385,7 @@
   if (!new URLSearchParams(location.search).has('nowalk')) window.Walkthrough?.({
     name: 'Anastasia',
     color: '#496aff',
+    start: 600, // from window.demoReady, when the site shows the live page: about half a second after it fades in
     // Each page's place in the tour; one that isn't in it sits after the one it's nearest
     where: () => {
       if (S.page === 'project') return S.project === 'p1' ? 3 : 3.5
