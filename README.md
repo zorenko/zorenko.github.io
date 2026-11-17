@@ -10,6 +10,7 @@ The previous portfolio (2016–2021) lives in [zorenko/portfolio-2021](https://g
 npm install
 npm run dev      # http://localhost:3000
 npm run build    # writes the static site to out/
+npm run test:perf  # performance tests: load speed, smooth frames, a quiet page at rest (tests/perf/README.md)
 ```
 
 ## Where things live

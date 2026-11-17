@@ -33,7 +33,7 @@ function pickMode(): Mode {
   return "tour";
 }
 
-export function Demo({ demo, className = "", inert, tabIndex, deferred }: {
+export function Demo({ demo, className = "", inert, tabIndex, deferred, priority }: {
   demo: DemoMedia;
   /** The box's look: the carousel passes its card style, a project page its own */
   className?: string;
@@ -42,6 +42,8 @@ export function Demo({ demo, className = "", inert, tabIndex, deferred }: {
   tabIndex?: number;
   /** The live demo waits until the frame gets data-wake (the carousel sets it) */
   deferred?: boolean;
+  /** The page's main picture (the carousel's first card): its still loads at once, ahead of the rest */
+  priority?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -140,7 +142,8 @@ export function Demo({ demo, className = "", inert, tabIndex, deferred }: {
         width={demo.width}
         height={demo.height}
         alt={demo.title}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : undefined}
         decoding="async"
         draggable={false}
       />

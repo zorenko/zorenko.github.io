@@ -815,7 +815,9 @@ html:not([data-xp-view="canvas"]) .q-cv-hint { display: none; }
 .q-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* Entrance: whole sections, 70ms apart */
-@keyframes q-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+/* From 0.01, not 0: text that starts fully transparent is painted while invisible, and as the fade runs on the GPU
+   Chrome never sees it appear, so it reports no first paint for the page (tests/perf/README.md). 0.01 looks the same */
+@keyframes q-in { from { opacity: 0.01; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 [data-enter] { animation: q-in 650ms var(--q-ease) both; animation-delay: calc(50ms + var(--i, 0) * 70ms); }
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 700ms var(--q-ease), transform 700ms var(--q-ease); }
 .reveal.in-view { opacity: 1; transform: none; }

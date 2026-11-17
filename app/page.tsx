@@ -40,7 +40,7 @@ export default function Home() {
           </CopyEmail>
         </div>
 
-        <p>Digital designer with 10 years of experience in product development. Helping companies with product, brand and design engineering through the full scope of design work from problem definition to shipping final solutions. Previously, part of Celsia, Cognite, Yandex Cloud and <Link href="/about/">other teams</Link>. Based in Oslo.</p>
+        <p>Designer with 10 years of experience in product development. Helping companies with product, brand and design engineering through the full scope of design work from problem definition to shipping final solutions. Previously, part of Celsia, Cognite, Yandex and <Link href="/about/">other teams</Link>. Based in Oslo.</p>
       </header>
 
       {/* The carousel names itself ("Work") for screen readers, so no visible title */}
