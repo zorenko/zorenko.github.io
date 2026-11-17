@@ -191,16 +191,18 @@ function Slides({ media: { slides, browser }, alt, copy }: { media: SlidesMedia;
   return <Browser background={browser.background} url={slides[at].url ?? ""} around={arrows}>{pictures}</Browser>;
 }
 
-function Media({ item, copy }: { item: WorkItem; copy: boolean }) {
+// `first`: the card in the middle when the page opens, whose picture is the page's main one: it loads at once, ahead of
+// the rest, rather than lazily once the page has laid out
+function Media({ item, copy, first }: { item: WorkItem; copy: boolean; first: boolean }) {
   const { media } = item;
   // Inert until it's in the middle (setActive below switches it)
   // Its live demo waits until the card is in the middle (wakeMiddle below)
-  if (media.type === "demo") return <Demo demo={media} className="q-car-media" inert deferred tabIndex={copy ? -1 : undefined} />;
+  if (media.type === "demo") return <Demo demo={media} className="q-car-media" inert deferred priority={first} tabIndex={copy ? -1 : undefined} />;
   return (
     <div className="q-car-media">
       {media.type === "image" ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={media.src} alt={media.alt} loading="lazy" decoding="async" draggable={false} />
+        <img src={media.src} alt={media.alt} loading={first ? "eager" : "lazy"} fetchPriority={first ? "high" : undefined} decoding="async" draggable={false} />
       ) : media.type === "slides" ? (
         <Slides media={media} alt={media.alt} copy={copy} />
       ) : (
@@ -293,6 +295,9 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     let announce = false; // only after someone moves it
     let unseen = false; // not yet on screen: every card hidden until it turns over
     let turning: Animation[] = []; // the turn, playing
+    // The middle card's demo stays inert (and its walkthrough waiting) until that card has turned over: it loads
+    // meanwhile (intro below), so its walkthrough starts as the card settles rather than after the outer cards do
+    let holdMiddle = false;
 
     const sides = () => (wide ? 2 : 1);
     const indexAt = (pos: number) => Math.round(pos / step);
@@ -351,7 +356,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       active = i;
       if (i < 0) return;
       els[i].classList.add("is-active");
-      if (frames[i]) frames[i]!.inert = false;
+      if (frames[i]) frames[i]!.inert = holdMiddle;
       if (announce && liveRef.current) liveRef.current.textContent = `${items[i % n].title}, ${(i % n) + 1} of ${n}`;
     }
 
@@ -475,15 +480,20 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       const anims = turning;
       turning = [];
       anims.forEach((a) => a.cancel()); // the cards' own styles are already where the turn ends
+      releaseMiddle();
       busy = false;
       render(true);
       wakeMiddle();
     }
 
-    // A live demo starts only in the middle card, once the carousel is still: each is a whole page on this main
-    // thread, so starting the side ones too would stall the middle demo's walkthrough cursor. A side card's still is
-    // what it shows anyway: shrunk, and not usable
+    // A live demo starts only in the middle card, once the carousel is still (on first view, as the cards start to
+    // turn: intro below): each is a whole page on this main thread, so starting the side ones too would stall the
+    // middle demo's walkthrough cursor. A side card's still is what it shows anyway: shrunk, and not usable
     const wake = (i: number) => frames[i] && !frames[i]!.hasAttribute("data-wake") && frames[i]!.setAttribute("data-wake", "");
+    function releaseMiddle() {
+      holdMiddle = false;
+      if (active >= 0 && frames[active]) frames[active]!.inert = false;
+    }
     function wakeMiddle() {
       if (busy || frame || active < 0) return;
       wake(active);
@@ -707,20 +717,30 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
         const delay = Math.round(t) * FLIP_STAGGER;
         anims.push(
           card.animate([{ transform: edgeOn }, { transform: rest }], { duration: FLIP_MS, delay, easing, fill: "backwards" }),
-          // Fades in over the start of the turn, so no edge shows
-          card.animate([{ opacity: 0 }, { opacity: card.style.opacity || 1 }], { duration: FLIP_MS * FLIP_FADE, delay, fill: "backwards" }),
+          // Fades in over the start of the turn, so no edge shows. From 0.01, not 0, as with the text (app/site.css,
+          // q-in): a picture painted fully transparent isn't seen by Chrome when it appears, so it isn't the page's
+          // largest paint
+          card.animate([{ opacity: 0.01 }, { opacity: card.style.opacity || 1 }], { duration: FLIP_MS * FLIP_FADE, delay, fill: "backwards" }),
         );
       });
       turning = anims;
+      // The middle card first (no delay): its demo goes live as soon as it has turned
+      const own = active >= 0 ? anims.find((a) => (a.effect as KeyframeEffect).target === els[active]) : undefined;
+      (own?.finished ?? Promise.resolve()).then(() => turning === anims && releaseMiddle(), () => {});
       Promise.all(anims.map((a) => a.finished)).then(() => {
         if (turning !== anims) return; // ended early by a click or key
         turning = [];
         busy = false;
+        releaseMiddle();
         render(true);
         wakeMiddle();
       }, () => {});
     }
     function intro() {
+      // The middle card's demo starts now, loading while the cards turn: the turn runs as Web Animations, off the main
+      // thread, so the demo doesn't hold it up, and its walkthrough is ready to start as the card settles. The other
+      // cards still wait, as below
+      if (active >= 0) wake(active);
       // Pictures on screen are decoded first, so none turns over blank (waiting at most FLIP_WAIT_MS)
       const decoded: Promise<unknown>[] = [];
       for (let k = -sides(); k <= sides(); k++) {
@@ -744,6 +764,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     if (!reduce) {
       busy = true;
       unseen = true;
+      holdMiddle = matchMedia("(pointer: fine)").matches; // live demos (demo.tsx); a phone's recording plays as before
       seen = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting) return;
@@ -803,7 +824,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
             aria-label={copy ? undefined : `${item.title}, ${i + 1} of ${items.length}`}
             aria-hidden={copy || undefined}
           >
-            <Media item={item} copy={copy} />
+            <Media item={item} copy={copy} first={i === 0} />
             <div className="q-car-info">
               <Title item={item} copy={copy} />
               <p className="q-car-desc">{item.description}</p>

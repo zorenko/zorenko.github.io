@@ -11,7 +11,7 @@ const EXPERIENCE: { role: string; company: string; short?: string; icon?: Compan
   { role: "Design Manager (VP)", company: "ISS-Corporate", short: "ISS-C", icon: "iss-corporate", site: "https://www.iss-corporate.com/", year: 2024 },
   { role: "Design Lead", company: "Celsia", icon: "celsia", note: "now ISS-Corporate", site: "https://celsia.io/", year: 2022 },
   { role: "Product Designer", company: "Cognite", icon: "cognite", site: "https://www.cognite.com/", year: 2020 },
-  { role: "Product Designer", company: "Yandex Cloud", icon: "yandex-cloud", site: "https://yandex.cloud/en", year: 2019 },
+  { role: "Product Designer", company: "Yandex", icon: "yandex-cloud", site: "https://yandex.cloud/en", year: 2019 },
   { role: "UX/UI Designer", company: "Nexign", icon: "nexign", site: "https://nexign.com/en", year: 2018 },
   { role: "UX/UI Designer", company: "Kaspersky", icon: "kaspersky", site: "https://www.kaspersky.com/", year: 2017 },
   { role: "UX/UI Designer", company: "Freelance", year: 2015 },
