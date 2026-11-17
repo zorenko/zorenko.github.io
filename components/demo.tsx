@@ -20,6 +20,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { WorkMedia } from "@/content/work";
 import { afterPaint, cssVars, prefersReducedMotion } from "@/lib/dom";
+import { EVENTS, track } from "@/lib/track";
 import { Browser } from "./browser";
 
 export type DemoMedia = Extract<WorkMedia, { type: "demo" }>;
@@ -97,6 +98,32 @@ export function Demo({ demo, className = "", inert, tabIndex, deferred, priority
       cancel();
     };
   }, [mode, awake]);
+
+  // A visitor's first press inside the live demo, once per page view (Umami, lib/track.ts). The demo is same-origin, so
+  // its document can be listened to; isTrusted leaves out the walkthrough cursor's own clicks.
+  useEffect(() => {
+    if (mode !== "live" || !awake) return;
+    const iframe = iframeRef.current!;
+    const name = dir.split("/").filter(Boolean).pop() ?? demo.src;
+    let doc: Document | null = null;
+    const used = (e: Event) => {
+      if (!e.isTrusted) return;
+      track(EVENTS.demo, { demo: name, where: deferred ? "home" : "project page" });
+      detach();
+    };
+    const detach = () => doc?.removeEventListener("pointerdown", used, true);
+    const attach = () => {
+      detach();
+      doc = iframe.contentDocument;
+      doc?.addEventListener("pointerdown", used, true);
+    };
+    if (iframe.contentDocument?.readyState === "complete" && iframe.contentWindow?.location.href !== "about:blank") attach();
+    iframe.addEventListener("load", attach);
+    return () => {
+      iframe.removeEventListener("load", attach);
+      detach();
+    };
+  }, [mode, awake, dir, demo.src, deferred]);
 
   // The recording: plays while it's on screen and, in the carousel, its card is in the middle (its frame isn't inert)
   useEffect(() => {

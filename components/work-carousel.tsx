@@ -21,13 +21,14 @@
 
 import Link from "next/link";
 import { isShown } from "@/lib/flags";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import type { WorkItem } from "@/content/work";
 import { Browser } from "./browser";
 import { Company } from "./company";
 import { Demo } from "./demo";
 import { YouCursor } from "./you-cursor";
 import { prefersReducedMotion } from "@/lib/dom";
+import { EVENTS, track } from "@/lib/track";
 
 // Spring snap: pulled toward where it's heading, overshooting a little and settling
 const SPRING_STIFF = 0.025; // per 60fps frame
@@ -229,6 +230,9 @@ function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
   const when = <>{" "}<span className="q-car-year">· {year}</span></>;
   const text = <TitleText item={item} />;
   const props = { tabIndex: copy ? -1 : undefined };
+  // Which card's title was clicked, or middle-clicked (Umami, lib/track.ts); a link that leaves the site also counts as
+  // an outside link (components/analytics.tsx)
+  const opened = (e: ReactMouseEvent) => e.button !== 2 && track(EVENTS.project, { project: item.id });
   // A link into a section switched off in lib/flags.ts (the project pages) doesn't show: then each name links to its
   // own site, in a new tab, or is plain text
   if (!href || !isShown(href)) {
@@ -237,7 +241,7 @@ function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
         {names(item).map(({ name, icon, site }, i) => (
           <span key={name}>
             {i > 0 && ", "}
-            {site ? <a {...props} href={site} target="_blank" rel="noopener"><Company id={icon}>{name}</Company></a> : <Company id={icon}>{name}</Company>}
+            {site ? <a {...props} href={site} target="_blank" rel="noopener" onClick={opened} onAuxClick={opened}><Company id={icon}>{name}</Company></a> : <Company id={icon}>{name}</Company>}
           </span>
         ))}
         {when}
@@ -247,9 +251,9 @@ function Title({ item, copy }: { item: WorkItem; copy: boolean }) {
   return (
     <h3 className="q-car-title">
       {isExternal(href) ? (
-        <a {...props} href={href} target="_blank" rel="noopener">{text}</a>
+        <a {...props} href={href} target="_blank" rel="noopener" onClick={opened} onAuxClick={opened}>{text}</a>
       ) : (
-        <Link {...props} href={href}>{text}</Link>
+        <Link {...props} href={href} onClick={opened} onAuxClick={opened}>{text}</Link>
       )}
       {when}
     </h3>

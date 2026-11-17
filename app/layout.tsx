@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Faculty_Glyphic, Geist } from "next/font/google";
+import { Analytics } from "@/components/analytics";
 import { Consent } from "@/components/consent";
 import { Dock } from "@/components/dock";
-import { GTM_ID, NAME, OG_IMAGE, SITE_URL } from "@/lib/site";
+import { GTM_ID, NAME, OG_IMAGE, SITE_URL, UMAMI_ID } from "@/lib/site";
 import "./globals.css";
 
 // Self-hosted by next/font under their own names, which site.css uses directly ("Geist", "Faculty Glyphic").
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Dock />
         {/* Asks before loading Google Tag Manager (and the Google Analytics inside it). Only the published site reports visits; `npm run dev` shows the banner but sends nothing. */}
         {GTM_ID && <Consent gtmId={GTM_ID} load={process.env.NODE_ENV === "production"} />}
+        {UMAMI_ID && process.env.NODE_ENV === "production" && <Analytics websiteId={UMAMI_ID} domain={new URL(SITE_URL).hostname} />}
       </body>
     </html>
   );
