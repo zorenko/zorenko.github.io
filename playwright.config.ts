@@ -12,7 +12,7 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = 4173;
 const gpu = process.platform === "darwin" ? ["--use-gl=angle", "--use-angle=metal", "--enable-gpu-rasterization", "--ignore-gpu-blocklist"] : [];
 // Analytics never loads in a test (it would count the runs as visits); everything else does, Google Fonts included
-const noAnalytics = "--host-resolver-rules=MAP *googletagmanager.com ~NOTFOUND, MAP *google-analytics.com ~NOTFOUND, MAP *doubleclick.net ~NOTFOUND";
+const noAnalytics = "--host-resolver-rules=MAP *googletagmanager.com ~NOTFOUND, MAP *google-analytics.com ~NOTFOUND, MAP *doubleclick.net ~NOTFOUND, MAP cloud.umami.is ~NOTFOUND";
 
 export default defineConfig({
   testDir: "tests/perf",

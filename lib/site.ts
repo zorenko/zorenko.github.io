@@ -5,6 +5,8 @@ export const LINKEDIN = "https://www.linkedin.com/in/anastasiazorenko/";
 export const OG_IMAGE = "/assets/img/work/celsia-slide-01.jpg";
 /** Google Tag Manager container ID ("GTM-…"); Google Analytics is set up inside the container. Empty turns analytics and the cookie banner off. */
 export const GTM_ID = "GTM-PJ7ZHZNP";
+/** Umami website ID: cookieless visit counts (no banner needed), on cloud.umami.is. Empty turns it off. */
+export const UMAMI_ID = "0e92a6ff-3527-45ec-acb2-7144cac050f8";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const toDate = (iso: string) => new Date(`${iso}T12:00:00`);

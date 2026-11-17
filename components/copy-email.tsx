@@ -6,6 +6,7 @@
 import { useRef, useState, type ReactNode } from "react";
 import { copyText } from "@/lib/dom";
 import { EMAIL } from "@/lib/site";
+import { EVENTS, track } from "@/lib/track";
 
 const FADE = 200; // a little over the tooltip's 180ms fade in app/site.css (.q-tip)
 
@@ -20,6 +21,7 @@ export function CopyEmail({ className, label, children }: { className: string; l
       aria-label={label}
       onClick={async () => {
         const ok = await copyText(EMAIL);
+        track(EVENTS.email, { from: location.pathname });
         clearTimeout(timer.current);
         setTip(ok ? "Email copied" : EMAIL);
         setShown(true);

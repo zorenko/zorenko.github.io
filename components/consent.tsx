@@ -11,6 +11,7 @@
 import { GoogleTagManager } from "@next/third-parties/google";
 import { useEffect, useRef, useState } from "react";
 import { prefersReducedMotion } from "@/lib/dom";
+import { EVENTS, track } from "@/lib/track";
 
 const KEY = "q-analytics";
 const OPEN_EVENT = "q-analytics-open";
@@ -128,6 +129,8 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
   }, [expanded, menu]);
 
   const decide = (next: Choice) => {
+    // Counted in Umami (cookieless, so it needs no consent), to compare against its visitors: how many ever say yes
+    track(next === "granted" ? EVENTS.cookiesAllowed : EVENTS.cookiesDeclined, { via: choice === null ? "first ask" : "cookie settings", screen: chipRef.current?.getClientRects().length ? "narrow" : "wide" });
     try {
       localStorage.setItem(KEY, next);
     } catch {}
@@ -157,6 +160,7 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
           aria-controls="q-consent"
           onClick={(e) => {
             const next = !expanded;
+            if (next) track(EVENTS.cookieQuestionOpened); // narrow screens: the question waits behind this icon
             setExpanded(next);
             setMenu(false);
             if (next && e.detail === 0) requestAnimationFrame(() => allowRef.current?.focus({ preventScroll: true }));
