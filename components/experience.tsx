@@ -7,7 +7,7 @@ import { Company, type CompanyId } from "./company";
 // site, opened in a new tab, the way the work carousel's titles link.
 // On small screens `short` stands in for the name and the note is dropped (app/site.css, .q-xp-full / .q-xp-short)
 const EXPERIENCE: { role: string; company: string; short?: string; icon?: CompanyId; site?: string; note?: string; year: number }[] = [
-  { role: "Independent Designer", company: "Sanna", icon: "sanna", site: "https://www.sanna.no/", year: 2026 },
+  { role: "Design Engineer", company: "Sanna", icon: "sanna", site: "https://www.sanna.no/", year: 2026 },
   { role: "Design Manager (VP)", company: "ISS-Corporate", short: "ISS-C", icon: "iss-corporate", site: "https://www.iss-corporate.com/", year: 2024 },
   { role: "Design Lead", company: "Celsia", icon: "celsia", note: "now ISS-Corporate", site: "https://celsia.io/", year: 2022 },
   { role: "Product Designer", company: "Cognite", icon: "cognite", site: "https://www.cognite.com/", year: 2020 },
