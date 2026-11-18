@@ -16,7 +16,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
-import { extname, join } from "node:path";
+import { extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -38,14 +38,17 @@ const demos = WORK.filter((w) => w.media.type === "demo")
 // public/, served as the site serves it
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".json": "application/json", ".woff2": "font/woff2", ".mp4": "video/mp4" };
 const server = createServer(async (req, res) => {
-  const path = decodeURIComponent(new URL(req.url, "http://x").pathname);
   try {
-    const body = await readFile(join(PUBLIC, path.endsWith("/") ? path + "index.html" : path));
+    const path = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    const file = resolve(PUBLIC, `.${path.endsWith("/") ? path + "index.html" : path}`);
+    const fromPublic = relative(PUBLIC, file);
+    if (fromPublic === ".." || fromPublic.startsWith(`..${sep}`) || isAbsolute(fromPublic)) throw new Error("Path outside public");
+    const body = await readFile(file);
     res.writeHead(200, { "content-type": TYPES[extname(path)] ?? "application/octet-stream" }).end(body);
   } catch {
     res.writeHead(404).end();
   }
-}).listen(0);
+}).listen(0, "127.0.0.1");
 const origin = `http://localhost:${server.address().port}`;
 
 const browser = await chromium.launch();
