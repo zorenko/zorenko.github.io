@@ -1018,28 +1018,25 @@ html.q-dark {
 
 .q-dock-list--more { margin-top: 8px !important; padding-top: 8px; border-top: 1px solid var(--dock-hairline); }
 
-/* Analytics consent (components/consent.tsx): a one-line glass pill, the same height and glass as the dock,
-   level with it in the bottom left corner, and shrinking with it on scroll (html[data-dock-mini], set by the dock).
-   The answer is a split button: Allow, and a chevron that opens a small menu with Decline.
-   Where there isn't room beside the dock, it folds into a cookie icon in the bottom left corner (mirroring the
-   theme switch on the right), and tapping the icon opens the pill above it. */
+/* Analytics consent (components/consent.tsx): the question waits behind a cookie icon in the bottom left corner
+   (mirroring the theme switch on the right), shrinking with the dock on scroll (html[data-dock-mini], set by the
+   dock). Tapping the icon opens a one-line glass pill above it, the same height and glass as the dock.
+   The answer is a split button: Allow, and a chevron that opens a small menu with Decline. */
 .q-consent {
   position: fixed;
   left: calc(env(safe-area-inset-left, 0px) + 24px);
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); /* above the icon, left-aligned with it */
   z-index: 101; /* above the dock */
   display: flex;
   align-items: center;
-  max-width: calc(100vw - 32px);
+  max-width: calc(100vw - 48px);
   height: calc(var(--dock-button) + var(--dock-inset) * 2); /* the dock's height */
   padding: 0 8px 0 18px; /* 8px on the right, matching the space above and below the button */
   color: var(--dock-fg);
   transform-origin: 0 100%;
-  scale: 1;
-  transition: scale 340ms cubic-bezier(0.32, 0.72, 0, 1), translate 340ms cubic-bezier(0.32, 0.72, 0, 1);
-  animation: q-dock-rise 620ms cubic-bezier(0.2, 1.22, 0.32, 1) 400ms backwards;
+  animation: q-consent-menu-in 260ms cubic-bezier(0.34, 1.3, 0.64, 1) backwards; /* not "both", so the glass keeps its blur */
 }
-html[data-dock-mini] .q-consent:not([data-open]) { scale: 0.7; transition-duration: 420ms; transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+.q-consent:not([data-expanded]) { display: none; }
 .q-consent[data-open] .q-dock-bg { background: var(--dock-glass-thick); }
 .v-quiet .q-consent-text { position: relative; margin-right: 16px; font-size: 13px; font-weight: 400; line-height: 20px; color: var(--q-text); /* the main text colour */ white-space: nowrap; }
 .q-consent-actions { position: relative; display: flex; align-items: center; gap: 1px; }
@@ -1092,46 +1089,32 @@ html[data-dock-mini] .q-consent:not([data-open]) { scale: 0.7; transition-durati
 .v-quiet .q-consent-row:hover { color: var(--dock-fg); }
 .q-consent-row:active { scale: 0.96; }
 .v-quiet .q-consent-row:focus-visible { outline: 2px solid var(--dock-fg); outline-offset: -3px; }
-/* The icon: a one-button island like the theme switch, only shown on narrow screens */
-.q-consent-chip { display: none; }
-@media (max-width: 1000px) {
-  .v-quiet .q-consent-chip {
-    all: unset;
-    position: fixed;
-    left: calc(env(safe-area-inset-left, 0px) + 24px);
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
-    z-index: 99;
-    display: grid;
-    place-items: center;
-    width: calc(var(--dock-button) + var(--dock-inset) * 2);
-    height: calc(var(--dock-button) + var(--dock-inset) * 2);
-    color: var(--dock-fg);
-    cursor: pointer;
-    transform-origin: 0 100%;
-    scale: 1;
-    transition: scale 340ms cubic-bezier(0.32, 0.72, 0, 1);
-    animation: q-dock-rise 620ms cubic-bezier(0.2, 1.22, 0.32, 1) 400ms backwards;
-  }
-  .q-consent-chip .q-dock-glyph { position: relative; z-index: 1; }
-  .q-consent-chip[aria-expanded="true"] .q-dock-bg { background: var(--dock-glass-thick); }
-  .q-consent-chip:active { scale: 0.95; transition-duration: 100ms; }
-  .v-quiet .q-consent-chip:focus-visible { outline: 2px solid var(--dock-fg); outline-offset: -3px; border-radius: 999px; }
-  html[data-dock-mini] .q-consent-chip[aria-expanded="false"] { scale: 0.7; transition: scale 420ms cubic-bezier(0.65, 0, 0.35, 1); }
-
-  /* The pill opens above the icon, left-aligned with it */
-  .q-consent:not([data-expanded]) { display: none; }
-  .q-consent {
-    left: calc(env(safe-area-inset-left, 0px) + 24px);
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
-    max-width: calc(100vw - 48px);
-    transform-origin: 0 100%;
-    animation: q-consent-menu-in 260ms cubic-bezier(0.34, 1.3, 0.64, 1) backwards; /* not "both", so the glass keeps its blur */
-  }
-  html[data-dock-mini] .q-consent:not([data-open]) { scale: 1; }
-  /* Folding back toward the icon: the way it opened, in reverse (the fade is on the children, as above) */
-  .v-quiet .q-consent[data-leaving="fold"] { animation: q-consent-fold 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
-  .v-quiet .q-consent[data-leaving="fold"] > * { animation: q-consent-fade 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+/* The icon: a one-button island like the theme switch */
+.v-quiet .q-consent-chip {
+  all: unset;
+  position: fixed;
+  left: calc(env(safe-area-inset-left, 0px) + 24px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  z-index: 99;
+  display: grid;
+  place-items: center;
+  width: calc(var(--dock-button) + var(--dock-inset) * 2);
+  height: calc(var(--dock-button) + var(--dock-inset) * 2);
+  color: var(--dock-fg);
+  cursor: pointer;
+  transform-origin: 0 100%;
+  scale: 1;
+  transition: scale 340ms cubic-bezier(0.32, 0.72, 0, 1);
+  animation: q-dock-rise 620ms cubic-bezier(0.2, 1.22, 0.32, 1) 400ms backwards;
 }
+.q-consent-chip .q-dock-glyph { position: relative; z-index: 1; }
+.q-consent-chip[aria-expanded="true"] .q-dock-bg { background: var(--dock-glass-thick); }
+.q-consent-chip:active { scale: 0.95; transition-duration: 100ms; }
+.v-quiet .q-consent-chip:focus-visible { outline: 2px solid var(--dock-fg); outline-offset: -3px; border-radius: 999px; }
+html[data-dock-mini] .q-consent-chip[aria-expanded="false"] { scale: 0.7; transition: scale 420ms cubic-bezier(0.65, 0, 0.35, 1); }
+/* Folding back toward the icon: the way it opened, in reverse (the fade is on the children, as above) */
+.v-quiet .q-consent[data-leaving="fold"] { animation: q-consent-fold 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+.v-quiet .q-consent[data-leaving="fold"] > * { animation: q-consent-fade 160ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 @media (max-width: 360px) {
   .v-quiet .q-consent-text { white-space: normal; }
 }

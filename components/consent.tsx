@@ -5,8 +5,8 @@
    visitor picks Allow. The choice is kept in localStorage ("q-analytics": "granted" or "denied").
    <CookieSettings /> reopens the island to change it. Rendered once in the root layout, only when GTM_ID in
    lib/site.ts is set.
-   On narrow screens the question waits behind a cookie icon in the bottom left corner (matching the theme switch
-   on the right), so it doesn't sit over the page; tapping the icon opens the pill above it. */
+   The question waits behind a cookie icon in the bottom left corner (matching the theme switch on the right), so
+   it doesn't sit over the page; tapping the icon opens the pill above it. */
 
 import { GoogleTagManager } from "@next/third-parties/google";
 import { useEffect, useRef, useState } from "react";
@@ -59,15 +59,15 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
   const [choice, setChoice] = useState<Choice | null>(null);
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false); // the chevron's menu holding Decline
-  const [expanded, setExpanded] = useState(false); // narrow screens: the pill is shown, not just the icon
+  const [expanded, setExpanded] = useState(false); // the pill is shown, not just the icon
   const rootRef = useRef<HTMLElement>(null);
   const chipRef = useRef<HTMLButtonElement>(null);
   const allowRef = useRef<HTMLButtonElement>(null);
   const moreRef = useRef<HTMLButtonElement>(null);
   const declineRef = useRef<HTMLButtonElement>(null);
   const viaKeyboard = useRef(false); // opened with Enter or Space: move focus into the menu
-  // Leaving: after a choice the island sinks back out of the bottom edge it rose from; on narrow screens the pill
-  // folds back toward the icon, and the menu fades back into the chevron
+  // Leaving: after a choice the island sinks back out of the bottom edge it rose from; the pill folds back toward
+  // the icon, and the menu fades back into the chevron
   const island = usePresence(open, 240);
   const pill = usePresence(expanded, 160);
   const menuP = usePresence(menu, 160);
@@ -108,7 +108,7 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
     };
   }, [menu]);
 
-  // Narrow screens: once open, the pill folds back into the icon on a tap outside or Escape
+  // Once open, the pill folds back into the icon on a tap outside or Escape
   useEffect(() => {
     if (!expanded || menu) return;
     const onPointerDown = (e: PointerEvent) => {
@@ -116,7 +116,7 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
       if (!rootRef.current?.contains(t) && !chipRef.current?.contains(t)) setExpanded(false);
     };
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Escape" || !chipRef.current?.getClientRects().length) return;
+      if (e.key !== "Escape") return;
       setExpanded(false);
       chipRef.current!.focus({ preventScroll: true });
     };
@@ -130,7 +130,7 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
 
   const decide = (next: Choice) => {
     // Counted in Umami (cookieless, so it needs no consent), to compare against its visitors: how many ever say yes
-    track(next === "granted" ? EVENTS.cookiesAllowed : EVENTS.cookiesDeclined, { via: choice === null ? "first ask" : "cookie settings", screen: chipRef.current?.getClientRects().length ? "narrow" : "wide" });
+    track(next === "granted" ? EVENTS.cookiesAllowed : EVENTS.cookiesDeclined, { via: choice === null ? "first ask" : "cookie settings", screen: innerWidth <= 1000 ? "narrow" : "wide" });
     try {
       localStorage.setItem(KEY, next);
     } catch {}
@@ -160,7 +160,7 @@ export function Consent({ gtmId, load }: { gtmId: string; load: boolean }) {
           aria-controls="q-consent"
           onClick={(e) => {
             const next = !expanded;
-            if (next) track(EVENTS.cookieQuestionOpened); // narrow screens: the question waits behind this icon
+            if (next) track(EVENTS.cookieQuestionOpened); // the question waits behind this icon
             setExpanded(next);
             setMenu(false);
             if (next && e.detail === 0) requestAnimationFrame(() => allowRef.current?.focus({ preventScroll: true }));
