@@ -108,7 +108,7 @@ export const WORK: WorkItem[] = [
     },
   },
   {
-    id: "earlier-work",
+    id: "devtools",
     title: "Yandex, Cognite",
     icons: ["yandex-cloud", "cognite"],
     sites: ["https://yandex.cloud/en", "https://www.cognite.com/"],

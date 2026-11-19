@@ -17,7 +17,11 @@
    Every card is placed with a transform each frame. A card sliding off one end comes back round the other, so the
    row never ends; short lists are repeated to fill it (repeats are hidden from screen readers). A live demo (an
    iframe) can only be used in the middle: elsewhere it's inert, so clicks land on the card instead. A slideshow
-   plays wherever its card is on screen, and its arrows work only in the middle. */
+   plays wherever its card is on screen, and its arrows work only in the middle.
+
+   Each card has a link of its own, its id in content/work.ts: /#sanna opens the page at the carousel with that card in
+   the middle. Once someone moves the carousel, the address bar follows the card that comes to rest in the middle, so
+   the address can be copied and sent as it is. */
 
 import Link from "next/link";
 import { isShown } from "@/lib/flags";
@@ -302,6 +306,9 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     // The middle card's demo stays inert (and its walkthrough waiting) until that card has turned over: it loads
     // meanwhile (intro below), so its walkthrough starts as the card settles rather than after the outer cards do
     let holdMiddle = false;
+    // A link to a card (/#sanna): it starts in the middle. Its anchor (below) has already scrolled the page to it
+    const fromHash = () => items.findIndex((item) => `#${item.id}` === decodeURIComponent(location.hash));
+    const start = Math.max(fromHash(), 0);
 
     const sides = () => (wide ? 2 : 1);
     const indexAt = (pos: number) => Math.round(pos / step);
@@ -377,7 +384,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       if (was) {
         current = was.now * step;
         target = was.to * step;
-      }
+      } else current = target = centerOf(start);
       lastPos = current;
       return true;
     }
@@ -466,8 +473,29 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       render();
       frame = current === target && !lean ? 0 : requestAnimationFrame(tick);
       root.classList.toggle("is-still", !frame);
-      if (!frame) wakeMiddle();
+      if (!frame) {
+        wakeMiddle();
+        linkMiddle();
+      }
     }
+    // Once someone has moved it, the address bar shows the card at rest in the middle (only at rest: Safari stops
+    // pages that change the address too often)
+    function linkMiddle() {
+      if (!announce || active < 0) return;
+      const hash = `#${items[active % n].id}`;
+      if (location.hash !== hash) history.replaceState(history.state, "", hash);
+    }
+    // The hash changed on this page (a link to another card, or back and forward): that card comes to the middle,
+    // the nearest copy of it
+    const onHash = () => {
+      const j = fromHash();
+      if (j < 0 || !step) return;
+      let best = j;
+      els.forEach((_, i) => {
+        if (i % n === j && Math.abs(st[i].offset) < Math.abs(st[best].offset)) best = i;
+      });
+      if (Math.abs(st[best].offset) > 0.01) goTo(best);
+    };
     function run() {
       if (frame) return;
       root.classList.remove("is-still");
@@ -748,7 +776,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       // Pictures on screen are decoded first, so none turns over blank (waiting at most FLIP_WAIT_MS)
       const decoded: Promise<unknown>[] = [];
       for (let k = -sides(); k <= sides(); k++) {
-        const img = els[mod(k, els.length)].querySelector("img");
+        const img = els[mod(start + k, els.length)].querySelector("img");
         if (img) {
           img.loading = "eager";
           decoded.push(img.decode().catch(() => {}));
@@ -791,6 +819,7 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
     root.addEventListener("dragstart", onDragStart);
     document.addEventListener("keydown", onKey);
     root.addEventListener("focusin", onFocus);
+    addEventListener("hashchange", onHash);
     return () => {
       ro.disconnect();
       seen?.disconnect();
@@ -813,11 +842,15 @@ export function WorkCarousel({ items, label }: { items: WorkItem[]; label: strin
       root.removeEventListener("dragstart", onDragStart);
       document.removeEventListener("keydown", onKey);
       root.removeEventListener("focusin", onFocus);
+      removeEventListener("hashchange", onHash);
     };
   }, [items]);
 
   return (
     <section className="q-car" ref={rootRef} aria-roledescription="carousel" aria-label={label}>
+      {/* Each card's link (/#sanna): the browser scrolls the page here by itself, before the script has run, and the
+          script brings that card to the middle */}
+      {items.map(({ id }) => <span className="q-car-anchor" id={id} key={id} />)}
       <div className="q-car-track" ref={trackRef}>
         {cards.map(({ item, copy }, i) => (
           <div

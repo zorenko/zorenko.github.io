@@ -316,6 +316,8 @@ body.v-quiet { overflow-x: clip; } /* the carousel is 100vw wide, scrollbar incl
   perspective-origin: 50% calc(var(--car-w) * 348 / 1180); /* the middle of the pictures */
 }
 .q-car:not(.is-laid-out) .q-car-track { visibility: hidden; }
+/* Each card's link (/#sanna) lands here: the top of the carousel, with room above, as "All projects" does (q-sec--work) */
+.q-car-anchor { position: absolute; top: 0; left: 0; scroll-margin-top: 48px; }
 .q-car-card {
   grid-area: 1 / 1;
   min-width: 0;
