@@ -30,6 +30,7 @@ npm run test:perf  # performance tests: load speed, smooth frames, a quiet page 
 | Experiment pages | `app/experiments/[id]/page.tsx`, one per entry in `content/experiments.ts` |
 | Koi and Birds demo | `public/demos/koi-and-birds/index.html` (self-contained; its head comment lists the `?embed` options) |
 | Images | `public/assets/img/` (served at `/assets/img/…`) |
+| Addresses from the 2021 portfolio (`/jt.html` and the rest) | `public/<page>.html`: each forwards to the home page (the Yandex ones open on the Yandex, Cognite card), tagged `?utm_source=old-site` |
 | Analytics and the cookie banner | `GTM_ID` in `lib/site.ts` (Google Tag Manager, with Google Analytics set up inside the container; empty turns both off), the banner in `components/consent.tsx` |
 
 **Publish a post:** add an entry to `content/posts.ts` and write `content/blog/<slug>.mdx`. Tag it `"Tech stack"` to list it as a version on How I work, or give it `stack: ["product/design"]` to list it under that step.
